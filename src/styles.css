@@ -636,6 +636,35 @@ em { font-style: italic; }
 .final-title { display: grid; justify-items: center; }
 .final-title em { color: var(--gold); }
 
+/* ---------- 6m. Contact ---------- */
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2.5rem, 6vw, 7rem); align-items: start; }
+.contact-copy { display: grid; gap: 1.8rem; }
+.studio { border-top: 1px solid var(--line-light); padding-top: 1.4rem; display: grid; gap: 0.6rem; }
+.studio-name { font-family: var(--f-display); font-size: 1.6rem; }
+.demo-tag { display: inline-block; justify-self: start; font-size: 0.64rem; letter-spacing: 0.18em; text-transform: uppercase; padding: 0.3rem 0.6rem; border: 1px solid var(--line-light); color: var(--muted-on-light); }
+.studio dl { display: grid; gap: 0.4rem; margin-top: 0.4rem; }
+.studio dl div { display: grid; grid-template-columns: 5rem 1fr; }
+.studio dt { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted-on-light); padding-top: 0.2rem; }
+
+.contact-form { display: grid; gap: 1.6rem; }
+.field { display: grid; gap: 0.4rem; }
+.field label { font-size: 0.68rem; font-weight: 650; letter-spacing: 0.22em; text-transform: uppercase; }
+.field input, .field textarea, .newsletter input {
+  width: 100%;
+  font: inherit; font-size: 1.05rem; color: inherit;
+  background: transparent;
+  border: 0; border-bottom: 1px solid rgba(22, 21, 20, 0.35);
+  border-radius: 0;
+  padding: 0.7rem 0;
+  transition: border-color 0.4s;
+}
+.field textarea { resize: vertical; min-height: 7rem; }
+.field input:focus, .field textarea:focus { outline: none; border-bottom-color: var(--ink); box-shadow: 0 1px 0 0 var(--ink); }
+.field.has-error input, .field.has-error textarea { border-bottom-color: #a3263a; }
+.field-error { font-size: 0.82rem; color: #9b1f33; }
+.contact-form .btn { justify-self: start; }
+.form-status { font-size: 0.92rem; color: var(--muted-on-light); min-height: 1.5em; max-width: 34rem; }
+
 /* movement animations */
 .spin-slow { animation: spin 24s linear infinite; }
 .spin-rev { animation: spin 16s linear infinite reverse; }
