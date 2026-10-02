@@ -271,7 +271,8 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
   }
 
   let lastT = 0
-  function frame() {
+  // skipRender lets an offline renderer advance the scene without drawing every step
+  function frame(skipRender = false) {
     const t = clock.getElapsedTime()
     const dt = Math.min(0.05, t - lastT)
     lastT = t
@@ -298,7 +299,7 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
     points.visible = state.particles > 0.01
     points.rotation.z = t * 0.05
     points.rotation.x = Math.sin(t * 0.2) * 0.15
-    renderer.render(scene, camera)
+    if (!skipRender) renderer.render(scene, camera)
     onFrame?.()
   }
 
