@@ -463,3 +463,114 @@ svg [class*='spin'], svg .rotor, svg .balance { transform-box: view-box; }
 /* journal + craft photos keep the same zoom-on-hover as the illustrations */
 img.journal-art, img.craft-art { filter: saturate(0.85); }
 .jcard-media { background: var(--graphite); }
+
+/* =========================================================
+   CINEMA: fixed 3D stage behind the hero + scroll story
+   ========================================================= */
+.cinema { position: relative; background: var(--obsidian); }
+#main > section, .footer { position: relative; z-index: 2; }
+.cin-stage {
+  --lx: 62%; --ly: 42%;
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+.cin-stage.is-on { visibility: visible; }
+.cin-backdrop {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(40vmax 40vmax at var(--lx) var(--ly), rgba(201, 173, 124, 0.13), transparent 60%),
+    radial-gradient(70vmax 50vmax at 70% 110%, rgba(239, 233, 222, 0.06), transparent 60%),
+    linear-gradient(180deg, #0c0b0a 0%, #12110f 60%, #0c0b0a 100%);
+}
+.cin-backdrop::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(90deg, rgba(239, 233, 222, 0.045) 1px, transparent 1px);
+  background-size: 25% 100%;
+  background-position: var(--gutter) 0;
+}
+.cin-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.2s var(--ease); }
+.cinema.is-3d .cin-canvas { opacity: 1; }
+
+/* giant type behind the watch */
+.cin-type { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; }
+.gt {
+  grid-area: 1 / 1;
+  font-family: var(--f-display); font-weight: 400; line-height: 0.8; letter-spacing: -0.03em;
+  font-size: clamp(9rem, 30vw, 34rem);
+  color: rgba(239, 233, 222, 0.92);
+  white-space: nowrap; visibility: hidden;
+}
+.gt-a { color: transparent; -webkit-text-stroke: 1.5px rgba(239, 233, 222, 0.35); transform: translateX(14vw); }
+.gt-c { color: transparent; -webkit-text-stroke: 1.5px rgba(201, 173, 124, 0.45); }
+.gt-c2 { font-size: clamp(5rem, 19vw, 22rem); color: rgba(239, 233, 222, 0.1); }
+.gt-d { font-style: italic; transform: translateX(10vw); color: rgba(239, 233, 222, 0.9); }
+
+/* labels in the exploded view */
+.cin-labels { position: absolute; inset: 0; opacity: 0; }
+.cin-label { position: absolute; left: 0; top: 0; will-change: transform; }
+.cin-label-line { position: absolute; left: 0; width: 1px; height: 54px; background: linear-gradient(var(--gold), rgba(201, 173, 124, 0.1)); }
+.cin-label::before { content: ''; position: absolute; left: -3px; top: -3px; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px rgba(201, 173, 124, 0.18); }
+.cin-label.is-top .cin-label-line { bottom: 0; transform: scaleY(-1); transform-origin: top; top: -54px; }
+.cin-label.is-bottom .cin-label-line { top: 0; }
+.cin-label-text {
+  position: absolute; left: -2px; white-space: nowrap;
+  font-size: 0.66rem; font-weight: 650; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ivory);
+}
+.cin-label.is-top .cin-label-text { bottom: 62px; }
+.cin-label.is-bottom .cin-label-text { top: 62px; }
+.cin-label-text em { font-style: normal; color: var(--gold); margin-right: 0.4rem; }
+
+/* hero over the stage */
+.hero--cinema { background: transparent; }
+.hero--cinema .hero-copy { max-width: 46rem; }
+
+/* pinned story text over the stage */
+.cs { position: relative; z-index: 2; }
+.cs-pin {
+  position: relative; height: 100vh; height: 100svh;
+  padding: calc(var(--nav-h) + 1rem) var(--gutter) clamp(2rem, 6vh, 4rem);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto 1fr auto;
+}
+.cs-hud { grid-column: 1; grid-row: 1; display: grid; gap: 0.35rem; align-self: start; width: max-content; padding-top: 1rem; }
+.cs-hud div { display: grid; grid-template-columns: 6.5rem auto; gap: 1rem; font-size: 0.64rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(239, 233, 222, 0.3); transition: color 0.6s; }
+.cs-hud div.is-on { color: var(--ivory); }
+.cs-hud div.is-on dt { color: var(--gold); }
+.cs-hud dd { font-variant-numeric: tabular-nums; }
+
+.cs-text { grid-column: 1; grid-row: 3; position: relative; height: clamp(13rem, 30vh, 17rem); max-width: 34rem; }
+.cs-step { position: absolute; inset: 0; display: grid; align-content: end; gap: 0.9rem; }
+.cs-title { font-size: clamp(2.6rem, 6vw, 6rem); }
+.cs-copy { max-width: 24rem; color: var(--muted-on-dark); font-size: clamp(1rem, 1.25vw, 1.15rem); }
+.cs-progress { grid-column: 2; grid-row: 1 / -1; align-self: center; }
+
+.cs-extra {
+  position: absolute; right: var(--gutter); bottom: clamp(2rem, 6vh, 4rem);
+  max-width: 21rem; color: var(--muted-on-dark); font-size: 0.95rem; visibility: hidden;
+  border-top: 1px solid var(--line-dark); padding-top: 1rem;
+}
+.cs-extra strong { display: block; font-family: var(--f-display); font-weight: 400; font-size: clamp(1.8rem, 3vw, 2.8rem); line-height: 1.05; color: var(--ivory); margin-bottom: 0.4rem; }
+
+@media (max-width: 1100px) {
+  .cs-progress { display: none; }
+  .cs-pin { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 767px) {
+  .cs-hud { display: none; }
+  .cs-text { height: 13rem; }
+  .cs-text::before { content: ''; position: absolute; inset: -4rem calc(-1 * var(--gutter)) -3rem; background: linear-gradient(180deg, rgba(12, 11, 10, 0), rgba(12, 11, 10, 0.88) 45%); z-index: -1; }
+  .cs-extra { left: var(--gutter); right: var(--gutter); top: calc(var(--nav-h) + 0.5rem); bottom: auto; max-width: none; border-top: 0; padding-top: 0; font-size: 0.85rem; }
+  .cs-extra strong { font-size: 1.6rem; }
+  .gt-a, .gt-d { transform: none; }
+  .gt { font-size: clamp(6rem, 34vw, 12rem); align-self: start; margin-top: 22vh; }
+  .cin-label-text { font-size: 0.55rem; letter-spacing: 0.12em; }
+  .cin-label-line { height: 34px; }
+  .cin-label.is-top .cin-label-line { top: -34px; }
+  .cin-label.is-top .cin-label-text { bottom: 40px; }
+  .cin-label.is-bottom .cin-label-text { top: 40px; }
+  .hero--cinema::after { inset: 40% 0 0 0; }
+}
+
+/* SVG watch holds the hero until the 3D watch is ready, then fades out */
+.hero--cinema .hero-watch-wrap { transition: opacity 1s var(--ease); }
+.cinema.is-3d .hero--cinema .hero-watch-wrap { opacity: 0 !important; }
