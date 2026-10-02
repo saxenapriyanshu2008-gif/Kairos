@@ -2,6 +2,8 @@ import { useState } from 'react'
 import Logo from './Logo'
 import LineLogo from './LineLogo'
 import { scrollToId } from '../store'
+import { legalPages } from '../data/legal'
+import { linkTo } from '../lib/router'
 
 const LINKS = [
   ['collection', 'Collection'],
@@ -73,10 +75,12 @@ export default function Footer() {
         <div>
           <h3>Legal</h3>
           <ul>
-            <li><a href="#/credits">Privacy</a></li>
-            <li><a href="#/credits">Terms</a></li>
-            <li><a href="#/credits">Shipping</a></li>
-            <li><a href="#/credits">Assets &amp; Credits</a></li>
+            {legalPages.map((p) => (
+              <li key={p.slug}>
+                <a href={`#/legal/${p.slug}`} onClick={linkTo(`legal/${p.slug}`)}>{p.title}</a>
+              </li>
+            ))}
+            <li><a href="#/credits" onClick={linkTo('credits')}>Assets &amp; Credits</a></li>
           </ul>
         </div>
         <div>
