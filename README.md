@@ -54,6 +54,16 @@ Sections switch between dark and ivory, like turning pages in a print magazine. 
   - **04 THE MOMENT.** The parts reassemble, the watch shows its 10.8 mm side profile, then lands on the final shot with a giant italic *Moment* behind it.
   - A spec HUD on the left and a progress rail on the right follow the stages. The watch tilts toward your cursor the whole time.
 - **Performance of the 3D.** Three.js loads as a separate chunk only after the intro, so the first paint is not blocked. The hero shows a light SVG watch until then. Rendering pauses whenever the stage is off screen, and the pixel ratio is capped (1.5 on phones).
+- **Film details taken from motion references.**
+  - It opens with four models lining up in front of a giant KAIROS.
+  - Giant type then circles the watch in 3D (KAIROS, K-01, 316L), with the front letters passing in front of the case.
+  - In the movement dive, light streams flow around the calibre. Each particle is drawn as a short streak along a flow field.
+  - A "PRECISE AUTOMATIC MOVEMENT" moment sits behind the reassembled watch.
+  - The film turns light grey for "Elegant contours" (a top view) and "Slim profile" (a side view) before the final shot.
+- **Liquid RGB type.** Giant words appear and leave through an SVG displacement filter with a red and blue split. Section headings settle from a short RGB split as they rise in.
+- **Manifesto.** A light grid with + markers, where each line is typed inside a black highlight block that then wipes away. A slanted metal bar sweeps across, and the K-clock logo draws itself as a blueprint.
+- **Curved-screen journal.** The section pins. The centre story sits on a concave screen made of 16 vertical slices placed on a cylinder with CSS 3D, and the neighbouring stories turn away in perspective. Prev and next buttons and a story list make it keyboard friendly.
+- **Blueprint footer mark.** The K-clock logo draws itself with construction lines next to the KAIROS wordmark.
 - **Product studio.** Selecting any watch opens a full-screen 3D studio:
   - **360° view:** drag (or use the arrow keys) to rotate, or switch on auto-spin.
   - **Explode:** a slider separates the crystal, bezel, hands, dial, case, calibre and caseback, with live labels. On PULSE it shows the screen, board and battery instead.
@@ -97,6 +107,7 @@ src/
   data/photos.js      Unsplash photos + credits
   components/
     Cinema (3D hero + scroll film)  ProductStudio (360° + explode + options)
+    Manifesto (typed highlight lines)  LineLogo (blueprint K-clock)
     Watch3DViewer (3D configurator preview)
     Navbar  Hero  ScrollStory (SVG fallback)  Collection  WatchCard  FeaturedWatch
     WatchConfigurator  BrandStory  Craftsmanship  MomentClock  Journal
