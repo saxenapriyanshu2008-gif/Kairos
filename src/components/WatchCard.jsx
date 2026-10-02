@@ -4,7 +4,7 @@ import { HeartIcon, ArrowIcon } from './Icons'
 import { formatPrice } from '../data/watches'
 import { useShop } from '../store'
 
-export default function WatchCard({ watch, index, className = '' }) {
+export default function WatchCard({ watch, index, total = 8, className = '' }) {
   const { wishlist, toggleWish, setDrawer } = useShop()
   const saved = wishlist.includes(watch.id)
   const open = () => setDrawer({ type: 'product', id: watch.id })
@@ -23,7 +23,7 @@ export default function WatchCard({ watch, index, className = '' }) {
 
       <div className="wcard-body">
         <div className="wcard-top">
-          <span className="wcard-index">0{index + 1} / 04</span>
+          <span className="wcard-index">{String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
           <span className="wcard-cat">{watch.category}</span>
         </div>
         <h3 id={`wc-${watch.id}`} className="wcard-name">{watch.name}</h3>

@@ -1087,3 +1087,14 @@ body[data-route='credits'] .nav { background: rgba(12, 11, 10, 0.92); }
 /* SVG watch holds the hero until the 3D watch is ready, then fades out */
 .hero--cinema .hero-watch-wrap { transition: opacity 1s var(--ease); }
 .cinema.is-3d .hero--cinema .hero-watch-wrap { opacity: 0 !important; }
+
+/* collection filters */
+.collection .section-head .coll-filters { grid-column: 1 / -1; }
+.coll-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chip-light { border-color: var(--line-light); color: var(--ink); }
+.chip-light:hover { border-color: rgba(22, 21, 20, 0.45); }
+.chip-light.is-on { background: var(--ink); color: var(--ivory); border-color: var(--ink); }
+.chip-count { font-size: 0.66rem; opacity: 0.6; margin-left: 0.25rem; font-variant-numeric: tabular-nums; }
+/* rows after the first four repeat the editorial rhythm */
+.coll-grid > .wcard:nth-child(n + 5).c1, .coll-grid > .wcard:nth-child(n + 5).c3 { margin-top: clamp(1rem, 4vw, 4rem); }
+
