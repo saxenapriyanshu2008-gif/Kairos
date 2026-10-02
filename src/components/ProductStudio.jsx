@@ -5,6 +5,7 @@ import { getWatch, formatPrice, studioOptions, strapKey, strapParts, studioPrice
 import { useShop, scrollToId } from '../store'
 import { useDialog } from './Overlays'
 import { prefersReducedMotion } from '../lib/gsap'
+import PulseGallery, { PULSE_SLIDES, PULSE_PARTS } from './PulseGallery'
 
 /*
   ProductStudio
@@ -15,6 +16,9 @@ import { prefersReducedMotion } from '../lib/gsap'
       calibre and caseback, with live labels
     - Options: case colour, dial colour, strap type and strap colour,
       with the price updating as you choose
+  PULSE (the smartwatch) gets a product gallery instead of the tools:
+  a photo, a drag-to-rotate 3D view, screen images, a feature video and
+  an exploded view that explains each part.
   Uses the same Three.js stage as the hero. Falls back to the SVG render
   when WebGL is not available.
 */
@@ -38,24 +42,7 @@ const LABELS = {
     ['movement', 'Calibre'],
     ['caseback', 'Caseback'],
   ],
-  pulse: [
-    ['crystal', 'Sapphire glass'],
-    ['bezel', 'Bezel'],
-    ['dial', 'AMOLED screen'],
-    ['case', 'Case'],
-    ['movement', 'Board + battery'],
-    ['caseback', 'Sensor back'],
-  ],
 }
-
-const SCREENS = [
-  ['face', 'Watch face'],
-  ['apps', 'Apps'],
-  ['sports', 'Sports'],
-  ['workout', 'Workout'],
-  ['health', 'Health'],
-]
-const FRONT = { rx: -0.08, ry: 0 } // face-on, to read the screen
 
 const VIEW = { rx: -0.28, ry: -0.45 } // resting 3/4 view
 const SIDE = { rx: 0.2, ry: -1.25 } // side view for the exploded parts
@@ -71,9 +58,7 @@ export default function ProductStudio() {
   const [look, setLook] = useState(null)
   const [explode, setExplode] = useState(0)
   const [spin, setSpin] = useState(false)
-  const [screen, setScreen] = useState('face')
-  const screenRef = useRef(screen)
-  screenRef.current = screen
+  const [slide, setSlide] = useState(0)
   const [ready, setReady] = useState(false)
   const [webgl] = useState(can3D)
   const canvasRef = useRef(null)
@@ -88,7 +73,7 @@ export default function ProductStudio() {
     if (!watch) return
     setLook({ ...watch.look })
     setExplode(0)
-    setScreen('face')
+    setSlide(0)
     setSpin(!prefersReducedMotion())
     ctl.current.target = { ...VIEW }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,7 +81,7 @@ export default function ProductStudio() {
 
   ctl.current.spin = spin
   ctl.current.explode = explode
-  ctl.current.labels = LABELS[look?.model === 'pulse' ? 'pulse' : 'default']
+  ctl.current.labels = look?.model === 'pulse' ? PULSE_PARTS : LABELS.default
 
   // build the 3D stage while the studio is open
   useEffect(() => {
@@ -109,7 +94,6 @@ export default function ProductStudio() {
       // use the latest look: it may have changed while Three.js was loading
       const st = createStage(canvasRef.current, { look: lookRef.current, maxDpr: 1.75 })
       engine.current = st
-      st.setScreen?.(screenRef.current)
       setReady(true)
       const S = st.state
       Object.assign(S, { x: 0, y: 0.02, size: 0.42, maxW: 0.72, ...VIEW })
@@ -120,6 +104,10 @@ export default function ProductStudio() {
         const dt = Math.min(0.05, (now - last) / 1000)
         last = now
         const c = ctl.current
+        if (c.active === false) {
+          raf = requestAnimationFrame(loop)
+          return
+        }
         if (c.spin && !c.dragging) c.target.ry += dt * 0.55
         S.rx += (c.target.rx - S.rx) * 0.1
         S.ry += (c.target.ry - S.ry) * 0.1
@@ -127,6 +115,8 @@ export default function ProductStudio() {
         S.hideStrap = Math.min(1, S.explode * 1.6)
         const goalSize = 0.42 - 0.17 * Math.min(1, c.explode)
         S.size += (goalSize - S.size) * 0.1
+        const goalY = c.lift ? 0.16 : 0.02
+        S.y += (goalY - S.y) * 0.1
         st.frame()
         // labels follow the exploded parts
         const show = S.explode > 0.35
@@ -195,10 +185,19 @@ export default function ProductStudio() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, webgl, look === null])
 
-  // smartwatch screen page
+  // PULSE gallery: only the 3D slides use the stage
+  const pulse = look?.model === 'pulse'
+  const kind = pulse ? PULSE_SLIDES[slide].type : '3d'
+  ctl.current.active = kind === '3d' || kind === 'explode'
+  ctl.current.lift = kind === 'explode'
   useEffect(() => {
-    engine.current?.setScreen?.(screen)
-  }, [screen, ready])
+    if (!pulse) return
+    const ex = kind === 'explode'
+    setExplode(ex ? 1 : 0)
+    setSpin(false)
+    ctl.current.target = ex ? { ...SIDE } : { ...VIEW }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slide, pulse])
 
   // apply option changes instantly
   useEffect(() => {
@@ -231,7 +230,7 @@ export default function ProductStudio() {
   const caseLabel = studioOptions.caseFinish.find((o) => o.id === look.caseFinish)?.label
   const dialLabel = studioOptions.dial.find((o) => o.id === look.dial)?.label
   const strapLabel = `${strap.color ? studioOptions.strapColor[strap.type].find((c) => c.id === strap.color)?.label + ' ' : ''}${studioOptions.strapType.find((t) => t.id === strap.type)?.label.toLowerCase()}`
-  const labels = LABELS[isPulse ? 'pulse' : 'default']
+  const labels = isPulse ? PULSE_PARTS : LABELS.default
 
   return (
     <div className="studio-root is-open">
@@ -248,7 +247,7 @@ export default function ProductStudio() {
               )}
               <canvas
                 ref={canvasRef}
-                className={`studio-canvas ${ready ? 'is-ready' : ''}`}
+                className={`studio-canvas ${ready ? 'is-ready' : ''} ${ctl.current.active === false ? 'is-off' : ''}`}
                 tabIndex={0}
                 role="img"
                 aria-label={`${watch.name} in 3D. Drag, or use the arrow keys, to rotate.`}
@@ -258,7 +257,7 @@ export default function ProductStudio() {
                   <div key={part} ref={(el) => (labelRefs.current[i] = el)} className={`cin-label ${i % 2 ? 'is-bottom' : 'is-top'}`}>
                     <span className="cin-label-line" />
                     <span className="cin-label-text">
-                      <em>{String(i + 1).padStart(2, '0')}</em> {name}
+                      <em>{String(i + 1).padStart(2, '0')}</em> {!isPulse && name}
                     </span>
                   </div>
                 ))}
@@ -270,6 +269,9 @@ export default function ProductStudio() {
             </div>
           )}
 
+          {isPulse && <PulseGallery slide={slide} setSlide={setSlide} name={watch.name} webgl={webgl} />}
+
+          {!isPulse && (
           <div className="studio-tools">
             <button className={`tool ${spin ? 'is-on' : ''}`} aria-pressed={spin} onClick={() => setSpin((s) => !s)} disabled={!webgl}>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
@@ -289,7 +291,8 @@ export default function ProductStudio() {
               Reset
             </button>
           </div>
-          <p className="studio-hint" aria-hidden="true">{webgl ? 'Drag to rotate 360°' : 'Interactive 3D needs WebGL'}</p>
+          )}
+          {(!isPulse || kind === '3d') && <p className="studio-hint" aria-hidden="true">{webgl ? 'Drag to rotate 360°' : 'Interactive 3D needs WebGL'}</p>}
         </div>
 
         {/* ---------- details + options ---------- */}
@@ -301,33 +304,6 @@ export default function ProductStudio() {
           <h2 id="studio-title" className="display-m">{watch.name}</h2>
           <p className="studio-price" aria-live="polite">{formatPrice(price)}</p>
           <p className="studio-text">{watch.long}</p>
-
-          {isPulse && (
-            <fieldset className="opt-group">
-              <legend>
-                Screen <span>{SCREENS.find(([id]) => id === screen)?.[1]}</span>
-              </legend>
-              <div className="opt-pills opt-screens">
-                {SCREENS.map(([id, label]) => (
-                  <label key={id} className={`pill ${screen === id ? 'is-on' : ''}`}>
-                    <input
-                      type="radio"
-                      name="s-screen"
-                      checked={screen === id}
-                      onChange={() => {
-                        setScreen(id)
-                        // stop and face the screen so the page can be read
-                        setSpin(false)
-                        setExplode(0)
-                        ctl.current.target = { ...FRONT }
-                      }}
-                    />
-                    {label}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          )}
 
           <fieldset className="opt-group">
             <legend>
