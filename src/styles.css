@@ -916,6 +916,16 @@ svg [class*='spin'], svg .rotor, svg .balance { transform-box: view-box; }
   .craft-detail { max-height: none; opacity: 1; margin-top: 0.3rem; }
 }
 
+/* ---------- 8. Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .hero-dust { display: none; }
+}
+
 /* ---------- Real photography ---------- */
 .photo { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.9s var(--ease), transform 1.4s var(--ease); background: var(--graphite); }
 .photo.is-loaded { opacity: 1; }
