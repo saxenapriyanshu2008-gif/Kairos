@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Logo from './Logo'
+import LineLogo from './LineLogo'
 import { scrollToId } from '../store'
 
 const LINKS = [
@@ -88,7 +89,10 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="footer-word" aria-hidden="true">KAIROS</div>
+      <div className="footer-mark" aria-hidden="true">
+        <LineLogo className="footer-line-logo" tone="dark" />
+        <div className="footer-word">KAIROS</div>
+      </div>
 
       <div className="footer-bottom">
         <p>© 2026 KAIROS. Concept brand for development project.</p>

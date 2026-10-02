@@ -1332,3 +1332,8 @@ body[data-route='credits'] .nav { background: rgba(12, 11, 10, 0.92); }
   .jc-info { padding-right: 6.5rem; }
 }
 
+/* footer: blueprint K-clock beside the wordmark */
+.footer-mark { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: clamp(1rem, 3vw, 3rem); margin: 1rem auto 2rem; }
+.footer-line-logo { width: clamp(120px, 18vw, 260px); height: auto; }
+.footer-mark .footer-word { margin: 0; font-size: clamp(4rem, 17vw, 17rem); text-align: left; }
+@media (max-width: 600px) { .footer-mark { grid-template-columns: minmax(0, 1fr); } }
