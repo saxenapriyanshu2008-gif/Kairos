@@ -1337,3 +1337,7 @@ body[data-route='credits'] .nav { background: rgba(12, 11, 10, 0.92); }
 .footer-line-logo { width: clamp(120px, 18vw, 260px); height: auto; }
 .footer-mark .footer-word { margin: 0; font-size: clamp(4rem, 17vw, 17rem); text-align: left; }
 @media (max-width: 600px) { .footer-mark { grid-template-columns: minmax(0, 1fr); } }
+
+/* PULSE screen pages */
+.opt-screens { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.opt-screens .pill { justify-content: center; text-align: center; }
