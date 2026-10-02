@@ -80,3 +80,35 @@ em { font-style: italic; }
 .theme-dark { background: var(--obsidian); color: var(--ivory); }
 .theme-light { background: var(--ivory); color: var(--ink); }
 .theme-sand { background: var(--sand); color: var(--ink); }
+
+/* ---------- 3. Type ---------- */
+.display-xl, .display-l, .display-m {
+  font-family: var(--f-display);
+  font-weight: 420;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
+  font-optical-sizing: auto;
+}
+.display-xl { font-size: clamp(3.3rem, 8.6vw, 9.6rem); }
+.display-l { font-size: clamp(2.6rem, 6.6vw, 7rem); }
+.display-m { font-size: clamp(1.9rem, 3.4vw, 3rem); line-height: 1.02; }
+.display-xl em, .display-l em, .display-m em { font-weight: 400; }
+
+.eyebrow {
+  font-family: var(--f-ui);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  color: var(--muted-on-dark);
+}
+.theme-light .eyebrow, .theme-sand .eyebrow { color: var(--gold-ink); }
+.eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+
+.lede {
+  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  max-width: 34rem;
+  color: var(--muted-on-dark);
+}
+.theme-light .lede, .theme-sand .lede { color: var(--muted-on-light); }
