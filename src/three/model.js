@@ -883,10 +883,20 @@ export function buildWatch(initialLook) {
   const plate = new THREE.Mesh(track(new THREE.CylinderGeometry(0.8, 0.8, 0.05, 128).rotateX(Math.PI / 2)), M.plate)
   plate.position.z = -0.03
   movementG.add(plate)
-  // sunk recesses in the plate (darker rings)
-  for (const [x, y, r] of [[-0.3, 0.2, 0.33], [0.3, -0.36, 0.25]]) {
-    const ring = new THREE.Mesh(track(new THREE.RingGeometry(r - 0.012, r, 64)), M.anglage)
-    ring.position.set(x, y, -0.004)
+  // Layout: a classic three-quarter plate calibre. Four bridges cover almost the
+  // whole plate (barrel bridge, train bridge, fourth-wheel bridge and the balance
+  // cock), with thin gaps between them, so the only open area is the balance and
+  // escapement corner. Two big steel wheels with circular graining sit on the
+  // barrel bridge, gilt wheels sit on the train side, and blued screws and rubies
+  // in gold settings are spread over every bridge.
+  const deg = (d) => (d * Math.PI) / 180
+  const P = (r, d) => [Math.cos(deg(d)) * r, Math.sin(deg(d)) * r]
+  const BAL = P(0.44, 292) // balance centre
+
+  // recess in the plate under the balance
+  {
+    const ring = new THREE.Mesh(track(new THREE.RingGeometry(0.262, 0.274, 72)), M.anglage)
+    ring.position.set(BAL[0], BAL[1], -0.004)
     movementG.add(ring)
   }
 
@@ -898,19 +908,21 @@ export function buildWatch(initialLook) {
     j.position.set(x, y, z + 0.004)
     movementG.add(set, j)
   }
-  const screw = (x, y, z, r = 0.034) => {
-    const head = new THREE.Mesh(track(new THREE.CylinderGeometry(r, r * 1.05, 0.024, 24).rotateX(Math.PI / 2)), M.blued)
+  let screwSeed = 0.37
+  const screw = (x, y, z, r = 0.03, mat = M.blued) => {
+    const head = new THREE.Mesh(track(new THREE.CylinderGeometry(r, r * 1.05, 0.022, 28).rotateX(Math.PI / 2)), mat)
     head.position.set(x, y, z)
-    const sl = new THREE.Mesh(track(new THREE.BoxGeometry(r * 1.7, r * 0.28, 0.012)), M.slot)
-    sl.position.set(x, y, z + 0.012)
-    sl.rotation.z = Math.random() * Math.PI
+    const sl = new THREE.Mesh(track(new THREE.BoxGeometry(r * 1.75, r * 0.26, 0.012)), M.slot)
+    sl.position.set(x, y, z + 0.011)
+    screwSeed = (screwSeed * 9301 + 0.4927) % 1 // fixed "random" slot angles
+    sl.rotation.z = screwSeed * Math.PI
     movementG.add(head, sl)
   }
 
   const gears = []
-  const addGear = (x, y, r, teeth, speed, z = 0, spokes = 5) => {
+  const addGear = (x, y, r, teeth, speed, z = 0, spokes = 5, mat = M.brass) => {
     const geo = exM(gearShape(r, teeth, r * 0.07, 0.25, spokes), 0.016, 0.003)
-    const m = new THREE.Mesh(geo, M.brass)
+    const m = new THREE.Mesh(geo, mat)
     const g = new THREE.Group()
     g.position.set(x, y, z)
     g.add(m)
@@ -922,94 +934,137 @@ export function buildWatch(initialLook) {
     gears.push({ g, speed })
     return g
   }
-  // mainspring barrel: big toothed drum with a snailed cover and ratchet wheel
-  const barrel = addGear(-0.3, 0.2, 0.31, 70, 0.04, 0, 0)
-  // the cover is a cylinder (UVs 0..1), so it needs its own texture without the offset
-  const coverMat = track(M.brass.clone())
-  coverMat.roughnessMap = track(M.brass.roughnessMap.clone())
-  coverMat.roughnessMap.offset.set(0, 0)
-  coverMat.roughnessMap.needsUpdate = true
-  const cover = new THREE.Mesh(track(new THREE.CylinderGeometry(0.27, 0.27, 0.02, 96).rotateX(Math.PI / 2)), coverMat)
-  cover.position.z = 0.022
-  barrel.add(cover)
-  const ratchet = new THREE.Mesh(exM(gearShape(0.14, 36, 0.012, 0.2, 0), 0.014, 0.002), M.plate)
-  ratchet.position.z = 0.032
-  barrel.add(ratchet)
-  addGear(0.2, 0.38, 0.16, 40, -0.35, 0.002)
-  addGear(0.4, 0.1, 0.11, 30, 0.8, 0.004)
-  addGear(-0.05, -0.2, 0.13, 34, -0.55, 0.004)
-  // escape wheel: pointed "club" teeth, moves in little steps
+
+  // a bridge cut from the plate disc: an arc on the rim and a rounded tip near the centre
+  const bridgeMesh = (a0, a1, tip, z, r = 0.765, depth = 0.026) => {
+    const sh = new THREE.Shape()
+    sh.moveTo(tip[0], tip[1])
+    const [x0, y0] = P(r, a0)
+    sh.lineTo(x0, y0)
+    sh.absarc(0, 0, r, deg(a0), deg(a1), false)
+    sh.closePath()
+    const m = new THREE.Mesh(exM(sh, depth, 0.008), [M.plate, M.anglage])
+    m.position.z = z
+    movementG.add(m)
+    return m
+  }
+
+  // wheels that run under the bridges (seen through the gaps)
+  addGear(-0.12, -0.08, 0.17, 44, 0.6, -0.002, 5)
+
+  // 1. barrel bridge (upper right) with ratchet wheel and crown wheel on top
+  bridgeMesh(-28, 98, [0.05, 0.03], 0.03)
+  const steel = track(M.brass.clone())
+  steel.color = new THREE.Color('#c7c8c4')
+  steel.roughness = 0.34
+  const ratchet = addGear(...P(0.4, 38), 0.27, 64, 0.03, 0.068, 0, steel)
+  {
+    // snailed disc under the teeth, and a big polished screw in the centre
+    const disc = new THREE.Mesh(track(new THREE.CylinderGeometry(0.235, 0.235, 0.012, 96).rotateX(Math.PI / 2)), steel)
+    disc.position.z = 0.012
+    ratchet.add(disc)
+  }
+  screw(...P(0.4, 38), 0.1, 0.05, M.anglage)
+  const crownW = addGear(...P(0.56, 88), 0.15, 40, -0.07, 0.068, 0, steel)
+  {
+    const disc = new THREE.Mesh(track(new THREE.CylinderGeometry(0.125, 0.125, 0.012, 72).rotateX(Math.PI / 2)), steel)
+    disc.position.z = 0.012
+    crownW.add(disc)
+  }
+  screw(...P(0.56, 88), 0.1, 0.034, M.anglage)
+  // click spring and click beside the ratchet wheel
+  {
+    const pts = []
+    for (let i = 0; i <= 40; i++) {
+      const a = deg(8 + i * 1.5)
+      const r = 0.7 - i * 0.0015
+      pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, 0.068))
+    }
+    movementG.add(new THREE.Mesh(track(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, 0.007, 6, false)), M.anglage))
+  }
+
+  // 2. train bridge (left), with the third wheel riding on top, like the reference
+  bridgeMesh(104, 206, [-0.02, 0.04], 0.03)
+  addGear(...P(0.4, 152), 0.22, 60, -0.12, 0.068, 5)
+  jewel(...P(0.4, 152), 0.104, 0.02)
+
+  // 3. fourth-wheel bridge (lower left), with the seconds wheel on top
+  bridgeMesh(212, 252, [-0.06, -0.1], 0.03)
+  addGear(...P(0.48, 230), 0.13, 36, 0.45, 0.068, 5)
+  jewel(...P(0.48, 230), 0.104, 0.016)
+
+  // engraving across the train and barrel bridges
+  const engr = new THREE.Mesh(track(new THREE.PlaneGeometry(0.42, 0.105)), M.engrave)
+  engr.position.set(-0.3, 0.52, 0.066)
+  engr.rotation.z = 0.5
+  movementG.add(engr)
+
+  // 4. escapement in the open corner: escape wheel and pallet fork
   const escShape = new THREE.Shape()
   for (let i = 0; i <= 30; i++) {
     const a = (i / 30) * Math.PI * 2
-    const rr = i % 2 === 0 ? 0.105 : 0.075
+    const rr = i % 2 === 0 ? 0.095 : 0.068
     const aa = a + (i % 2 === 0 ? 0.08 : 0)
     i === 0 ? escShape.moveTo(Math.cos(aa) * rr, Math.sin(aa) * rr) : escShape.lineTo(Math.cos(aa) * rr, Math.sin(aa) * rr)
   }
   const escHole = new THREE.Path()
-  escHole.absarc(0, 0, 0.05, 0, Math.PI * 2, true)
+  escHole.absarc(0, 0, 0.045, 0, Math.PI * 2, true)
   escShape.holes.push(escHole)
+  const ESC = P(0.3, 262)
   const escape = new THREE.Group()
-  escape.position.set(0.1, -0.5, 0.004)
+  escape.position.set(ESC[0], ESC[1], 0.004)
   escape.add(new THREE.Mesh(exM(escShape, 0.012, 0.002), M.brass))
   movementG.add(escape)
-  // pallet fork
+  // pallet fork (points from the escape wheel to the balance)
   const forkShape = new THREE.Shape()
-  forkShape.moveTo(-0.11, -0.012)
+  forkShape.moveTo(-0.08, -0.012)
   forkShape.lineTo(0.12, -0.008)
   forkShape.lineTo(0.12, 0.008)
-  forkShape.lineTo(-0.11, 0.012)
+  forkShape.lineTo(-0.08, 0.012)
   forkShape.closePath()
   const fork = new THREE.Group()
-  fork.position.set(0.2, -0.44, 0.02)
+  const FK = [(ESC[0] + BAL[0]) / 2, (ESC[1] + BAL[1]) / 2]
+  fork.position.set(FK[0], FK[1], 0.02)
   const forkMesh = new THREE.Mesh(exM(forkShape, 0.01, 0.002), M.anglage)
-  forkMesh.position.x = 0.05
+  forkMesh.rotation.z = Math.atan2(BAL[1] - ESC[1], BAL[0] - ESC[0])
   fork.add(forkMesh)
-  for (const px of [-0.04, 0.02]) {
+  for (const px of [-0.05, 0.0]) {
     const stone = new THREE.Mesh(track(new THREE.BoxGeometry(0.012, 0.03, 0.012)), M.ruby)
-    stone.position.set(px, -0.02, 0.006)
+    stone.position.set(px * Math.cos(forkMesh.rotation.z), px * Math.sin(forkMesh.rotation.z) - 0.018, 0.006)
     fork.add(stone)
   }
   movementG.add(fork)
+  // small pallet bridge over the fork
+  {
+    const sh = new THREE.Shape()
+    sh.moveTo(-0.03, -0.035)
+    sh.lineTo(0.2, -0.03)
+    sh.quadraticCurveTo(0.24, 0, 0.2, 0.03)
+    sh.lineTo(-0.03, 0.035)
+    sh.absarc(-0.03, 0, 0.035, Math.PI / 2, -Math.PI / 2, false)
+    const pb = new THREE.Mesh(exM(sh, 0.016, 0.005), [M.plate, M.anglage])
+    pb.position.set(ESC[0], ESC[1], 0.05)
+    pb.rotation.z = deg(195)
+    movementG.add(pb)
+    jewel(ESC[0], ESC[1], 0.082, 0.014)
+    const [sx, sy] = [ESC[0] + Math.cos(deg(195)) * 0.17, ESC[1] + Math.sin(deg(195)) * 0.17]
+    screw(sx, sy, 0.08, 0.022)
+  }
 
-  // bridges: matte, with polished bevelled edges (caps = matte, sides = polished)
-  const bridgeShape = new THREE.Shape()
-  bridgeShape.moveTo(-0.72, -0.12)
-  bridgeShape.bezierCurveTo(-0.45, -0.32, 0.05, -0.02, 0.62, -0.18)
-  bridgeShape.lineTo(0.66, -0.03)
-  bridgeShape.bezierCurveTo(0.08, 0.12, -0.42, -0.1, -0.68, 0.02)
-  bridgeShape.closePath()
-  const bridge = new THREE.Mesh(exM(bridgeShape, 0.026, 0.008), [M.plate, M.anglage])
-  bridge.position.z = 0.03
-  movementG.add(bridge)
-  const bBridgeShape = new THREE.Shape()
-  bBridgeShape.moveTo(-0.62, 0.36)
-  bBridgeShape.quadraticCurveTo(-0.32, 0.62, 0.02, 0.5)
-  bBridgeShape.lineTo(0.04, 0.4)
-  bBridgeShape.quadraticCurveTo(-0.3, 0.48, -0.56, 0.28)
-  bBridgeShape.closePath()
-  const barrelBridge = new THREE.Mesh(exM(bBridgeShape, 0.024, 0.007), [M.plate, M.anglage])
-  barrelBridge.position.z = 0.042
-  movementG.add(barrelBridge)
-  const engr = new THREE.Mesh(track(new THREE.PlaneGeometry(0.36, 0.09)), M.engrave)
-  engr.position.set(0.12, 0.02, 0.071)
-  engr.rotation.z = 0.08
-  movementG.add(engr)
-
-  // balance wheel (beats 6 times a second) under its cock
+  // 5. balance wheel (beats 6 times a second) under its cock
   const balance = new THREE.Group()
-  balance.position.set(0.3, -0.36, 0.045)
-  balance.add(new THREE.Mesh(track(new THREE.TorusGeometry(0.19, 0.016, 14, 96)), M.brass))
+  balance.position.set(BAL[0], BAL[1], 0.045)
+  balance.add(new THREE.Mesh(track(new THREE.TorusGeometry(0.2, 0.016, 14, 96)), M.brass))
   for (let k = 0; k < 2; k++) {
-    const sp = new THREE.Mesh(track(new THREE.BoxGeometry(0.38, 0.018, 0.01)), M.brass)
+    const sp = new THREE.Mesh(track(new THREE.BoxGeometry(0.4, 0.018, 0.01)), M.brass)
     sp.rotation.z = (k * Math.PI) / 2
     balance.add(sp)
   }
   // timing screws around the rim
-  for (let k = 0; k < 12; k++) {
-    const a = (k / 12) * Math.PI * 2
+  for (let k = 0; k < 14; k++) {
+    const a = (k / 14) * Math.PI * 2
     const ts = new THREE.Mesh(track(new THREE.CylinderGeometry(0.012, 0.012, 0.03, 10)), M.chaton)
-    ts.position.set(Math.cos(a) * 0.205, Math.sin(a) * 0.205, 0)
+    ts.position.set(Math.cos(a) * 0.215, Math.sin(a) * 0.215, 0)
     ts.rotation.z = a + Math.PI / 2
     balance.add(ts)
   }
@@ -1025,21 +1080,32 @@ export function buildWatch(initialLook) {
     balance.add(hs)
   }
   movementG.add(balance)
+  // balance cock: foot on the rim, arm over the balance, with a regulator index
   const cockShape = new THREE.Shape()
-  cockShape.moveTo(0.02, -0.05)
-  cockShape.lineTo(0.42, -0.07)
-  cockShape.quadraticCurveTo(0.5, 0, 0.42, 0.07)
-  cockShape.lineTo(0.02, 0.05)
+  cockShape.moveTo(0.02, -0.055)
+  cockShape.lineTo(0.3, -0.1)
+  cockShape.quadraticCurveTo(0.36, 0, 0.3, 0.1)
+  cockShape.lineTo(0.02, 0.055)
   cockShape.absarc(0, 0, 0.06, Math.PI / 2, -Math.PI / 2, false)
   const cock = new THREE.Mesh(exM(cockShape, 0.02, 0.006), [M.plate, M.anglage])
-  cock.position.set(0.3, -0.36, 0.07)
-  cock.rotation.z = 0.55
+  cock.position.set(BAL[0], BAL[1], 0.07)
+  cock.rotation.z = deg(292)
   movementG.add(cock)
-  jewel(0.3, -0.36, 0.1, 0.026)
+  jewel(BAL[0], BAL[1], 0.1, 0.026)
+  {
+    const idx = new THREE.Mesh(track(new THREE.BoxGeometry(0.2, 0.012, 0.008)), M.anglage)
+    idx.geometry.translate(0.1, 0, 0)
+    idx.position.set(BAL[0], BAL[1], 0.098)
+    idx.rotation.z = deg(150)
+    movementG.add(idx)
+    const [cx, cy] = [BAL[0] + Math.cos(deg(292)) * 0.25, BAL[1] + Math.sin(deg(292)) * 0.25]
+    screw(cx, cy, 0.095, 0.028)
+  }
 
-  // jewels on the wheel arbors and blued screws on the bridges
-  for (const [x, y] of [[0.2, 0.38], [0.4, 0.1], [-0.05, -0.2], [0.1, -0.5]]) jewel(x, y, 0.036, 0.018)
-  for (const [x, y] of [[-0.62, -0.06], [0.6, -0.12], [-0.5, 0.3], [-0.06, 0.46], [0.66, -0.4]]) screw(x, y, 0.07)
+  // jewels and screws spread over the bridges
+  for (const [r, d] of [[0.2, 60], [0.2, 128], [0.28, 200]]) jewel(...P(r, d), 0.064, 0.017)
+  for (const [r, d] of [[0.7, -20], [0.7, 18], [0.7, 64], [0.7, 96], [0.7, 110], [0.68, 178], [0.7, 200], [0.7, 216], [0.7, 246], [0.24, 20], [0.3, 110]])
+    screw(...P(r, d), 0.066)
 
   // rotor on the back of the movement, with a snailed finish
   const rotorShape = new THREE.Shape()
