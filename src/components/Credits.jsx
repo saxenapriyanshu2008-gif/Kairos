@@ -23,6 +23,7 @@ export const CREDITS = [
     license: 'Unsplash License (free to use)',
     url: p.page,
   })),
+  { asset: 'PULSE gallery photos and feature video', creator: 'KAIROS project author (original work)', source: 'Rendered from the project 3D model with tools/render-pulse.py', license: 'Original, created for this project', url: null },
   { asset: 'Watch renders, configurator, movement, craft and blueprint illustrations, logo and favicon', creator: 'KAIROS project author (original work)', source: 'Drawn as SVG in /src/components', license: 'Original, created for this project', url: null },
 ]
 
