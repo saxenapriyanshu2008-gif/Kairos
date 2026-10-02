@@ -182,8 +182,13 @@ export default function Cinema({ ready }) {
         let heroP = 0
         let filmT = 0
         let lastLight = null
+        // keep our own reference: React clears root.current before GSAP's cleanup
+        // runs, and the timeline repaints one last time while it reverts
+        const rootEl = root.current
         const paint = () => {
+          if (!rootEl) return
           for (const w of WIN) {
+            if (!w.el) continue
             // before the pin starts, the lineup type rises with the hero scroll
             let o = filmT <= 0.001 && w.a < 0 ? Math.max(0, (heroP - 0.35) / 0.65) : fade(filmT, w)
             o = Math.max(0, Math.min(1, o))
@@ -203,7 +208,7 @@ export default function Cinema({ ready }) {
           const light = filmT > 7.6
           if (light !== lastLight) {
             lastLight = light
-            root.current.classList.toggle('is-light', light)
+            rootEl.classList.toggle('is-light', light)
           }
         }
 
