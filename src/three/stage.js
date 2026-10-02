@@ -164,7 +164,8 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
       const r = 1.2 + Math.random() * 1.6
       P[i * 3] = Math.cos(a) * r
       P[i * 3 + 1] = Math.sin(a) * r * 0.7
-      P[i * 3 + 2] = (Math.random() - 0.5) * 0.8
+      // keep the threads in a layer behind the watch so they never cross its face
+      P[i * 3 + 2] = -1.1 - Math.random() * 0.9
       age[i] = Math.random() * 6
     }
     for (let i = 0; i < N; i++) spawn(i)
@@ -173,6 +174,7 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
     const smat = new THREE.LineBasicMaterial({ color: '#efe9de', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })
     const lines = new THREE.LineSegments(sgeo, smat)
     lines.frustumCulled = false
+    lines.renderOrder = -1 // draw first, so the watch always covers it
     lines.visible = false
     scene.add(lines)
     smoke = {
@@ -186,13 +188,15 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
           const r = Math.hypot(x, y) + 0.4
           let vx = Math.sin(y * 1.7 + t * 0.4) - Math.cos(z * 1.3) * 0.6 - (y / r) * 1.2 - x * 0.08
           let vy = Math.sin(z * 1.5 + t * 0.3) + Math.cos(x * 1.1) * 0.8 + (x / r) * 1.2 - y * 0.08
-          let vz = Math.sin(x * 1.3 - t * 0.2) * 0.5 - z * 0.3
+          let vz = Math.sin(x * 1.3 - t * 0.2) * 0.3 - (z + 1.5) * 0.6
           V[j] += (vx - V[j]) * 0.1
           V[j + 1] += (vy - V[j + 1]) * 0.1
           V[j + 2] += (vz - V[j + 2]) * 0.1
           P[j] += V[j] * dt * 0.55
           P[j + 1] += V[j + 1] * dt * 0.55
           P[j + 2] += V[j + 2] * dt * 0.55
+          // hard stop: never drift forward past the back of the case
+          if (P[j + 2] > -0.9) P[j + 2] = -0.9
           age[i] += dt
           if (age[i] > 7 || r > 4.2) spawn(i)
           const k = i * 6
@@ -262,7 +266,7 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
       smoke.lines.visible = state.smoke > 0.01
       smoke.lines.position.copy(pivot.position)
       smoke.lines.scale.setScalar(s * 0.95)
-      smoke.lines.material.opacity = state.smoke * 0.42
+      smoke.lines.material.opacity = state.smoke * 0.32
     }
   }
 
