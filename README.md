@@ -10,7 +10,7 @@ A website for KAIROS, a fictional luxury watch brand, built for a 3-day web deve
 
 *Kairos* is an ancient Greek word for the right, decisive moment. *Chronos* is time that passes. Kairos is the moment that matters.
 
-KAIROS builds watches with one idea: a watch does not only measure time, it marks the moments that define you. The four models (ARC, NOIR, ATLAS and ÉLAN) are each made for a different kind of moment: everyday life, quiet nights, travel and formal evenings. The brand is modern luxury. It is precise and calm, and it stays confident without being loud. It is inspired by Swiss watchmaking, architecture and editorial fashion, but it copies none of them. (95 words)
+KAIROS builds watches with one idea: a watch does not only measure time, it marks the moments that define you. The eight models are each made for a different kind of moment: ARC for everyday life, NOIR for quiet nights, ATLAS for travel, ÉLAN for formal evenings, VOID for showing what is inside, APEX for timing, PULSE for a connected day and MONO for the quietest moments. The brand is modern luxury. It is precise and calm, and it stays confident without being loud. It is inspired by Swiss watchmaking, architecture and editorial fashion, but it copies none of them. (95 words)
 
 ---
 
@@ -54,6 +54,11 @@ Sections switch between dark and ivory, like turning pages in a print magazine. 
   - **04 THE MOMENT.** The parts reassemble, the watch shows its 10.8 mm side profile, then lands on the final shot with a giant italic *Moment* behind it.
   - A spec HUD on the left and a progress rail on the right follow the stages. The watch tilts toward your cursor the whole time.
 - **Performance of the 3D.** Three.js loads as a separate chunk only after the intro, so the first paint is not blocked. The hero shows a light SVG watch until then. Rendering pauses whenever the stage is off screen, and the pixel ratio is capped (1.5 on phones).
+- **Product studio.** Selecting any watch opens a full-screen 3D studio:
+  - **360° view:** drag (or use the arrow keys) to rotate, or switch on auto-spin.
+  - **Explode:** a slider separates the crystal, bezel, hands, dial, case, calibre and caseback, with live labels. On PULSE it shows the screen, board and battery instead.
+  - **Options:** case colour (steel, black, gunmetal, blue, champagne), dial colour (ivory, obsidian, midnight, slate), strap type (leather, metal bracelet, mesh, rubber) and strap colour. The price updates as you choose.
+- **Eight models, four types.** Dress (ARC, NOIR, ÉLAN, MONO), sport (ATLAS diver, VOID skeleton, APEX chronograph) and digital (PULSE smartwatch with a live AMOLED-style screen that shows the real time, date, steps and heart rate). The collection can be filtered by type.
 - **Watch configurator.** A drag-to-rotate 3D preview (arrow keys work too). Choose 3 cases × 3 dials × 3 straps (27 builds). The preview, product name (for example *KAIROS MINUIT OR*), price, reference code and summary all come from one state object. You can save the build (stored in localStorage), add it to the bag or request details.
 - **"The Moment" clock.** A large live clock. On desktop the hands lean a few degrees toward your cursor and a gold point follows it around the ring. Pick a moment (Sunrise, A first meeting, The finish line, Midnight) and the hands sweep to that time.
 - **Hero.** A live watch (it shows the real time) tilts in 3D toward the cursor. A soft light and dust particles react at different depths. On touch devices there is a gentle scroll parallax instead.
@@ -91,7 +96,8 @@ src/
   data/journal.js     journal articles
   data/photos.js      Unsplash photos + credits
   components/
-    Cinema (3D hero + scroll film)  Watch3DViewer (3D configurator preview)
+    Cinema (3D hero + scroll film)  ProductStudio (360° + explode + options)
+    Watch3DViewer (3D configurator preview)
     Navbar  Hero  ScrollStory (SVG fallback)  Collection  WatchCard  FeaturedWatch
     WatchConfigurator  BrandStory  Craftsmanship  MomentClock  Journal
     CTA  Contact  Footer  CustomCursor  Loader  Overlays (Drawer, Search, Toast)
