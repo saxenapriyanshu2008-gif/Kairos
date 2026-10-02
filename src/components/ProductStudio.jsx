@@ -85,11 +85,21 @@ export default function ProductStudio() {
           raf = requestAnimationFrame(loop)
           return
         }
-        S.rx += (c.target.rx - S.rx) * 0.1
-        S.ry += (c.target.ry - S.ry) * 0.1
-        S.explode += (c.explode - S.explode) * 0.12
-        S.hideStrap = Math.min(1, S.explode * 1.6)
-        const goalSize = 0.42 - 0.17 * Math.min(1, c.explode)
+        // opening: turn to the side first, then spread the parts once the turn is done.
+        // closing: bring the parts together first, then turn back.
+        const opening = c.explode > 0.5
+        const turning = Math.abs(c.target.rx - S.rx) + Math.abs(c.target.ry - S.ry) > 0.06
+        const holdTurn = !opening && S.explode > 0.04
+        if (!holdTurn) {
+          S.rx += (c.target.rx - S.rx) * 0.09
+          S.ry += (c.target.ry - S.ry) * 0.09
+        }
+        const goalEx = opening && turning ? 0 : c.explode
+        S.explode += (goalEx - S.explode) * 0.07
+        // the strap fades while the watch turns, before the parts open
+        const goalStrap = opening ? 1 : Math.min(1, S.explode * 1.6)
+        S.hideStrap += (goalStrap - S.hideStrap) * 0.08
+        const goalSize = 0.42 - 0.13 * Math.min(1, c.explode)
         S.size += (goalSize - S.size) * 0.1
         const goalY = c.lift ? 0.21 : 0.02
         S.y += (goalY - S.y) * 0.1
