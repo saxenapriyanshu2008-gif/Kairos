@@ -14,7 +14,7 @@ import { gsap, prefersReducedMotion } from '../lib/gsap'
   open and returns to the button that opened it on close, Tab stays inside.
 */
 
-function useDialog(open, onClose, panelRef) {
+export function useDialog(open, onClose, panelRef) {
   const lastFocus = useRef(null)
   useEffect(() => {
     if (!open) return
@@ -46,7 +46,7 @@ function useDialog(open, onClose, panelRef) {
 export function Drawer() {
   const { drawer, setDrawer, wishlist, toggleWish, bag, addToBag, removeFromBag } = useShop()
   const panel = useRef(null)
-  const open = !!drawer
+  const open = !!drawer && drawer.type !== 'product' // products open in the full-screen studio
   const close = () => setDrawer(null)
   useDialog(open, close, panel)
 
