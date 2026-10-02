@@ -206,3 +206,13 @@ em { font-style: italic; }
   grid-template-rows: minmax(0, 100%);
   justify-items: center;
 }
+
+/* movement animations */
+.spin-slow { animation: spin 24s linear infinite; }
+.spin-rev { animation: spin 16s linear infinite reverse; }
+.rotor { animation: rotor 9s var(--ease) infinite alternate; }
+.balance { animation: balance 0.5s ease-in-out infinite alternate; }
+@keyframes spin { to { rotate: 360deg; } }
+@keyframes rotor { from { rotate: -14deg; } to { rotate: 22deg; } }
+@keyframes balance { from { rotate: -150deg; } to { rotate: 150deg; } }
+svg [class*='spin'], svg .rotor, svg .balance { transform-box: view-box; }
