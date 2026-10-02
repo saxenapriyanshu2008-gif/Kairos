@@ -1240,3 +1240,44 @@ body[data-route='credits'] .nav { background: rgba(12, 11, 10, 0.92); }
   .cs-lineup { bottom: auto; top: 58vh; }
 }
 
+/* =========================================================
+   MANIFESTO (ALCHE-style typed highlight on a light grid)
+   ========================================================= */
+.manifesto { position: relative; z-index: 2; overflow: hidden; background: #ecebe7; color: var(--ink); padding: clamp(5rem, 12vw, 10rem) var(--gutter); }
+.mf-grid, .jc-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(22, 21, 20, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 21, 20, 0.07) 1px, transparent 1px);
+  background-size: 96px 96px;
+  background-position: -1px -1px;
+}
+.mf-grid::after, .jc-grid::after {
+  content: ''; position: absolute; inset: 0;
+  /* small + markers on every grid crossing */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Cpath d='M0 -5V5M-5 0H5M96 91V101M91 96H101M0 91V101M-5 96H5M96 -5V5M91 0H101' stroke='%23161514' stroke-opacity='.55' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 96px 96px;
+  background-position: -1px -1px;
+}
+.mf-bar {
+  position: absolute; top: -20%; right: 0; width: 22vw; height: 140%;
+  background: linear-gradient(180deg, #c9ad7c 0%, #e8e3d8 30%, #3b5487 62%, #8f8d88 100%);
+  opacity: 0.9; pointer-events: none; filter: saturate(1.1);
+  box-shadow: inset 0 0 60px rgba(255, 255, 255, 0.4);
+}
+.mf-inner { position: relative; max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); gap: 3rem; align-items: center; }
+.mf-text { display: grid; gap: 1.6rem; }
+.mf-text .eyebrow { color: var(--gold-ink); }
+.mf-line { font-family: var(--f-ui); font-weight: 600; font-size: clamp(1.25rem, 2.4vw, 2.2rem); line-height: 1.45; letter-spacing: -0.01em; margin: 0; }
+.mf-ch { display: inline; padding: 0.06em 0; transition: background-color 0.45s var(--ease), color 0.45s var(--ease); }
+.mf-line.is-typing .mf-ch { background: var(--ink); color: var(--ivory); }
+.mf-line.is-done .mf-ch { background: transparent; color: var(--ink); }
+.mf-line:last-child { font-family: var(--f-display); font-weight: 400; font-style: italic; font-size: clamp(1.6rem, 3.2vw, 3rem); margin-top: 0.8rem; }
+.mf-meta { display: flex; gap: 1.6rem; font-size: 0.66rem; letter-spacing: 0.22em; text-transform: uppercase; color: #6b6760; border-top: 1px solid rgba(22, 21, 20, 0.15); padding-top: 1rem; }
+.mf-logo { width: 100%; max-width: 420px; justify-self: end; }
+@media (max-width: 900px) {
+  .mf-inner { grid-template-columns: minmax(0, 1fr); }
+  .mf-logo { justify-self: start; max-width: 280px; }
+  .mf-bar { width: 34vw; }
+}
+
