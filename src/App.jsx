@@ -18,6 +18,7 @@ import Contact from './components/Contact'
 import Footer from './components/Footer'
 import Credits from './components/Credits'
 import { Drawer, Search, Toast } from './components/Overlays'
+import ProductStudio from './components/ProductStudio'
 
 // Tiny hash router: "#/credits" shows the credits page, anything else the home page
 const useRoute = () => {
@@ -99,6 +100,7 @@ export default function App() {
       )}
       <Footer />
       <Drawer />
+      <ProductStudio />
       <Search />
       <Toast />
     </ShopProvider>
