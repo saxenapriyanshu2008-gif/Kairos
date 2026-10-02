@@ -564,6 +564,32 @@ em { font-style: italic; }
 .story-figure figcaption { display: flex; gap: 1rem; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted-on-dark); }
 .story-figure figcaption span { color: var(--gold); }
 
+/* ---------- 6i. Craft ---------- */
+.craft-head { grid-template-columns: minmax(0, 1fr); }
+.craft-head h2 { max-width: 14ch; }
+.craft-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.8rem, 1.6vw, 1.5rem); align-items: start; }
+.craft-card.k2 { margin-top: 4rem; }
+.craft-card.k3 { margin-top: 1.5rem; }
+.craft-card.k4 { margin-top: 5.5rem; }
+.craft-card article { position: relative; overflow: hidden; aspect-ratio: 3 / 4.4; background: var(--obsidian); color: var(--ivory); outline-offset: 4px; }
+.craft-media { position: absolute; inset: 0; }
+.craft-art { width: 100%; height: 100%; transition: transform 1.4s var(--ease); }
+.craft-card article:hover .craft-art, .craft-card article:focus-visible .craft-art { transform: scale(1.08) translateY(-3%); }
+.craft-info {
+  position: absolute; inset: auto 0 0 0; padding: 1.4rem;
+  background: linear-gradient(0deg, rgba(12, 11, 10, 0.94) 30%, rgba(12, 11, 10, 0));
+  display: grid; gap: 0.4rem;
+}
+.craft-num { font-size: 0.66rem; letter-spacing: 0.22em; color: var(--gold); }
+.craft-info h3 { font-family: var(--f-display); font-weight: 450; font-size: clamp(1.3rem, 1.8vw, 1.7rem); line-height: 1.1; }
+.craft-line { font-size: 0.88rem; color: var(--silver-light); }
+.craft-detail {
+  font-size: 0.82rem; color: var(--muted-on-dark);
+  max-height: 0; opacity: 0; overflow: hidden;
+  transition: max-height 0.7s var(--ease), opacity 0.5s, margin 0.5s;
+}
+.craft-card article:hover .craft-detail, .craft-card article:focus-visible .craft-detail { max-height: 10rem; opacity: 1; margin-top: 0.4rem; }
+
 /* movement animations */
 .spin-slow { animation: spin 24s linear infinite; }
 .spin-rev { animation: spin 16s linear infinite reverse; }
