@@ -1,3 +1,4 @@
+import { navigate } from './lib/router'
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 
 /*
@@ -54,9 +55,9 @@ export function scrollToId(id) {
   const el = document.getElementById(id)
   if (!el) {
     // we are on another "page" (e.g. #/credits): go home first, then scroll
-    if (window.location.hash.startsWith('#/')) {
-      window.location.hash = ''
-      setTimeout(() => document.getElementById(id)?.scrollIntoView(), 150)
+    if (window.location.hash.startsWith('#/') || document.body.dataset.route !== 'home') {
+      navigate('')
+      setTimeout(() => document.getElementById(id)?.scrollIntoView(), 400)
     }
     return
   }
