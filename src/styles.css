@@ -366,6 +366,58 @@ em { font-style: italic; }
 .scroll-cue svg { width: 16px; height: 16px; animation: cue 2.2s var(--ease) infinite; }
 @keyframes cue { 0%, 100% { transform: translateY(-3px); opacity: 0.4; } 50% { transform: translateY(4px); opacity: 1; } }
 
+/* ---------- 6d. Scroll story ---------- */
+.ss { position: relative; background: radial-gradient(ellipse at 50% 40%, #1b1a18 0%, var(--obsidian) 65%); }
+.ss-pin {
+  position: relative;
+  height: 100vh; height: 100svh;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 0.5fr);
+  align-items: center;
+  padding: var(--nav-h) var(--gutter) 2rem;
+  max-width: none;
+}
+.ss-bignum {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  font-family: var(--f-display); font-size: clamp(14rem, 38vw, 34rem); line-height: 1;
+  color: transparent; -webkit-text-stroke: 1px rgba(239, 233, 222, 0.08);
+  pointer-events: none; user-select: none;
+}
+.ss-visual { grid-column: 2; grid-row: 1; position: relative; z-index: 1; height: min(78vh, 760px); display: grid; place-items: center; }
+.ss-watch, .ss-movement { position: absolute; inset: 0; display: grid; place-items: center; will-change: transform, opacity; }
+.ss-watch .watch-svg { height: 100%; width: auto; max-width: 100%; }
+.ss-movement { opacity: 0; }
+.ss-movement svg { width: auto; height: auto; max-width: min(78%, 520px); max-height: 80%; align-self: center; }
+.ss-ring { opacity: 0; pointer-events: none; }
+.ss-ring circle { fill: none; stroke: var(--gold); stroke-width: 1.2; }
+.ss-halo {
+  position: absolute; width: min(70vh, 640px); aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 173, 124, 0.22), transparent 62%);
+  border: 1px solid rgba(201, 173, 124, 0.25);
+  opacity: 0;
+}
+
+.ss-text { grid-column: 1; grid-row: 1; position: relative; height: 18rem; z-index: 3; }
+.ss-step { position: absolute; inset: 0; display: grid; align-content: center; gap: 1.1rem; }
+.ss-title { font-size: clamp(2.6rem, 5.4vw, 5.6rem); }
+.ss-copy { max-width: 22rem; color: var(--muted-on-dark); font-size: clamp(1rem, 1.25vw, 1.15rem); }
+
+.ss-progress { grid-column: 3; justify-self: end; display: grid; gap: 1.4rem; z-index: 2; }
+.ss-progress li { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0.8rem; color: rgba(239, 233, 222, 0.35); transition: color 0.5s; }
+.ss-progress li span { font-size: 0.7rem; letter-spacing: 0.2em; position: relative; padding-left: 2.6rem; }
+.ss-progress li span::before { content: ''; position: absolute; left: 0; top: 50%; width: 2rem; height: 1px; background: currentColor; transform: scaleX(0.4); transform-origin: left; transition: transform 0.6s var(--ease); }
+.ss-progress li em { font-style: normal; font-size: 0.66rem; letter-spacing: 0.2em; text-transform: uppercase; }
+.ss-progress li.is-done { color: rgba(239, 233, 222, 0.6); }
+.ss-progress li.is-active { color: var(--ivory); }
+.ss-progress li.is-active span::before { transform: scaleX(1); background: var(--gold); }
+
+.ss--static { padding: 6rem var(--gutter); }
+.ss-static-grid { max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 3rem 2rem; }
+.ss-static-item { display: grid; gap: 0.8rem; align-content: start; }
+.ss-static-visual { height: 340px; display: grid; place-items: center; }
+.ss-static-visual svg { height: 100%; width: auto; }
+
 /* movement animations */
 .spin-slow { animation: spin 24s linear infinite; }
 .spin-rev { animation: spin 16s linear infinite reverse; }
