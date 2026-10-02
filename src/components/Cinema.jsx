@@ -284,8 +284,11 @@ export default function Cinema({ ready }) {
         tl.fromTo(S, { ring: 0 }, { ring: 1, duration: 0.6, immediateRender: false }, 2.6)
         // 03 movement: exploded view with labels, then the dive with smoke
         swap(1, 2, 3.35)
-        go(B, C, 3.3, 0.9)
-        tl.fromTo(S, { lbl: 0 }, { lbl: 1, duration: 0.3, immediateRender: false }, 3.9)
+        // turn to the side while still closed, then open the parts to both sides
+        const CT = { ...C, explode: 0 }
+        go(B, CT, 3.3, 0.45)
+        go(CT, C, 3.75, 0.5)
+        tl.fromTo(S, { lbl: 0 }, { lbl: 1, duration: 0.25, immediateRender: false }, 4.2)
         tl.to(S, { lbl: 0, duration: 0.2 }, 4.7)
         go(C, C2, 4.75, 0.9)
         // precise automatic movement: the watch reassembles in front of giant type
