@@ -1,0 +1,33 @@
+/* =========================================================
+   KAIROS  |  global styles
+   1. Tokens   2. Base   3. Type   4. Buttons   5. Layout
+   6. Sections (in page order)   7. Overlays   8. Motion prefs
+   ========================================================= */
+
+/* ---------- 1. Tokens ---------- */
+:root {
+  --obsidian: #0c0b0a;
+  --obsidian-2: #151413;
+  --graphite: #2a2927;
+  --graphite-2: #3b3a37;
+  --ivory: #efe9de;
+  --ivory-2: #e5dece;
+  --sand: #e3dccd;
+  --silver: #a9a8a4;
+  --silver-light: #d2d1cc;
+  --gold: #c9ad7c;
+  --gold-ink: #7a5f33; /* gold for text on ivory, AA contrast */
+  --ink: #161514;
+  --muted-on-light: #57534d;
+  --muted-on-dark: #a8a39a;
+  --line-light: rgba(22, 21, 20, 0.14);
+  --line-dark: rgba(239, 233, 222, 0.14);
+
+  --f-display: 'Bodoni Moda Variable', 'Bodoni 72', Didot, 'Times New Roman', serif;
+  --f-ui: 'Manrope Variable', 'Helvetica Neue', Arial, sans-serif;
+
+  --gutter: clamp(1rem, 4vw, 3.5rem);
+  --max: 1440px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --nav-h: 76px;
+}
