@@ -197,8 +197,8 @@ export const studioOptions = {
   strapColor: {
     leather: [
       { id: 'black', label: 'Black', swatch: '#151413' },
-      { id: 'brown', label: 'Brown', swatch: '#6a3f26' },
-      { id: 'tan', label: 'Tan', swatch: '#8a5d36' },
+      { id: 'brown', label: 'Brown', swatch: '#4f2c1a' },
+      { id: 'tan', label: 'Tan', swatch: '#9a6a3c' },
       { id: 'navy', label: 'Navy', swatch: '#1d2840' },
     ],
     rubber: [
