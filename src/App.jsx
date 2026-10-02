@@ -20,18 +20,9 @@ import Footer from './components/Footer'
 import Credits from './components/Credits'
 import { Drawer, Search, Toast } from './components/Overlays'
 import ProductStudio from './components/ProductStudio'
+import LegalPage from './components/LegalPage'
+import { useRoute } from './lib/router'
 
-// Tiny hash router: "#/credits" shows the credits page, anything else the home page
-const useRoute = () => {
-  const read = () => (window.location.hash.startsWith('#/credits') ? 'credits' : 'home')
-  const [route, setRoute] = useState(read)
-  useEffect(() => {
-    const on = () => setRoute(read())
-    window.addEventListener('hashchange', on)
-    return () => window.removeEventListener('hashchange', on)
-  }, [])
-  return route
-}
 
 /*
   Shared section transitions, applied once to the whole page:
@@ -76,7 +67,7 @@ function useRevealAnimations(route) {
 }
 
 export default function App() {
-  const route = useRoute()
+  const { name: route, page: legalPage } = useRoute()
   const [ready, setReady] = useState(false)
   useRevealAnimations(route)
   useEffect(() => {
@@ -90,6 +81,8 @@ export default function App() {
       <Navbar />
       {route === 'credits' ? (
         <Credits />
+      ) : route === 'legal' ? (
+        <LegalPage key={legalPage} slug={legalPage} />
       ) : (
         <main id="main">
           <Cinema ready={ready} />
