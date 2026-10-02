@@ -692,6 +692,20 @@ em { font-style: italic; }
 .footer-bottom { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-on-dark); border-top: 1px solid var(--line-dark); padding-top: 1.4rem; }
 .footer-bottom a { padding: 0.3rem 0; }
 
+/* ---------- 6o. Credits page ---------- */
+.credits { padding: calc(var(--nav-h) + 4rem) var(--gutter) 6rem; min-height: 100vh; }
+.credits-inner { max-width: 1100px; margin: 0 auto; display: grid; gap: 1.6rem; }
+.credits-back { justify-self: start; }
+.credits-table-wrap { overflow-x: auto; margin-top: 1.5rem; border-top: 1px solid var(--ink); }
+.credits-table { width: 100%; border-collapse: collapse; min-width: 760px; font-size: 0.9rem; }
+.credits-table th, .credits-table td { text-align: left; vertical-align: top; padding: 1rem 1rem 1rem 0; border-bottom: 1px solid var(--line-light); }
+.credits-table thead th { font-size: 0.66rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted-on-light); }
+.credits-table tbody th { font-family: var(--f-display); font-weight: 500; font-size: 1.05rem; }
+.credits-table a { text-decoration: underline; text-underline-offset: 3px; word-break: break-all; }
+.credits-legal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2.5rem; }
+.credits-legal h2 { font-family: var(--f-display); font-weight: 450; font-size: 1.6rem; margin-bottom: 0.5rem; }
+.credits-legal p { color: var(--muted-on-light); font-size: 0.92rem; }
+
 /* movement animations */
 .spin-slow { animation: spin 24s linear infinite; }
 .spin-rev { animation: spin 16s linear infinite reverse; }
@@ -737,6 +751,10 @@ svg [class*='spin'], svg .rotor, svg .balance { transform-box: view-box; }
 /* journal + craft photos keep the same zoom-on-hover as the illustrations */
 img.journal-art, img.craft-art { filter: saturate(0.85); }
 .jcard-media { background: var(--graphite); }
+
+/* credits page has a light background, so the navbar starts solid */
+body[data-route='credits'] .nav { background: rgba(12, 11, 10, 0.92); }
+.search-bar input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
 
 /* =========================================================
    CINEMA: fixed 3D stage behind the hero + scroll story
