@@ -62,6 +62,15 @@ window.photoOf = (id) => {
   return true
 }
 
+// any look, for checking options (e.g. strap types)
+window.photoLook = (look, p = STILLS.photo.p) => {
+  st.setLook(look)
+  st.setScreen('face')
+  pose(p)
+  settle(60, ...STILLS.photo.light)
+  return true
+}
+
 window.still = (name) => {
   const s = STILLS[name]
   st.setScreen(s.screen)
