@@ -112,3 +112,75 @@ em { font-style: italic; }
   color: var(--muted-on-dark);
 }
 .theme-light .lede, .theme-sand .lede { color: var(--muted-on-light); }
+
+/* ---------- 4. Buttons ---------- */
+.btn {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 52px;
+  padding: 0.95rem 1.9rem;
+  font-size: 0.72rem; font-weight: 650; letter-spacing: 0.22em; text-transform: uppercase;
+  border: 1px solid currentColor;
+  overflow: hidden; isolation: isolate;
+  transition: color 0.5s var(--ease), border-color 0.5s var(--ease);
+}
+.btn::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  transform: scaleY(0); transform-origin: bottom;
+  transition: transform 0.6s var(--ease);
+}
+.btn:hover::before, .btn:focus-visible::before { transform: scaleY(1); transform-origin: top; }
+
+.btn-solid { background: var(--ivory); color: var(--obsidian); border-color: var(--ivory); }
+.btn-solid::before { background: var(--gold); }
+.theme-light .btn-solid, .theme-sand .btn-solid { background: var(--ink); color: var(--ivory); border-color: var(--ink); }
+.theme-light .btn-solid::before, .theme-sand .btn-solid::before { background: var(--graphite-2); }
+
+.btn-ghost { color: var(--ivory); border-color: rgba(239, 233, 222, 0.4); }
+.btn-ghost::before { background: var(--ivory); }
+.btn-ghost:hover, .btn-ghost:focus-visible { color: var(--obsidian); border-color: var(--ivory); }
+.theme-light .btn-ghost, .theme-sand .btn-ghost { color: var(--ink); border-color: rgba(22, 21, 20, 0.35); }
+.theme-light .btn-ghost::before, .theme-sand .btn-ghost::before { background: var(--ink); }
+.theme-light .btn-ghost:hover, .theme-sand .btn-ghost:hover,
+.theme-light .btn-ghost:focus-visible, .theme-sand .btn-ghost:focus-visible { color: var(--ivory); }
+
+.btn-dark { background: var(--ink); color: var(--ivory); border-color: var(--ink); }
+.btn-dark::before { background: var(--graphite-2); }
+
+.btn-link {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-size: 0.72rem; font-weight: 650; letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 0.6rem 0;
+  background: linear-gradient(currentColor, currentColor) left bottom / 100% 1px no-repeat;
+  transition: background-size 0.5s var(--ease), gap 0.4s var(--ease);
+}
+.btn-link:hover { background-size: 40% 1px; gap: 0.85rem; }
+.btn-link svg { width: 16px; height: 16px; }
+
+.icon-btn {
+  position: relative;
+  width: 44px; height: 44px;
+  display: inline-grid; place-items: center;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+.icon-btn:hover { background: rgba(127, 127, 127, 0.14); }
+.badge {
+  position: absolute; top: 6px; right: 4px;
+  min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: 8px; background: var(--gold); color: var(--obsidian);
+  font-size: 0.6rem; font-weight: 700; line-height: 16px; text-align: center;
+}
+.wish.is-on { color: #a3263a; }
+.theme-dark .wish.is-on { color: var(--gold); }
+
+.chip {
+  min-height: 44px;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--line-dark);
+  border-radius: 999px;
+  font-size: 0.76rem; letter-spacing: 0.06em;
+  transition: background 0.4s var(--ease), color 0.4s, border-color 0.4s;
+}
+.chip:hover { border-color: rgba(239, 233, 222, 0.5); }
+.chip.is-on { background: var(--ivory); color: var(--obsidian); border-color: var(--ivory); }
