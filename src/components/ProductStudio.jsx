@@ -48,6 +48,15 @@ const LABELS = {
   ],
 }
 
+const SCREENS = [
+  ['face', 'Watch face'],
+  ['apps', 'Apps'],
+  ['sports', 'Sports'],
+  ['workout', 'Workout'],
+  ['health', 'Health'],
+]
+const FRONT = { rx: -0.08, ry: 0 } // face-on, to read the screen
+
 const VIEW = { rx: -0.28, ry: -0.45 } // resting 3/4 view
 const SIDE = { rx: 0.2, ry: -1.25 } // side view for the exploded parts
 
@@ -62,6 +71,9 @@ export default function ProductStudio() {
   const [look, setLook] = useState(null)
   const [explode, setExplode] = useState(0)
   const [spin, setSpin] = useState(false)
+  const [screen, setScreen] = useState('face')
+  const screenRef = useRef(screen)
+  screenRef.current = screen
   const [ready, setReady] = useState(false)
   const [webgl] = useState(can3D)
   const canvasRef = useRef(null)
@@ -76,6 +88,7 @@ export default function ProductStudio() {
     if (!watch) return
     setLook({ ...watch.look })
     setExplode(0)
+    setScreen('face')
     setSpin(!prefersReducedMotion())
     ctl.current.target = { ...VIEW }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,6 +109,7 @@ export default function ProductStudio() {
       // use the latest look: it may have changed while Three.js was loading
       const st = createStage(canvasRef.current, { look: lookRef.current, maxDpr: 1.75 })
       engine.current = st
+      st.setScreen?.(screenRef.current)
       setReady(true)
       const S = st.state
       Object.assign(S, { x: 0, y: 0.02, size: 0.42, maxW: 0.72, ...VIEW })
@@ -180,6 +194,11 @@ export default function ProductStudio() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, webgl, look === null])
+
+  // smartwatch screen page
+  useEffect(() => {
+    engine.current?.setScreen?.(screen)
+  }, [screen, ready])
 
   // apply option changes instantly
   useEffect(() => {
@@ -282,6 +301,33 @@ export default function ProductStudio() {
           <h2 id="studio-title" className="display-m">{watch.name}</h2>
           <p className="studio-price" aria-live="polite">{formatPrice(price)}</p>
           <p className="studio-text">{watch.long}</p>
+
+          {isPulse && (
+            <fieldset className="opt-group">
+              <legend>
+                Screen <span>{SCREENS.find(([id]) => id === screen)?.[1]}</span>
+              </legend>
+              <div className="opt-pills opt-screens">
+                {SCREENS.map(([id, label]) => (
+                  <label key={id} className={`pill ${screen === id ? 'is-on' : ''}`}>
+                    <input
+                      type="radio"
+                      name="s-screen"
+                      checked={screen === id}
+                      onChange={() => {
+                        setScreen(id)
+                        // stop and face the screen so the page can be read
+                        setSpin(false)
+                        setExplode(0)
+                        ctl.current.target = { ...FRONT }
+                      }}
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          )}
 
           <fieldset className="opt-group">
             <legend>
