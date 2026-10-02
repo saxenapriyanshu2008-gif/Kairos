@@ -207,6 +207,19 @@ em { font-style: italic; }
   justify-items: center;
 }
 
+/* ---------- 6a. Loader ---------- */
+.loader {
+  position: fixed; inset: 0; z-index: 300;
+  background: var(--obsidian); color: var(--ivory);
+  display: grid; place-items: center;
+  clip-path: inset(0 0 0 0);
+}
+.loader-inner { display: grid; justify-items: center; gap: 1.2rem; }
+.loader-word { display: flex; overflow: hidden; font-family: var(--f-display); font-size: clamp(2.4rem, 7vw, 4.5rem); letter-spacing: 0.32em; padding-left: 0.32em; line-height: 1.1; }
+.loader-word span { display: inline-block; }
+.loader-line { width: min(220px, 50vw); height: 1px; background: var(--gold); transform-origin: left; }
+.loader-tag { font-size: 0.66rem; letter-spacing: 0.4em; color: var(--muted-on-dark); padding-left: 0.4em; }
+
 /* movement animations */
 .spin-slow { animation: spin 24s linear infinite; }
 .spin-rev { animation: spin 16s linear infinite reverse; }
