@@ -4,21 +4,17 @@ import { CloseIcon, HeartIcon } from './Icons'
 import { getWatch, formatPrice, studioOptions, strapKey, strapParts, studioPrice } from '../data/watches'
 import { useShop, scrollToId } from '../store'
 import { useDialog } from './Overlays'
-import { prefersReducedMotion } from '../lib/gsap'
-import PulseGallery, { PULSE_SLIDES, PULSE_PARTS } from './PulseGallery'
+import ProductGallery, { slidesFor, partsFor } from './ProductGallery'
 
 /*
   ProductStudio
   -------------
-  Opens when any watch is selected. A full-screen 3D studio with:
-    - 360° view: drag to rotate (arrow keys too), or turn on auto-spin
-    - Explode: a slider that separates crystal, bezel, hands, dial, case,
-      calibre and caseback, with live labels
-    - Options: case colour, dial colour, strap type and strap colour,
-      with the price updating as you choose
-  PULSE (the smartwatch) gets a product gallery instead of the tools:
-  a photo, a drag-to-rotate 3D view, screen images, a feature video and
-  an exploded view that explains each part.
+  Opens when any watch is selected. Full screen, with two halves:
+    - left: a product gallery with arrows (photo, drag-to-rotate 360° view,
+      and an exploded "Inside" view with every part explained; PULSE also
+      shows its screens and a feature video)
+    - right: details and options (case colour, dial colour, strap type and
+      strap colour), with the price updating as you choose
   Uses the same Three.js stage as the hero. Falls back to the SVG render
   when WebGL is not available.
 */
@@ -30,18 +26,6 @@ const can3D = () => {
   } catch {
     return false
   }
-}
-
-const LABELS = {
-  default: [
-    ['crystal', 'Sapphire crystal'],
-    ['bezel', 'Bezel'],
-    ['hands', 'Hands'],
-    ['dial', 'Dial'],
-    ['case', 'Case'],
-    ['movement', 'Calibre'],
-    ['caseback', 'Caseback'],
-  ],
 }
 
 const VIEW = { rx: -0.28, ry: -0.45 } // resting 3/4 view
@@ -57,14 +41,13 @@ export default function ProductStudio() {
 
   const [look, setLook] = useState(null)
   const [explode, setExplode] = useState(0)
-  const [spin, setSpin] = useState(false)
   const [slide, setSlide] = useState(0)
   const [ready, setReady] = useState(false)
   const [webgl] = useState(can3D)
   const canvasRef = useRef(null)
   const labelRefs = useRef([])
   const engine = useRef(null)
-  const ctl = useRef({ target: { ...VIEW }, spin: false, explode: 0, dragging: false })
+  const ctl = useRef({ target: { ...VIEW }, explode: 0, dragging: false })
   const lookRef = useRef(look)
   lookRef.current = look
 
@@ -74,14 +57,12 @@ export default function ProductStudio() {
     setLook({ ...watch.look })
     setExplode(0)
     setSlide(0)
-    setSpin(!prefersReducedMotion())
     ctl.current.target = { ...VIEW }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawer?.id, open])
 
-  ctl.current.spin = spin
   ctl.current.explode = explode
-  ctl.current.labels = look?.model === 'pulse' ? PULSE_PARTS : LABELS.default
+  ctl.current.labels = watch ? partsFor(watch) : []
 
   // build the 3D stage while the studio is open
   useEffect(() => {
@@ -97,25 +78,20 @@ export default function ProductStudio() {
       setReady(true)
       const S = st.state
       Object.assign(S, { x: 0, y: 0.02, size: 0.42, maxW: 0.72, ...VIEW })
-      let last = performance.now()
 
       const loop = () => {
-        const now = performance.now()
-        const dt = Math.min(0.05, (now - last) / 1000)
-        last = now
         const c = ctl.current
         if (c.active === false) {
           raf = requestAnimationFrame(loop)
           return
         }
-        if (c.spin && !c.dragging) c.target.ry += dt * 0.55
         S.rx += (c.target.rx - S.rx) * 0.1
         S.ry += (c.target.ry - S.ry) * 0.1
         S.explode += (c.explode - S.explode) * 0.12
         S.hideStrap = Math.min(1, S.explode * 1.6)
         const goalSize = 0.42 - 0.17 * Math.min(1, c.explode)
         S.size += (goalSize - S.size) * 0.1
-        const goalY = c.lift ? 0.16 : 0.02
+        const goalY = c.lift ? 0.21 : 0.02
         S.y += (goalY - S.y) * 0.1
         st.frame()
         // labels follow the exploded parts
@@ -185,19 +161,17 @@ export default function ProductStudio() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, webgl, look === null])
 
-  // PULSE gallery: only the 3D slides use the stage
-  const pulse = look?.model === 'pulse'
-  const kind = pulse ? PULSE_SLIDES[slide].type : '3d'
+  // gallery: only the 3D slides use the stage
+  const kind = watch ? slidesFor(watch)[slide]?.type || '3d' : '3d'
   ctl.current.active = kind === '3d' || kind === 'explode'
   ctl.current.lift = kind === 'explode'
   useEffect(() => {
-    if (!pulse) return
+    if (!watch) return
     const ex = kind === 'explode'
     setExplode(ex ? 1 : 0)
-    setSpin(false)
     ctl.current.target = ex ? { ...SIDE } : { ...VIEW }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slide, pulse])
+  }, [slide, watch?.id])
 
   // apply option changes instantly
   useEffect(() => {
@@ -215,22 +189,12 @@ export default function ProductStudio() {
     const keep = colors?.find((c) => c.id === strap.color)
     set('strap', strapKey(type, keep ? keep.id : colors?.[0].id))
   }
-  const toggleExplode = (v) => {
-    setExplode(v)
-    // turn to the side so the parts spread across the screen
-    ctl.current.target = v > 0 ? { ...SIDE } : { ...VIEW }
-    if (v > 0) setSpin(false)
-  }
-  const resetView = () => {
-    setExplode(0)
-    ctl.current.target = { ...VIEW }
-  }
   const saved = wishlist.includes(watch.id)
   const isPulse = look.model === 'pulse'
   const caseLabel = studioOptions.caseFinish.find((o) => o.id === look.caseFinish)?.label
   const dialLabel = studioOptions.dial.find((o) => o.id === look.dial)?.label
   const strapLabel = `${strap.color ? studioOptions.strapColor[strap.type].find((c) => c.id === strap.color)?.label + ' ' : ''}${studioOptions.strapType.find((t) => t.id === strap.type)?.label.toLowerCase()}`
-  const labels = isPulse ? PULSE_PARTS : LABELS.default
+  const labels = partsFor(watch)
 
   return (
     <div className="studio-root is-open">
@@ -253,11 +217,11 @@ export default function ProductStudio() {
                 aria-label={`${watch.name} in 3D. Drag, or use the arrow keys, to rotate.`}
               />
               <div className="studio-labels" aria-hidden="true">
-                {labels.map(([part, name], i) => (
+                {labels.map(([part], i) => (
                   <div key={part} ref={(el) => (labelRefs.current[i] = el)} className={`cin-label ${i % 2 ? 'is-bottom' : 'is-top'}`}>
                     <span className="cin-label-line" />
                     <span className="cin-label-text">
-                      <em>{String(i + 1).padStart(2, '0')}</em> {!isPulse && name}
+                      <em>{String(i + 1).padStart(2, '0')}</em>
                     </span>
                   </div>
                 ))}
@@ -269,30 +233,9 @@ export default function ProductStudio() {
             </div>
           )}
 
-          {isPulse && <PulseGallery slide={slide} setSlide={setSlide} name={watch.name} webgl={webgl} />}
+          <ProductGallery watch={watch} slide={slide} setSlide={setSlide} />
 
-          {!isPulse && (
-          <div className="studio-tools">
-            <button className={`tool ${spin ? 'is-on' : ''}`} aria-pressed={spin} onClick={() => setSpin((s) => !s)} disabled={!webgl}>
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                <ellipse cx="12" cy="12" rx="9" ry="4" />
-                <path d="M17 7.5l1.6 1.2-1.6 1.2" />
-              </svg>
-              360°
-            </button>
-            <label className="tool tool-range">
-              <span>Explode</span>
-              <input type="range" min="0" max="1" step="0.01" value={explode} onChange={(e) => toggleExplode(Number(e.target.value))} disabled={!webgl} aria-valuetext={`${Math.round(explode * 100)} percent`} />
-            </label>
-            <button className="tool" onClick={() => toggleExplode(explode > 0 ? 0 : 1)} disabled={!webgl}>
-              {explode > 0 ? 'Assemble' : 'Explode'}
-            </button>
-            <button className="tool" onClick={resetView} disabled={!webgl}>
-              Reset
-            </button>
-          </div>
-          )}
-          {(!isPulse || kind === '3d') && <p className="studio-hint" aria-hidden="true">{webgl ? 'Drag to rotate 360°' : 'Interactive 3D needs WebGL'}</p>}
+          {kind === '3d' && <p className="studio-hint" aria-hidden="true">{webgl ? 'Drag to rotate 360°' : 'Interactive 3D needs WebGL'}</p>}
         </div>
 
         {/* ---------- details + options ---------- */}
