@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PULSE render</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0a0908; overflow: hidden; }
+  #bg { position: fixed; inset: 0;
+    background:
+      radial-gradient(60% 55% at 50% 45%, rgba(201,173,124,.14), transparent 70%),
+      radial-gradient(90% 70% at 50% 110%, rgba(239,233,222,.06), transparent 60%),
+      linear-gradient(180deg, #0f0e0d, #0a0908); }
+  #bg::after { content: ''; position: absolute; left: 12%; right: 12%; bottom: 10%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(239,233,222,.16), transparent); }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #cap { position: fixed; left: 7%; right: 7%; bottom: 6.5%; font-family: 'Manrope Variable', Arial, sans-serif; color: #efe9de; }
+  #cap .k { font-size: 1.6vh; letter-spacing: .32em; text-transform: uppercase; color: #c9ad7c; margin: 0 0 1.2vh; font-weight: 600; }
+  #cap .t { font-family: 'Bodoni Moda Variable', Georgia, serif; font-size: 5.4vh; line-height: 1.05; margin: 0; }
+  #cap .s { font-size: 2.1vh; color: #a8a39a; margin: 1.2vh 0 0; }
+  #brand { position: fixed; top: 5.5%; left: 7%; font-family: 'Bodoni Moda Variable', Georgia, serif; letter-spacing: .4em; color: #efe9de; font-size: 2.2vh; }
+  #step { position: fixed; top: 5.5%; right: 7%; font-family: 'Manrope Variable', Arial, sans-serif; font-size: 1.5vh; letter-spacing: .3em; color: #8f8a82; }
+  #bar { position: fixed; left: 0; bottom: 0; height: 3px; background: #c9ad7c; width: 0; }
+  .lab { position: fixed; left: 0; top: 0; opacity: 0; font-family: 'Manrope Variable', Arial, sans-serif; color: #efe9de; white-space: nowrap; }
+  .lab::before { content: ''; position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #c9ad7c; box-shadow: 0 0 0 5px rgba(201,173,124,.18); }
+  .lab i { position: absolute; left: 0; top: calc(-1 * var(--o)); width: 1px; height: var(--o); background: linear-gradient(#c9ad7c, rgba(201,173,124,.15)); }
+  .lab b { position: absolute; left: -2px; top: calc(-1 * var(--o) - 2.6vh); font-size: 1.5vh; letter-spacing: .2em; text-transform: uppercase; font-weight: 650; }
+  .end { position: fixed; inset: 0; display: grid; place-content: center; text-align: center; background: #0a0908; opacity: 0; font-family: 'Bodoni Moda Variable', Georgia, serif; color: #efe9de; }
+  .end h1 { font-weight: 400; font-size: 8vh; letter-spacing: .12em; margin: 0; }
+  .end p { font-family: 'Manrope Variable', Arial, sans-serif; color: #c9ad7c; letter-spacing: .3em; font-size: 1.8vh; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<canvas id="c"></canvas>
+<div id="brand" hidden>KAIROS</div>
+<div id="step" hidden></div>
+<div id="labs"></div>
+<div id="cap" hidden><p class="k"></p><p class="t"></p><p class="s"></p></div>
+<div class="end" id="end"><h1>KAIROS PULSE</h1><p>The moment, on your wrist</p></div>
+<div id="bar" hidden></div>
+<script type="module" src="./pulse-render.js"></script>
+</body>
+</html>
