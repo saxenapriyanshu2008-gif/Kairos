@@ -1183,3 +1183,60 @@ body[data-route='credits'] .nav { background: rgba(12, 11, 10, 0.92); }
   .tool { padding: 0 0.7rem; letter-spacing: 0.1em; }
   .tool-range span { display: none; }
 }
+
+/* =========================================================
+   FILM ADDITIONS (reel references): lineup type, PRECISE stage,
+   light chapter, liquid RGB type
+   ========================================================= */
+.cin-filters { position: absolute; width: 0; height: 0; }
+.cin-light {
+  position: absolute; inset: 0; opacity: 0; visibility: hidden;
+  background:
+    radial-gradient(60% 50% at 50% 35%, #f6f5f2, transparent 70%),
+    linear-gradient(180deg, #ecebe7 0%, #dedcd6 100%);
+}
+.gt { will-change: opacity, filter; }
+.gt-l {
+  font-family: var(--f-ui); font-weight: 800; text-transform: uppercase; letter-spacing: -0.04em;
+  font-size: clamp(6rem, 24vw, 26rem); line-height: 0.8; color: var(--ivory);
+  transform: translateY(-14vh);
+}
+.gt-p {
+  font-family: var(--f-ui); font-weight: 800; text-transform: uppercase; letter-spacing: -0.03em;
+  font-size: clamp(3.4rem, 10.5vw, 11rem); line-height: 0.84; text-align: center; color: var(--ivory);
+  transform: translateY(-12vh);
+  background: linear-gradient(180deg, #ffffff 30%, #9c9a95 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.gt-d { color: var(--ink); }
+
+/* centered chapter titles (lineup, elegant contours, slim profile) */
+.cs-center {
+  position: absolute; left: var(--gutter); right: var(--gutter); text-align: center; visibility: hidden;
+  display: grid; justify-items: center; gap: 0.8rem; pointer-events: none;
+}
+.cs-lineup { bottom: clamp(2rem, 7vh, 4.5rem); font-size: clamp(1rem, 1.5vw, 1.25rem); color: var(--muted-on-dark); display: block; }
+.cs-lineup span { color: var(--ivory); font-family: var(--f-display); font-size: 1.5em; display: block; margin-bottom: 0.3rem; }
+.cs-contours, .cs-slim { top: calc(var(--nav-h) + 4vh); color: var(--ink); }
+.cs-center-title { font-family: var(--f-ui); font-weight: 400; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(2rem, 4.6vw, 4.4rem); line-height: 1; }
+.cs-center p:not(.cs-center-title) { max-width: 26rem; font-size: 0.92rem; color: #5b5853; }
+
+/* the film turns light for THE MOMENT */
+.cinema.is-light .cs-step .eyebrow { color: var(--gold-ink); }
+.cinema.is-light .cs-title { color: var(--ink); }
+.cinema.is-light .cs-copy { color: #57534d; }
+.cinema.is-light .cs-hud div { color: rgba(22, 21, 20, 0.3); }
+.cinema.is-light .cs-hud div.is-on { color: var(--ink); }
+.cinema.is-light .cs-hud div.is-on dt { color: var(--gold-ink); }
+.cinema.is-light .cs-progress li { color: rgba(22, 21, 20, 0.35); }
+.cinema.is-light .cs-progress li.is-done { color: rgba(22, 21, 20, 0.6); }
+.cinema.is-light .cs-progress li.is-active { color: var(--ink); }
+.cinema.is-light .cs-text::before { background: linear-gradient(180deg, rgba(233, 231, 226, 0), rgba(233, 231, 226, 0.9) 45%); }
+.cs-step, .cs-title, .cs-copy, .cs-hud div, .cs-progress li { transition: color 0.6s var(--ease); }
+
+@media (max-width: 767px) {
+  .gt-l { font-size: 27vw; transform: translateY(-20vh); }
+  .gt-p { font-size: 15vw; transform: translateY(-22vh); }
+  .cs-contours, .cs-slim { top: calc(var(--nav-h) + 1rem); }
+  .cs-lineup { bottom: auto; top: 58vh; }
+}
+

@@ -46,26 +46,33 @@ const SPECS = [
 ]
 
 // Poses for each moment of the film. x/y are fractions of half the viewport.
+const RESET = { explode: 0, fly: 0, hideStrap: 0, ring: 0, particles: 0, z: 0, lineup: 0, textRing: 0, smoke: 0 }
 function poses(mobile) {
   if (mobile) {
     return {
-      hero: { x: 0, y: 0.42, size: 0.34, maxW: 0.62, rx: -0.25, ry: -0.35, rz: 0.1, explode: 0, fly: 0, hideStrap: 0, ring: 0, particles: 0, z: 0 },
-      a: { x: 0, y: 0.22, size: 0.4, maxW: 0.72, rx: -0.15, ry: 0.8, rz: 0 },
-      b: { x: 0, y: 0.2, size: 0.55, maxW: 0.95, rx: 0, ry: 0, rz: 0, ring: 1 },
+      hero: { ...RESET, x: 0, y: 0.42, size: 0.34, maxW: 0.62, rx: -0.25, ry: -0.35, rz: 0.1 },
+      l: { x: -0.23, y: 0.2, size: 0.17, maxW: 0.3, rx: -0.15, ry: -0.25, rz: 0, lineup: 1 },
+      a: { x: 0, y: 0.22, size: 0.36, maxW: 0.62, rx: -0.15, ry: 0.8, rz: 0, lineup: 0, textRing: 1 },
+      b: { x: 0, y: 0.2, size: 0.55, maxW: 0.95, rx: 0, ry: 0, rz: 0, ring: 1, textRing: 0 },
       c: { x: 0, y: 0.2, size: 0.22, maxW: 0.34, rx: 0.2, ry: -1.3, rz: 0, explode: 1, hideStrap: 1, ring: 0 },
-      c2: { x: 0, y: 0.18, size: 0.7, maxW: 1.2, rx: 0, ry: 0, rz: 0.35, explode: 1, fly: 1, particles: 1 },
-      d1: { x: 0, y: 0.22, size: 0.42, maxW: 0.8, rx: 0.05, ry: 1.5, rz: 0, explode: 0, fly: 0, hideStrap: 0, particles: 0 },
+      c2: { x: 0, y: 0.18, size: 0.7, maxW: 1.2, rx: 0, ry: 0, rz: 0.35, explode: 1, fly: 1, particles: 0.6, smoke: 1 },
+      p: { x: 0, y: -0.05, size: 0.42, maxW: 0.8, rx: -0.2, ry: -0.3, rz: 0.05, explode: 0, fly: 0, hideStrap: 0, particles: 0, smoke: 1 },
+      e: { x: 0, y: -0.25, size: 0.45, maxW: 0.85, rx: -1.0, ry: 0, rz: 0, smoke: 0 },
+      sl: { x: 0, y: -0.45, size: 0.5, maxW: 1.0, rx: 0.3, ry: 1.5, rz: 0 },
       d2: { x: 0, y: 0.24, size: 0.44, maxW: 0.8, rx: -0.12, ry: -0.35, rz: 0.05 },
     }
   }
   return {
-    hero: { x: 0.46, y: 0.0, size: 0.56, maxW: 0.9, rx: -0.28, ry: -0.5, rz: 0.12, explode: 0, fly: 0, hideStrap: 0, ring: 0, particles: 0, z: 0 },
-    a: { x: 0.28, y: 0.0, size: 0.6, maxW: 0.9, rx: -0.25, ry: 1.0, rz: 0.05 },
-    b: { x: 0.2, y: 0.0, size: 0.72, maxW: 0.9, rx: 0, ry: 0, rz: 0, ring: 1 },
+    hero: { ...RESET, x: 0.46, y: 0.0, size: 0.56, maxW: 0.9, rx: -0.28, ry: -0.5, rz: 0.12 },
+    l: { x: -0.25, y: -0.1, size: 0.27, maxW: 0.36, rx: -0.12, ry: -0.3, rz: 0, lineup: 1 },
+    a: { x: 0.28, y: 0.0, size: 0.5, maxW: 0.9, rx: -0.25, ry: 1.0, rz: 0.05, lineup: 0, textRing: 1 },
+    b: { x: 0.2, y: 0.0, size: 0.72, maxW: 0.9, rx: 0, ry: 0, rz: 0, ring: 1, textRing: 0 },
     c: { x: 0.1, y: 0.04, size: 0.42, maxW: 0.68, rx: 0.22, ry: -1.3, rz: 0, explode: 1, hideStrap: 1, ring: 0 },
-    c2: { x: 0.2, y: 0, size: 0.78, maxW: 1.3, rx: 0, ry: 0, rz: 0.35, explode: 1, fly: 1, particles: 1 },
-    d1: { x: 0.25, y: 0, size: 0.72, maxW: 0.9, rx: 0.05, ry: 1.5, rz: 0, explode: 0, fly: 0, hideStrap: 0, particles: 0 },
-    d2: { x: 0.26, y: 0, size: 0.64, maxW: 0.9, rx: -0.12, ry: -0.35, rz: 0.05 },
+    c2: { x: 0.2, y: 0, size: 0.78, maxW: 1.3, rx: 0, ry: 0, rz: 0.35, explode: 1, fly: 1, particles: 0.6, smoke: 1 },
+    p: { x: 0, y: -0.16, size: 0.5, maxW: 0.9, rx: -0.25, ry: -0.35, rz: 0.06, explode: 0, fly: 0, hideStrap: 0, particles: 0, smoke: 1 },
+    e: { x: 0, y: -0.42, size: 0.62, maxW: 0.9, rx: -1.0, ry: 0, rz: 0, smoke: 0 },
+    sl: { x: 0, y: -0.62, size: 0.8, maxW: 1.2, rx: 0.3, ry: 1.5, rz: 0 },
+    d2: { x: 0.26, y: 0, size: 0.6, maxW: 0.9, rx: -0.12, ry: -0.35, rz: 0.05 },
   }
 }
 
@@ -105,6 +112,7 @@ export default function Cinema({ ready }) {
           look: { model: 'arc', caseFinish: 'black', dial: 'midnight', strap: 'steel' },
           maxDpr: mobile ? 1.5 : 1.75,
           onFrame: () => placeLabels(),
+          film: true,
         })
         Object.assign(stage.state, poses(mobile).hero)
         engine.current = stage
@@ -148,42 +156,91 @@ export default function Cinema({ ready }) {
         st.resize()
         Object.assign(S, P.hero)
 
-        // hero -> stage 01, while the hero scrolls away
-        gsap.fromTo(S, { ...P.hero }, { ...P.a, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.8 } })
+        // giant type, overlays and the light chapter follow the (smoothed) film time
+        const WIN = [
+          ['.gt-l', -1, -0.5, 0.7, 1.2, 0],
+          ['.cs-lineup', -1, -0.5, 0.6, 1.0, null],
+          ['.gt-c', 3.85, 4.1, 4.6, 4.8, 1],
+          ['.cs-parts', 3.95, 4.15, 4.6, 4.75, null],
+          ['.gt-c2', 5.1, 5.4, 5.8, 6.0, 2],
+          ['.cs-beats', 5.2, 5.4, 5.8, 5.95, null],
+          ['.gt-p', 6.3, 6.7, 7.1, 7.35, 3],
+          ['.cin-light', 7.25, 7.8, 99, 99, null],
+          ['.cs-contours', 7.9, 8.15, 8.5, 8.7, null],
+          ['.cs-slim', 9.1, 9.35, 9.6, 9.8, null],
+          ['.gt-d', 10.1, 10.5, 99, 99, 4],
+        ].map(([sel, a1, b1, c1, d1, liq]) => ({
+          el: root.current.querySelector(sel),
+          a: a1,
+          b: b1,
+          c: c1,
+          d: d1,
+          disp: liq === null ? null : root.current.querySelector(`#liq-${liq} feDisplacementMap`),
+          liq,
+        }))
+        const fade = (t, w) => (t <= w.a || t >= w.d ? 0 : t < w.b ? (t - w.a) / (w.b - w.a) : t <= w.c ? 1 : 1 - (t - w.c) / (w.d - w.c))
+        let heroP = 0
+        let filmT = 0
+        let lastLight = null
+        const paint = () => {
+          for (const w of WIN) {
+            // before the pin starts, the lineup type rises with the hero scroll
+            let o = filmT <= 0.001 && w.a < 0 ? Math.max(0, (heroP - 0.35) / 0.65) : fade(filmT, w)
+            o = Math.max(0, Math.min(1, o))
+            const st2 = w.el.style
+            st2.opacity = o
+            st2.visibility = o > 0.001 ? 'visible' : 'hidden'
+            if (w.liq !== null && w.disp) {
+              // ALCHE-style liquid RGB split while the giant type appears or leaves
+              const k = 1 - o
+              w.disp.setAttribute('scale', (k * 60).toFixed(1))
+              st2.filter = o > 0.001 && o < 0.995 ? `url(#liq-${w.liq})` : 'none'
+              st2.textShadow = o < 0.995 ? `${(-k * 14).toFixed(1)}px 0 rgba(255,40,90,${0.6 * k}), ${(k * 14).toFixed(1)}px 0 rgba(40,170,255,${0.6 * k})` : 'none'
+            } else if (w.liq === null && !w.el.classList.contains('cin-light')) {
+              st2.translate = `0 ${((1 - o) * 18).toFixed(1)}px`
+            }
+          }
+          const light = filmT > 7.6
+          if (light !== lastLight) {
+            lastLight = light
+            root.current.classList.toggle('is-light', light)
+          }
+        }
 
-        // pinned story timeline
+        // hero -> lineup, while the hero scrolls away
+        gsap.fromTo(S, { ...P.hero }, {
+          ...P.hero,
+          ...P.l,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.hero',
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 0.8,
+            onUpdate: (self) => {
+              heroP = self.progress
+              paint()
+            },
+          },
+        })
+
+        // pinned story timeline (about 11 "seconds" of film over 10 screens of scroll)
         let last = -1
         const tl = gsap.timeline({
           defaults: { ease: 'power2.inOut' },
           scrollTrigger: {
             trigger: '.cs-pin',
             start: 'top top',
-            end: () => '+=' + window.innerHeight * 6,
+            end: () => '+=' + window.innerHeight * 10,
             pin: true,
             scrub: 1,
             anticipatePin: 1,
           },
         })
-        // giant type + side notes: opacity follows the (smoothed) timeline time
-        const WINDOWS = [
-          ['.gt-a', 0.05, 0.3, 0.55, 0.8],
-          ['.gt-c', 2.35, 2.6, 3.2, 3.4],
-          ['.cs-parts', 2.45, 2.65, 3.2, 3.35],
-          ['.gt-c2', 3.65, 3.95, 4.3, 4.5],
-          ['.cs-beats', 3.8, 4.0, 4.3, 4.45],
-          ['.cs-slim', 4.95, 5.15, 5.4, 5.6],
-          ['.gt-d', 5.7, 6.05, 99, 99],
-        ].map(([sel, a, b, c2, d]) => ({ el: root.current.querySelector(sel), a, b, c: c2, d }))
-        const fade = (t, w) => (t <= w.a || t >= w.d ? 0 : t < w.b ? (t - w.a) / (w.b - w.a) : t <= w.c ? 1 : 1 - (t - w.c) / (w.d - w.c))
         tl.eventCallback('onUpdate', () => {
-          const t = tl.time()
-          for (const w of WINDOWS) {
-            const o = fade(t, w)
-            w.el.style.opacity = o
-            w.el.style.visibility = o > 0.001 ? 'visible' : 'hidden'
-            w.el.style.translate = `0 ${((1 - o) * 18).toFixed(1)}px`
-          }
-          const i = t < 1.1 ? 0 : t < 2.2 ? 1 : t < 4.25 ? 2 : 3
+          filmT = tl.time()
+          paint()
+          const i = filmT < 2.05 ? 0 : filmT < 3.3 ? 1 : filmT < 7.4 ? 2 : 3
           if (i !== last) {
             last = i
             setActive(i)
@@ -191,12 +248,15 @@ export default function Cinema({ ready }) {
         })
 
         const go = (from, to, at, dur = 0.8) => tl.fromTo(S, { ...from }, { ...to, duration: dur, immediateRender: false }, at)
-        const A = { ...P.hero, ...P.a }
+        const L = { ...P.hero, ...P.l }
+        const A = { ...L, ...P.a }
         const B = { ...A, ...P.b }
         const C = { ...B, ...P.c }
         const C2 = { ...C, ...P.c2 }
-        const D1 = { ...C2, ...P.d1 }
-        const D2 = { ...D1, ...P.d2 }
+        const PR = { ...C2, ...P.p }
+        const E = { ...PR, ...P.e }
+        const SL = { ...E, ...P.sl }
+        const D2 = { ...SL, ...P.d2 }
 
         const steps = gsap.utils.toArray('.cs-step')
         const swap = (from, to, at) => {
@@ -204,25 +264,34 @@ export default function Cinema({ ready }) {
           tl.fromTo(steps[to], { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.35, immediateRender: false }, at + 0.25)
         }
         gsap.set(steps, { autoAlpha: 0 })
-        gsap.set(steps[0], { autoAlpha: 1, y: 0 })
+        tl.fromTo(steps[0], { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.35, immediateRender: false }, 1.05)
 
-        tl.to({}, { duration: 0.5 }, 0)
+        // 00 lineup: four models in front of giant type, then the others fly out
+        tl.to({}, { duration: 0.6 }, 0)
+        go(L, { ...A, textRing: 0 }, 0.6, 0.8)
+        // 01 case: giant type circles the watch
+        tl.fromTo(S, { textRing: 0 }, { textRing: 1, duration: 0.4, immediateRender: false }, 1.0)
+        tl.fromTo(S, { ringSpin: 0 }, { ringSpin: 3.4, duration: 1.8, ease: 'none', immediateRender: false }, 0.6)
+        tl.to(S, { textRing: 0, duration: 0.3 }, 2.0)
         // 02 dial
-        swap(0, 1, 0.7)
-        go(A, { ...B, ring: 0 }, 0.6, 0.8)
-        tl.fromTo(S, { ring: 0 }, { ring: 1, duration: 0.6, immediateRender: false }, 1.2)
-        // 03 movement: exploded view with labels
-        swap(1, 2, 1.95)
-        go(B, C, 1.9, 0.9)
-        tl.fromTo(S, { lbl: 0 }, { lbl: 1, duration: 0.3, immediateRender: false }, 2.5)
-        // dive into the movement
-        tl.to(S, { lbl: 0, duration: 0.2 }, 3.3)
-        go(C, C2, 3.35, 0.9)
-        // 04 moment: reassemble in side profile, then final shot
-        swap(2, 3, 4.45)
-        go(C2, D1, 4.45, 0.9)
-        go(D1, D2, 5.55, 0.8)
-        tl.to({}, { duration: 0.4 }, 6.35)
+        swap(0, 1, 2.1)
+        go({ ...A }, { ...B, ring: 0 }, 2.0, 0.8)
+        tl.fromTo(S, { ring: 0 }, { ring: 1, duration: 0.6, immediateRender: false }, 2.6)
+        // 03 movement: exploded view with labels, then the dive with smoke
+        swap(1, 2, 3.35)
+        go(B, C, 3.3, 0.9)
+        tl.fromTo(S, { lbl: 0 }, { lbl: 1, duration: 0.3, immediateRender: false }, 3.9)
+        tl.to(S, { lbl: 0, duration: 0.2 }, 4.7)
+        go(C, C2, 4.75, 0.9)
+        // precise automatic movement: the watch reassembles in front of giant type
+        go(C2, PR, 6.0, 0.9)
+        // 04 moment: the film turns light. Elegant contours, slim profile, final shot
+        swap(2, 3, 7.4)
+        go(PR, E, 7.3, 1.0)
+        go(E, SL, 8.6, 0.9)
+        go(SL, D2, 9.8, 0.8)
+        tl.to({}, { duration: 0.5 }, 10.6)
+        paint()
 
         // labels container follows S.lbl
         const syncLabels = () => {
@@ -293,10 +362,27 @@ export default function Cinema({ ready }) {
     <div ref={root} className={`cinema ${loaded ? 'is-3d' : ''}`}>
       <div ref={stageRef} className="cin-stage" aria-hidden="true">
         <div className="cin-backdrop" />
+        <div className="cin-light" />
+        {/* liquid distortion filters for the giant type (one per word) */}
+        <svg className="cin-filters" width="0" height="0" aria-hidden="true" focusable="false">
+          {[0, 1, 2, 3, 4].map((k) => (
+            <filter key={k} id={`liq-${k}`} x="-10%" y="-20%" width="120%" height="140%">
+              <feTurbulence type="fractalNoise" baseFrequency={`${0.008 + k * 0.002} 0.03`} numOctaves="2" seed={k + 3} />
+              <feDisplacementMap in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+          ))}
+        </svg>
         <div className="cin-type">
-          <span className="gt gt-a">316L</span>
+          <span className="gt gt-l">KAIROS</span>
           <span className="gt gt-c">184</span>
           <span className="gt gt-c2">28,800</span>
+          <span className="gt gt-p">
+            Precise
+            <br />
+            automatic
+            <br />
+            movement
+          </span>
           <span className="gt gt-d">Moment</span>
         </div>
         <canvas ref={canvasRef} className="cin-canvas" />
@@ -323,7 +409,7 @@ export default function Cinema({ ready }) {
                 <p>{s.text}</p>
               </div>
             ))}
-            <p>184 parts, nothing hidden. 28,800 vibrations per hour. 10.8 millimetres slim.</p>
+            <p>Eight interpretations of time. 184 parts, nothing hidden. 28,800 vibrations per hour. Precise automatic movement. Elegant contours. A slim 10.8 millimetre profile.</p>
           </div>
 
           <dl className="cs-hud" aria-hidden="true">
@@ -345,15 +431,31 @@ export default function Cinema({ ready }) {
             ))}
           </div>
 
+          <p className="cs-center cs-lineup" aria-hidden="true">
+            <span>Eight interpretations of time.</span> One KAIROS philosophy.
+          </p>
+          <div className="cs-center cs-contours" aria-hidden="true">
+            <p className="cs-center-title">
+              Elegant
+              <br />
+              contours
+            </p>
+            <p>Every edge is brushed, then the bevels are polished by hand so the case catches light from above.</p>
+          </div>
           <p className="cs-extra cs-parts" aria-hidden="true">
             <strong>184 parts.</strong> Nothing hidden.
           </p>
           <p className="cs-extra cs-beats" aria-hidden="true">
             <strong>Six beats a second.</strong> The balance wheel swings 28,800 times an hour, every hour, for as long as you wear it.
           </p>
-          <p className="cs-extra cs-slim" aria-hidden="true">
-            <strong>10.8 mm.</strong> Slim enough to slide under a cuff.
-          </p>
+          <div className="cs-center cs-slim" aria-hidden="true">
+            <p className="cs-center-title">
+              Slim
+              <br />
+              profile
+            </p>
+            <p>10.8 mm from sapphire to caseback. Slim enough to slide under a cuff.</p>
+          </div>
 
           <ol className="ss-progress cs-progress" aria-hidden="true">
             {STAGES.map((s, i) => (
