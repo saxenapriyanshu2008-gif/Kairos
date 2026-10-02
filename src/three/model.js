@@ -15,17 +15,32 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 // ---------- materials ----------
 // Matte, brushed finishes: darker base colours and higher roughness read as
 // real metal instead of the bright plastic look of a pure white chrome.
-const METAL = {
+export const METAL = {
   steel: { color: '#a9aaa7', polish: '#c2c3c0' },
   black: { color: '#2b2c31', polish: '#3a3c42' },
   champagne: { color: '#b49a6c', polish: '#c9ad7c' },
+  blue: { color: '#2c4170', polish: '#3b5487' },
+  gunmetal: { color: '#55565b', polish: '#6a6b70' },
 }
 const DIALS = {
   ivory: { a: '#f8f4ec', b: '#d8cfbd', ink: '#1d1c1a', sub: '#6d675d', ray: 'rgba(255,255,255,0.06)' },
   obsidian: { a: '#2d2d31', b: '#060607', ink: '#ece7dd', sub: '#8f8a82', ray: 'rgba(255,255,255,0.05)' },
   midnight: { a: '#2c4170', b: '#08101e', ink: '#ece7dd', sub: '#9aa6bd', ray: 'rgba(190,210,255,0.06)' },
+  slate: { a: '#4a4f55', b: '#1b1e22', ink: '#ece7dd', sub: '#a3a8ad', ray: 'rgba(255,255,255,0.05)' },
 }
-const LEATHER = { blackLeather: '#151413', brownLeather: '#6a3f26' }
+// Every strap key = one type + one colour. Metal straps take the case colour.
+export const STRAPS = {
+  steel: { type: 'bracelet' },
+  mesh: { type: 'mesh' },
+  blackLeather: { type: 'leather', color: '#151413', stitch: '#4d4943' },
+  brownLeather: { type: 'leather', color: '#6a3f26', stitch: '#d8b48b' },
+  tanLeather: { type: 'leather', color: '#5c3d22', stitch: '#e2c79c' },
+  navyLeather: { type: 'leather', color: '#1d2840', stitch: '#8d98b2' },
+  blackRubber: { type: 'rubber', color: '#141414', stitch: '#b8352f' },
+  navyRubber: { type: 'rubber', color: '#1f3157', stitch: '#c9ad7c' },
+  greyRubber: { type: 'rubber', color: '#55585c', stitch: '#e8e5dd' },
+}
+const ROSE = '#c99273'
 
 function metalMat(hex, rough, roughnessMap = null) {
   return new THREE.MeshStandardMaterial({ color: hex, metalness: 1, roughness: rough, roughnessMap, envMapIntensity: 0.75 })
@@ -89,31 +104,120 @@ function dialTexture(dialKey, model) {
   g.globalAlpha = 1
   g.textAlign = 'center'
   g.fillStyle = d.ink
+  // sub-dials (chronograph at 3, 6, 9; small seconds at 6)
+  const sub = (x, y, r, ticks) => {
+    const gr = g.createRadialGradient(R + x, R + y, 4, R + x, R + y, r)
+    gr.addColorStop(0, 'rgba(0,0,0,0.35)')
+    gr.addColorStop(1, 'rgba(0,0,0,0.12)')
+    g.fillStyle = gr
+    g.beginPath()
+    g.arc(R + x, R + y, r, 0, Math.PI * 2)
+    g.fill()
+    g.strokeStyle = d.ink
+    g.globalAlpha = 0.85
+    g.lineWidth = 2.5
+    g.stroke()
+    for (let i = 0; i < ticks; i++) {
+      const a = (i / ticks) * Math.PI * 2
+      const big = i % (ticks / 4) === 0
+      g.lineWidth = big ? 4 : 2
+      g.beginPath()
+      g.moveTo(R + x + Math.sin(a) * (r - 4), R + y - Math.cos(a) * (r - 4))
+      g.lineTo(R + x + Math.sin(a) * (r - (big ? 22 : 13)), R + y - Math.cos(a) * (r - (big ? 22 : 13)))
+      g.stroke()
+    }
+    g.globalAlpha = 1
+    g.fillStyle = d.ink
+  }
+  if (model === 'apex') {
+    const P = 0.4 * (R / 0.84)
+    sub(P, 0, 120, 60)
+    sub(0, P, 120, 30)
+    sub(-P, 0, 120, 60)
+  }
+  if (model === 'mono') sub(0, 0.42 * (R / 0.84), 105, 60)
   g.font = '600 50px "Manrope Variable", Arial, sans-serif'
   g.letterSpacing = '18px'
-  g.fillText('KAIROS', R + 9, R - 200)
+  if (model === 'void') {
+    // skeleton: only the outer chapter ring is printed, the centre is open
+    g.font = '600 30px "Manrope Variable", Arial, sans-serif'
+    g.letterSpacing = '12px'
+    g.fillText('KAIROS', R + 6, R - 392)
+    g.font = '600 20px "Manrope Variable", Arial, sans-serif'
+    g.letterSpacing = '8px'
+    g.fillStyle = d.sub
+    g.fillText('VOID · SKELETON AUTOMATIC', R + 4, R + 412)
+    const tex = new THREE.CanvasTexture(c)
+    tex.colorSpace = THREE.SRGBColorSpace
+    tex.anisotropy = 8
+    return tex
+  }
+  g.fillText('KAIROS', R + 9, model === 'apex' ? R - 250 : R - 200)
   g.font = '600 24px "Manrope Variable", Arial, sans-serif'
   g.letterSpacing = '9px'
   g.fillStyle = d.sub
-  g.fillText(model === 'atlas' ? 'AUTOMATIC · 200M' : 'AUTOMATIC', R + 4, R + 230)
+  const line1 = { atlas: 'AUTOMATIC · 200M', apex: 'CHRONOGRAPH', mono: 'AUTOMATIC' }[model] || 'AUTOMATIC'
+  const line2 = { atlas: 'CALIBRE K-02', apex: 'CALIBRE K-03 · TACHY', mono: '' }[model] ?? 'CALIBRE K-01'
+  const y1 = model === 'apex' ? R + 150 : model === 'mono' ? R - 150 : R + 230
+  g.fillText(line1, R + 4, y1)
   g.font = '500 19px "Manrope Variable", Arial, sans-serif'
   g.letterSpacing = '6px'
-  g.fillText(model === 'atlas' ? 'CALIBRE K-02' : 'CALIBRE K-01', R + 3, R + 268)
+  if (line2) g.fillText(line2, R + 3, y1 + 38)
   // small K mark: the logo's stem plus the two hands
+  const ky = model === 'apex' ? -50 : 0
   g.strokeStyle = d.ink
   g.lineWidth = 5
   g.lineCap = 'round'
   g.beginPath()
-  g.moveTo(R - 10, R - 312)
-  g.lineTo(R - 10, R - 262)
-  g.moveTo(R - 10, R - 287)
-  g.lineTo(R + 12, R - 312)
-  g.moveTo(R - 10, R - 287)
-  g.lineTo(R + 15, R - 260)
+  g.moveTo(R - 10, R - 312 + ky)
+  g.lineTo(R - 10, R - 262 + ky)
+  g.moveTo(R - 10, R - 287 + ky)
+  g.lineTo(R + 12, R - 312 + ky)
+  g.moveTo(R - 10, R - 287 + ky)
+  g.lineTo(R + 15, R - 260 + ky)
   g.stroke()
   const tex = new THREE.CanvasTexture(c)
   tex.colorSpace = THREE.SRGBColorSpace
   tex.anisotropy = 8
+  return tex
+}
+
+function tachyTexture() {
+  const S = 1024
+  const c = document.createElement('canvas')
+  c.width = c.height = S
+  const g = c.getContext('2d')
+  const R = S / 2
+  g.fillStyle = '#16171a'
+  g.fillRect(0, 0, S, S)
+  g.strokeStyle = '#e8e5dd'
+  g.fillStyle = '#e8e5dd'
+  g.textAlign = 'center'
+  g.textBaseline = 'middle'
+  g.font = '700 30px "Manrope Variable", Arial, sans-serif'
+  const marks = [500, 400, 300, 250, 200, 170, 150, 130, 120, 110, 100, 90, 80, 70, 60]
+  marks.forEach((v) => {
+    const sec = 3600 / v
+    const a = (sec / 60) * Math.PI * 2
+    g.save()
+    g.translate(R + Math.sin(a) * (R - 46), R - Math.cos(a) * (R - 46))
+    g.rotate(a)
+    g.fillText(String(v), 0, 0)
+    g.restore()
+  })
+  for (let i = 0; i < 60; i++) {
+    const a = (i / 60) * Math.PI * 2
+    g.lineWidth = 3
+    g.beginPath()
+    g.moveTo(R + Math.sin(a) * (R - 6), R - Math.cos(a) * (R - 6))
+    g.lineTo(R + Math.sin(a) * (R - 16), R - Math.cos(a) * (R - 16))
+    g.stroke()
+  }
+  g.font = '700 22px "Manrope Variable", Arial, sans-serif'
+  g.fillStyle = '#c9ad7c'
+  g.fillText('TACHYMETRE', R, R + R - 46)
+  const tex = new THREE.CanvasTexture(c)
+  tex.colorSpace = THREE.SRGBColorSpace
   return tex
 }
 
@@ -145,6 +249,96 @@ function bezelTexture() {
   const tex = new THREE.CanvasTexture(c)
   tex.colorSpace = THREE.SRGBColorSpace
   return tex
+}
+
+// Smartwatch screen, redrawn once a second with the real time.
+function drawScreen(g, now, accent) {
+  const S = g.canvas.width
+  const R = S / 2
+  g.clearRect(0, 0, S, S)
+  g.fillStyle = '#050506'
+  g.fillRect(0, 0, S, S)
+  const ring = (r, frac, col, w) => {
+    g.strokeStyle = 'rgba(255,255,255,0.08)'
+    g.lineWidth = w
+    g.beginPath()
+    g.arc(R, R, r, 0, Math.PI * 2)
+    g.stroke()
+    g.strokeStyle = col
+    g.lineCap = 'round'
+    g.beginPath()
+    g.arc(R, R, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * frac)
+    g.stroke()
+  }
+  const steps = 8412 + Math.floor((now.getHours() * 60 + now.getMinutes()) * 1.3)
+  ring(R - 40, Math.min(1, steps / 12000), accent, 22)
+  ring(R - 78, 0.62, '#efe9de', 14)
+  const hh = String(now.getHours()).padStart(2, '0')
+  const mm = String(now.getMinutes()).padStart(2, '0')
+  g.textAlign = 'center'
+  g.textBaseline = 'middle'
+  g.fillStyle = '#efe9de'
+  g.font = '300 230px "Manrope Variable", Arial, sans-serif'
+  g.fillText(`${hh}:${mm}`, R, R - 10)
+  g.font = '600 46px "Manrope Variable", Arial, sans-serif'
+  g.fillStyle = accent
+  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+  const mons = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+  g.fillText(`${days[now.getDay()]} ${String(now.getDate()).padStart(2, '0')} ${mons[now.getMonth()]}`, R, R - 200)
+  g.font = '500 40px "Manrope Variable", Arial, sans-serif'
+  g.fillStyle = '#a8a39a'
+  g.fillText(`♥ ${68 + (now.getSeconds() % 7)}  ·  ${steps.toLocaleString('en-IN')} steps`, R, R + 175)
+  g.font = '600 30px "Manrope Variable", Arial, sans-serif'
+  g.fillStyle = '#efe9de'
+  g.fillText(`:${String(now.getSeconds()).padStart(2, '0')}`, R + 290, R - 10)
+  g.font = '700 30px "Manrope Variable", Arial, sans-serif'
+  g.fillStyle = accent
+  g.fillText('KAIROS PULSE', R, R + 260)
+}
+
+// Fine woven texture for the mesh bracelet
+function meshTexture() {
+  const c = document.createElement('canvas')
+  c.width = c.height = 128
+  const g = c.getContext('2d')
+  g.fillStyle = '#8a8a88'
+  g.fillRect(0, 0, 128, 128)
+  g.strokeStyle = '#d6d6d2'
+  g.lineWidth = 2
+  for (let i = -128; i < 256; i += 8) {
+    g.beginPath()
+    g.moveTo(i, 0)
+    g.lineTo(i + 128, 128)
+    g.stroke()
+  }
+  g.strokeStyle = '#4a4a48'
+  g.lineWidth = 1.4
+  for (let i = -128; i < 256; i += 8) {
+    g.beginPath()
+    g.moveTo(i + 128, 0)
+    g.lineTo(i, 128)
+    g.stroke()
+  }
+  const t = new THREE.CanvasTexture(c)
+  t.colorSpace = THREE.SRGBColorSpace
+  t.wrapS = t.wrapT = THREE.RepeatWrapping
+  t.repeat.set(6, 2)
+  return t
+}
+
+// Rubber strap: soft horizontal ribs
+function rubberTexture() {
+  const c = document.createElement('canvas')
+  c.width = c.height = 128
+  const g = c.getContext('2d')
+  g.fillStyle = '#ffffff'
+  g.fillRect(0, 0, 128, 128)
+  g.fillStyle = '#c4c4c4'
+  for (let y = 0; y < 128; y += 16) g.fillRect(14, y, 100, 6)
+  const t = new THREE.CanvasTexture(c)
+  t.colorSpace = THREE.SRGBColorSpace
+  t.wrapS = t.wrapT = THREE.RepeatWrapping
+  return t
 }
 
 // Côtes de Genève: fine, low-contrast wave stripes for plates and bridges.
@@ -346,7 +540,13 @@ export function buildWatch(initialLook) {
     slot: track(new THREE.MeshStandardMaterial({ color: '#0b1226', roughness: 0.6 })),
     lume: track(new THREE.MeshStandardMaterial({ color: '#f2efe6', roughness: 0.5 })),
     dial: track(new THREE.MeshStandardMaterial({ roughness: 0.42, metalness: 0.55, roughnessMap: track(sunrayTexture()), envMapIntensity: 0.9 })),
-    bezelInsert: track(new THREE.MeshStandardMaterial({ roughness: 0.35, metalness: 0.2, map: track(bezelTexture()) })),
+    bezelInsert: track(new THREE.MeshStandardMaterial({ roughness: 0.35, metalness: 0.2, map: null })),
+    mesh: track(new THREE.MeshStandardMaterial({ color: '#a9aaa7', metalness: 1, roughness: 0.45, map: track(meshTexture()), envMapIntensity: 0.8 })),
+    rubber: track(new THREE.MeshStandardMaterial({ color: '#141414', roughness: 0.88, metalness: 0, map: track(rubberTexture()) })),
+    accent: track(metalMat('#c99273', 0.28)),
+    board: track(new THREE.MeshStandardMaterial({ color: '#13261d', roughness: 0.6, metalness: 0.2 })),
+    chip: track(new THREE.MeshStandardMaterial({ color: '#111114', roughness: 0.35, metalness: 0.4 })),
+    copper: track(metalMat('#b87333', 0.35)),
     crystal: track(new THREE.MeshPhysicalMaterial({ color: '#dfe6f2', metalness: 0, roughness: 0.03, transparent: true, opacity: 0.14, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 1.1, depthWrite: false })),
     leather: track(new THREE.MeshStandardMaterial({ color: '#6a3f26', roughness: 0.75, metalness: 0 })),
     stitch: track(new THREE.MeshStandardMaterial({ color: '#d8b48b', roughness: 0.8 })),
@@ -354,6 +554,7 @@ export function buildWatch(initialLook) {
   // the bracelet gets its own copies so it can fade out without fading the case
   M.sCase = track(M.case.clone())
   M.sPolish = track(M.polish.clone())
+  const TEX = { diver: track(bezelTexture()), tachy: track(tachyTexture()) }
   {
     const cotes = track(cotesTexture())
     M.plate.map = cotes
@@ -390,6 +591,16 @@ export function buildWatch(initialLook) {
     caseG.add(r)
   }
 
+  // chronograph / smartwatch pushers at 2 and 4 o'clock
+  const pushers = new THREE.Group()
+  for (const a of [-0.55, 0.55]) {
+    const p = new THREE.Mesh(track(new THREE.CylinderGeometry(0.065, 0.065, 0.16, 28).rotateZ(Math.PI / 2)), M.polish)
+    p.position.set(Math.cos(a) * 1.07, Math.sin(a) * 1.07, -0.03)
+    p.rotation.z = a
+    pushers.add(p)
+  }
+  caseG.add(pushers)
+
   // ---------- BEZEL ----------
   const bezelGeo = track(lathe([[0.83, 0.1], [0.97, 0.1], [0.99, 0.13], [0.95, 0.17], [0.86, 0.175], [0.83, 0.16], [0.83, 0.1]]))
   const bezelMesh = new THREE.Mesh(bezelGeo, M.polish)
@@ -408,6 +619,19 @@ export function buildWatch(initialLook) {
   // ---------- DIAL ----------
   const dialMesh = new THREE.Mesh(track(new THREE.CircleGeometry(0.84, 128)), M.dial)
   dialG.add(dialMesh)
+  // skeleton: only the outer chapter ring, so the movement shows through
+  const dialRing = new THREE.Mesh(track(new THREE.RingGeometry(0.6, 0.84, 128, 1)), M.dial)
+  dialG.add(dialRing)
+  // smartwatch screen
+  const screenCanvas = document.createElement('canvas')
+  screenCanvas.width = screenCanvas.height = 1024
+  const screenTex = track(new THREE.CanvasTexture(screenCanvas))
+  screenTex.colorSpace = THREE.SRGBColorSpace
+  const screenMat = track(new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }))
+  const screen = new THREE.Mesh(track(new THREE.CircleGeometry(0.84, 128)), screenMat)
+  screen.position.z = 0.002
+  dialG.add(screen)
+  let screenSecond = -1
   const indexGroup = new THREE.Group()
   dialG.add(indexGroup)
   const dateGroup = new THREE.Group()
@@ -438,6 +662,23 @@ export function buildWatch(initialLook) {
   const cap = new THREE.Mesh(track(new THREE.CylinderGeometry(0.04, 0.04, 0.05, 32).rotateX(Math.PI / 2)), M.gold)
   cap.position.z = 0.03
   handsG.add(hourHand, minuteHand, secondHand, cap)
+  // small hands for sub-dials (chronograph at 3/6/9, small seconds at 6)
+  const subHands = []
+  const subHand = (x, y, len) => {
+    const g = new THREE.Group()
+    g.position.set(x, y, -0.02)
+    const m = new THREE.Mesh(track(new THREE.BoxGeometry(0.014, len, 0.006)), M.hand)
+    m.position.y = len / 2 - 0.02
+    const c = new THREE.Mesh(track(new THREE.CylinderGeometry(0.02, 0.02, 0.012, 16).rotateX(Math.PI / 2)), M.hand)
+    g.add(m, c)
+    handsG.add(g)
+    subHands.push(g)
+    return g
+  }
+  const subA = subHand(0.4, 0, 0.13)
+  const subB = subHand(0, -0.4, 0.13)
+  const subC = subHand(-0.4, 0, 0.13)
+  const subSmall = subHand(0, -0.42, 0.12)
 
   // ---------- CRYSTAL ----------
   const crystal = new THREE.Mesh(track(lathe([[0, 0.0], [0.86, 0.0], [0.86, 0.02], [0.6, 0.035], [0, 0.04]], 96)), M.crystal)
@@ -624,6 +865,30 @@ export function buildWatch(initialLook) {
   rotorG.add(rotor)
   movementG.add(rotorG)
 
+  // keep the mechanical calibre in its own group so the smartwatch can swap it
+  const mechG = new THREE.Group()
+  movementG.children.slice().forEach((c) => mechG.add(c))
+  movementG.add(mechG)
+  // smartwatch electronics: board, chips, battery, haptic motor
+  const elecG = new THREE.Group()
+  {
+    const board = new THREE.Mesh(track(new THREE.CylinderGeometry(0.78, 0.78, 0.03, 96).rotateX(Math.PI / 2)), M.board)
+    board.position.z = -0.02
+    elecG.add(board)
+    const battery = new THREE.Mesh(track(new THREE.CylinderGeometry(0.42, 0.42, 0.06, 64).rotateX(Math.PI / 2)), M.polish)
+    battery.position.set(-0.12, 0.08, 0.03)
+    elecG.add(battery)
+    for (const [x, y, w, h] of [[0.42, 0.3, 0.22, 0.18], [0.45, -0.18, 0.16, 0.16], [-0.1, -0.52, 0.3, 0.12], [0.2, -0.45, 0.1, 0.1]]) {
+      const chip = new THREE.Mesh(track(new RoundedBoxGeometry(w, h, 0.03, 2, 0.008)), M.chip)
+      chip.position.set(x, y, 0.015)
+      elecG.add(chip)
+    }
+    const coil = new THREE.Mesh(track(new THREE.TorusGeometry(0.6, 0.02, 8, 96)), M.copper)
+    coil.position.z = -0.005
+    elecG.add(coil)
+  }
+  movementG.add(elecG)
+
   // ---------- CASEBACK ----------
   const back = new THREE.Mesh(track(lathe([[0.0, -0.2], [0.9, -0.2], [0.93, -0.17], [0.9, -0.15], [0.62, -0.15], [0.62, -0.18], [0, -0.18]], 96)), M.case)
   casebackG.add(back)
@@ -634,6 +899,7 @@ export function buildWatch(initialLook) {
   // ---------- STRAP ----------
   let strapMeshes = []
   function buildStrap(kind) {
+    const spec = STRAPS[kind] || STRAPS.blackLeather
     strapMeshes.forEach((m) => {
       strapG.remove(m)
       m.geometry.dispose()
@@ -656,7 +922,7 @@ export function buildWatch(initialLook) {
       strapG.add(im)
       strapMeshes.push(im)
     }
-    if (kind === 'steel') {
+    if (spec.type === 'bracelet') {
       instanced(new RoundedBoxGeometry(0.3, 0.2, 0.11, 2, 0.035), M.sPolish, N * 2, (d, p) => {
         d.position.set(0, p.y, p.z)
         d.rotation.set(p.rx, 0, 0)
@@ -666,10 +932,16 @@ export function buildWatch(initialLook) {
           d.position.set(sx * 0.325, p.y, p.z - 0.005)
           d.rotation.set(p.rx, 0, 0)
         })
+    } else if (spec.type === 'mesh') {
+      instanced(new RoundedBoxGeometry(0.94, 0.26, 0.045, 1, 0.006), M.mesh, N * 2, (d, p) => {
+        d.position.set(0, p.y, p.z)
+        d.rotation.set(p.rx, 0, 0)
+      })
     } else {
-      M.leather.color.set(LEATHER[kind] || '#6a3f26')
-      M.stitch.color.set(kind === 'brownLeather' ? '#d8b48b' : '#4d4943')
-      instanced(new RoundedBoxGeometry(0.96, 0.225, 0.075, 2, 0.03), M.leather, N * 2, (d, p) => {
+      const strapMat = spec.type === 'rubber' ? M.rubber : M.leather
+      strapMat.color.set(spec.color)
+      M.stitch.color.set(spec.stitch)
+      instanced(new RoundedBoxGeometry(0.96, 0.26, spec.type === 'rubber' ? 0.09 : 0.075, 1, 0.008), strapMat, N * 2, (d, p) => {
         d.position.set(0, p.y, p.z)
         d.rotation.set(p.rx, 0, 0)
       })
@@ -681,7 +953,8 @@ export function buildWatch(initialLook) {
     }
     // spring-bar block between the lugs
     for (const sy of [-1, 1]) {
-      const end = new THREE.Mesh(new RoundedBoxGeometry(0.98, 0.16, kind === 'steel' ? 0.12 : 0.085, 2, 0.04), kind === 'steel' ? M.sCase : M.leather)
+      const endMat = spec.type === 'bracelet' ? M.sCase : spec.type === 'mesh' ? M.mesh : spec.type === 'rubber' ? M.rubber : M.leather
+      const end = new THREE.Mesh(new RoundedBoxGeometry(0.98, 0.16, spec.type === 'bracelet' ? 0.12 : 0.085, 2, 0.04), endMat)
       end.position.set(0, sy * 1.12, -0.05)
       strapG.add(end)
       strapMeshes.push(end)
@@ -700,17 +973,29 @@ export function buildWatch(initialLook) {
     for (let i = 0; i < 12; i++) {
       const a = (i / 12) * Math.PI * 2
       if (model === 'atlas' && i === 3) continue
+      if (model === 'pulse') continue
+      if (model === 'apex' && (i === 3 || i === 6 || i === 9)) continue
+      if (model === 'mono' && i === 6) continue
       let m
       if (model === 'noir' && i % 3 !== 0) {
         m = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.025, 24).rotateX(Math.PI / 2), M.hand)
         m.position.set(Math.sin(a) * (R - 0.13), Math.cos(a) * (R - 0.13), 0.013)
+      } else if (model === 'apex') {
+        m = bar(0.14, 0.05, 0, M.lume)
+        m.position.set(Math.sin(a) * (R - 0.14), Math.cos(a) * (R - 0.14), 0.013)
+        m.rotation.z = -a
+      } else if (model === 'void') {
+        m = bar(0.12, 0.03, 0, M.accent)
+        m.position.set(Math.sin(a) * (R - 0.12), Math.cos(a) * (R - 0.12), 0.013)
+        m.rotation.z = -a
       } else if (model === 'atlas') {
         m = i % 3 === 0 ? bar(0.16, 0.06, 0, M.lume) : new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.025, 24).rotateX(Math.PI / 2), M.lume)
         m.position.set(Math.sin(a) * (R - 0.15), Math.cos(a) * (R - 0.15), 0.013)
         m.rotation.z = -a
       } else {
-        const len = model === 'elan' ? (i % 3 === 0 ? 0.2 : 0.14) : i === 0 ? 0.17 : 0.13
-        const w = model === 'elan' ? 0.022 : i === 0 ? 0.075 : 0.038
+        const thin = model === 'elan' || model === 'mono'
+        const len = thin ? (i % 3 === 0 ? 0.2 : 0.14) : i === 0 ? 0.17 : 0.13
+        const w = thin ? 0.022 : i === 0 ? 0.075 : 0.038
         m = bar(len, w, 0, M.hand)
         m.position.set(Math.sin(a) * (R - 0.08 - len / 2), Math.cos(a) * (R - 0.08 - len / 2), 0.013)
         m.rotation.z = -a
@@ -722,7 +1007,22 @@ export function buildWatch(initialLook) {
       win.position.set(0.6, 0, 0.01)
       dateGroup.add(win)
     }
-    insert.visible = model === 'atlas'
+    insert.visible = model === 'atlas' || model === 'apex'
+    M.bezelInsert.map = model === 'apex' ? TEX.tachy : TEX.diver
+    M.bezelInsert.needsUpdate = true
+    // which dial / hands / movement parts this model shows
+    const isPulse = model === 'pulse'
+    dialMesh.visible = model !== 'void' && !isPulse
+    dialRing.visible = model === 'void'
+    screen.visible = isPulse
+    for (const h of [hourHand, minuteHand, secondHand, cap]) h.visible = !isPulse
+    secondHand.visible = !isPulse && model !== 'mono'
+    subA.visible = subB.visible = subC.visible = model === 'apex'
+    subSmall.visible = model === 'mono'
+    pushers.visible = model === 'apex' || isPulse
+    mechG.visible = !isPulse
+    elecG.visible = isPulse
+    window_.visible = !isPulse
     bezelMesh.scale.setScalar(1)
   }
 
@@ -730,6 +1030,7 @@ export function buildWatch(initialLook) {
   let currentLook = {}
   function setLook(look) {
     const L = { model: 'arc', caseFinish: 'steel', dial: 'ivory', strap: 'steel', ...look }
+    if (!DIALS[L.dial]) L.dial = 'obsidian'
     const metal = METAL[L.caseFinish] || METAL.steel
     M.case.color.set(metal.color)
     M.case.roughness = L.caseFinish === 'black' ? 0.6 : 0.52
@@ -738,7 +1039,10 @@ export function buildWatch(initialLook) {
     M.sCase.roughness = M.case.roughness
     M.sPolish.color.set(metal.polish)
     const handMetal = L.caseFinish === 'champagne' ? METAL.champagne : METAL.steel
-    M.hand.color.set(handMetal.polish)
+    // rose-gold hands on VOID and MONO, gold accents on APEX
+    M.hand.color.set(L.model === 'void' || L.model === 'mono' ? ROSE : L.model === 'apex' ? '#d9c08a' : handMetal.polish)
+    M.mesh.color.set(metal.color)
+    M.mesh.roughness = L.caseFinish === 'black' ? 0.55 : 0.42
     M.lume.color.set(L.dial === 'ivory' ? '#1d1c1a' : '#f2efe6')
     M.dial.metalness = L.dial === 'ivory' ? 0.25 : 0.6
     if (L.dial !== currentLook.dial || L.model !== currentLook.model) {
@@ -748,6 +1052,7 @@ export function buildWatch(initialLook) {
     }
     if (L.model !== currentLook.model) buildIndices(L.model)
     if (L.strap !== currentLook.strap) buildStrap(L.strap)
+    screenSecond = -1
     currentLook = L
   }
   setLook(initialLook)
@@ -765,6 +1070,14 @@ export function buildWatch(initialLook) {
     hourHand.rotation.z = -(h / 12) * Math.PI * 2
     minuteHand.rotation.z = -(m / 60) * Math.PI * 2
     secondHand.rotation.z = -(s / 60) * Math.PI * 2
+    subSmall.rotation.z = subC.rotation.z = -(Math.floor(s) / 60) * Math.PI * 2
+    subA.rotation.z = -(m / 30) * Math.PI * 2
+    subB.rotation.z = -(h / 12) * Math.PI * 2
+    if (screen.visible && now.getSeconds() !== screenSecond) {
+      screenSecond = now.getSeconds()
+      drawScreen(screenCanvas.getContext('2d'), now, '#c9ad7c')
+      screenTex.needsUpdate = true
+    }
     // movement life
     gears.forEach(({ g, speed }) => (g.rotation.z = t * speed))
     balance.rotation.z = Math.sin(t * Math.PI * 2 * 3) * 1.6
@@ -776,7 +1089,7 @@ export function buildWatch(initialLook) {
     // fade strap away during the exploded view
     const sv = 1 - hideStrap
     strapG.visible = sv > 0.02
-    for (const mat of [M.leather, M.stitch, M.sCase, M.sPolish]) {
+    for (const mat of [M.leather, M.stitch, M.sCase, M.sPolish, M.mesh, M.rubber]) {
       const tr = sv < 1
       if (mat.transparent !== tr) {
         mat.transparent = tr
