@@ -1,10 +1,11 @@
-// Product data for the four KAIROS models.
+// Product data for the eight KAIROS models.
 // Each watch carries a `look` object that is passed straight to <WatchSVG />,
 // so the product visuals and the data always stay in sync.
 
 export const watches = [
   {
     id: 'arc',
+    group: 'dress',
     name: 'KAIROS ARC',
     short: 'ARC',
     category: 'Everyday Automatic',
@@ -18,6 +19,7 @@ export const watches = [
   },
   {
     id: 'noir',
+    group: 'dress',
     name: 'KAIROS NOIR',
     short: 'NOIR',
     category: 'Midnight Automatic',
@@ -31,6 +33,7 @@ export const watches = [
   },
   {
     id: 'atlas',
+    group: 'sport',
     name: 'KAIROS ATLAS',
     short: 'ATLAS',
     category: 'Built to Explore',
@@ -44,6 +47,7 @@ export const watches = [
   },
   {
     id: 'elan',
+    group: 'dress',
     name: 'KAIROS ÉLAN',
     short: 'ÉLAN',
     category: 'Refined Dress Watch',
@@ -55,6 +59,70 @@ export const watches = [
     look: { model: 'elan', caseFinish: 'champagne', dial: 'obsidian', strap: 'blackLeather' },
     tone: 'silver',
   },
+  {
+    id: 'void',
+    name: 'KAIROS VOID',
+    short: 'VOID',
+    category: 'Skeleton Automatic',
+    group: 'sport',
+    price: 168000,
+    description: 'An open dial that shows the beating heart of the calibre.',
+    long:
+      'VOID removes the dial and keeps only a slim chapter ring, so the gears, barrel and balance of the K-01 are always on show. A blue PVD case and bracelet with rose-gold hands and indices.',
+    specs: { Case: '42 mm, blue PVD steel', Crystal: 'Sapphire, both sides', Movement: 'Automatic K-01 skeleton', Resistance: '50M' },
+    look: { model: 'void', caseFinish: 'blue', dial: 'midnight', strap: 'steel' },
+    tone: 'dark',
+  },
+  {
+    id: 'apex',
+    name: 'KAIROS APEX',
+    short: 'APEX',
+    category: 'Sport Chronograph',
+    group: 'sport',
+    price: 154000,
+    description: 'A three-register chronograph with a tachymetre bezel.',
+    long:
+      'APEX times the moments that are measured in seconds. Three sub-dials, two pushers, a tachymetre bezel and gold accents on a gunmetal case, on a ribbed rubber strap built for movement.',
+    specs: { Case: '44 mm, gunmetal steel', Crystal: 'Sapphire', Movement: 'Automatic chronograph K-03', Resistance: '100M' },
+    look: { model: 'apex', caseFinish: 'gunmetal', dial: 'obsidian', strap: 'blackRubber' },
+    tone: 'graphite',
+  },
+  {
+    id: 'pulse',
+    name: 'KAIROS PULSE',
+    short: 'PULSE',
+    category: 'Digital Smartwatch',
+    group: 'digital',
+    price: 46000,
+    description: 'A round AMOLED smartwatch that still looks like a watch.',
+    long:
+      'PULSE puts a 1.4 inch AMOLED screen inside a classic round case. Time, date, steps and heart rate at a glance, a 7-day battery, and two pushers that feel like a chronograph.',
+    specs: { Case: '44 mm, black ceramic-coated steel', Screen: '1.4 in AMOLED, sapphire', Battery: '7 days', Resistance: '5 ATM' },
+    look: { model: 'pulse', caseFinish: 'black', dial: 'obsidian', strap: 'navyRubber' },
+    tone: 'dark',
+  },
+  {
+    id: 'mono',
+    name: 'KAIROS MONO',
+    short: 'MONO',
+    category: 'Minimal Automatic',
+    group: 'dress',
+    price: 79000,
+    description: 'All black, small seconds at six, rose-gold hands.',
+    long:
+      'MONO is the quietest KAIROS. A black case and woven mesh bracelet, a sunray dial with nothing on it but slim indices, a small seconds dial at six and rose-gold hands.',
+    specs: { Case: '40 mm, black PVD steel', Crystal: 'Sapphire', Movement: 'Automatic K-01, small seconds', Resistance: '50M' },
+    look: { model: 'mono', caseFinish: 'black', dial: 'obsidian', strap: 'mesh' },
+    tone: 'silver',
+  },
+]
+
+// Collection filters
+export const groups = [
+  { id: 'all', label: 'All' },
+  { id: 'dress', label: 'Dress' },
+  { id: 'sport', label: 'Sport' },
+  { id: 'digital', label: 'Digital' },
 ]
 
 export const getWatch = (id) => watches.find((w) => w.id === id)
@@ -91,3 +159,61 @@ export const configOptions = {
 }
 
 export const CONFIG_BASE_PRICE = 89000
+
+// ---------- Product studio options (every model) ----------
+export const studioOptions = {
+  caseFinish: [
+    { id: 'steel', label: 'Brushed steel', price: 0, swatch: 'linear-gradient(135deg,#d6d7d3,#7d7e7b 55%,#b9bab6)' },
+    { id: 'black', label: 'Black PVD', price: 15000, swatch: 'linear-gradient(135deg,#55565a,#141416 55%,#3a3b3f)' },
+    { id: 'gunmetal', label: 'Gunmetal', price: 12000, swatch: 'linear-gradient(135deg,#8a8b90,#3d3e42 55%,#6d6e73)' },
+    { id: 'blue', label: 'Blue PVD', price: 18000, swatch: 'linear-gradient(135deg,#5b77ad,#1d2d52 55%,#3d5488)' },
+    { id: 'champagne', label: 'Champagne', price: 28000, swatch: 'linear-gradient(135deg,#e0cb9f,#8f7448 55%,#c9ad7c)' },
+  ],
+  dial: [
+    { id: 'ivory', label: 'Ivory', price: 0, swatch: 'radial-gradient(circle at 40% 35%,#faf6ee,#d8cfbe)' },
+    { id: 'obsidian', label: 'Obsidian', price: 6000, swatch: 'radial-gradient(circle at 40% 35%,#36363a,#070708)' },
+    { id: 'midnight', label: 'Midnight blue', price: 9000, swatch: 'radial-gradient(circle at 40% 35%,#2e4570,#0a1324)' },
+    { id: 'slate', label: 'Slate grey', price: 6000, swatch: 'radial-gradient(circle at 40% 35%,#5a6067,#1b1e22)' },
+  ],
+  strapType: [
+    { id: 'leather', label: 'Leather', price: 0 },
+    { id: 'bracelet', label: 'Metal bracelet', price: 12000 },
+    { id: 'mesh', label: 'Mesh', price: 8000 },
+    { id: 'rubber', label: 'Rubber', price: 4000 },
+  ],
+  strapColor: {
+    leather: [
+      { id: 'black', label: 'Black', swatch: '#151413' },
+      { id: 'brown', label: 'Brown', swatch: '#6a3f26' },
+      { id: 'tan', label: 'Tan', swatch: '#8a5d36' },
+      { id: 'navy', label: 'Navy', swatch: '#1d2840' },
+    ],
+    rubber: [
+      { id: 'black', label: 'Black', swatch: '#141414' },
+      { id: 'navy', label: 'Navy', swatch: '#1f3157' },
+      { id: 'grey', label: 'Grey', swatch: '#55585c' },
+    ],
+  },
+}
+
+// strap key used by the renderers <-> { type, color }
+export function strapKey(type, color) {
+  if (type === 'bracelet') return 'steel'
+  if (type === 'mesh') return 'mesh'
+  return color + (type === 'rubber' ? 'Rubber' : 'Leather')
+}
+export function strapParts(key) {
+  if (key === 'steel') return { type: 'bracelet', color: null }
+  if (key === 'mesh') return { type: 'mesh', color: null }
+  const m = key.match(/^(\w+?)(Leather|Rubber)$/)
+  return m ? { type: m[2] === 'Rubber' ? 'rubber' : 'leather', color: m[1] } : { type: 'leather', color: 'black' }
+}
+// price of a look, relative to the model's standard version
+export function studioPrice(watch, look) {
+  const p = (list, id) => list.find((o) => o.id === id)?.price || 0
+  const parts = (l) => {
+    const s = strapParts(l.strap)
+    return p(studioOptions.caseFinish, l.caseFinish) + (l.model === 'pulse' ? 0 : p(studioOptions.dial, l.dial)) + p(studioOptions.strapType, s.type)
+  }
+  return watch.price + parts(look) - parts(watch.look)
+}
