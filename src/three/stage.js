@@ -350,7 +350,7 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
     pointer.last = clock.getElapsedTime()
   }
 
-  return { state, start, stop, resize, frame, setPointer, project, projectCenter, setLook: watch.setLook, handTime: watch.handTime, dispose }
+  return { state, start, stop, resize, frame, setPointer, project, projectCenter, setLook: watch.setLook, setScreen: watch.setScreen, handTime: watch.handTime, dispose }
 }
 
 export function webglAvailable() {
