@@ -32,9 +32,9 @@ const DIALS = {
 export const STRAPS = {
   steel: { type: 'bracelet' },
   mesh: { type: 'mesh' },
-  blackLeather: { type: 'leather', color: '#151413', stitch: '#4d4943' },
-  brownLeather: { type: 'leather', color: '#6a3f26', stitch: '#d8b48b' },
-  tanLeather: { type: 'leather', color: '#5c3d22', stitch: '#e2c79c' },
+  blackLeather: { type: 'leather', color: '#151413', stitch: '#b9b4aa' },
+  brownLeather: { type: 'leather', color: '#4f2c1a', stitch: '#d8b48b' },
+  tanLeather: { type: 'leather', color: '#9a6a3c', stitch: '#f0dfc2' },
   navyLeather: { type: 'leather', color: '#1d2840', stitch: '#8d98b2' },
   blackRubber: { type: 'rubber', color: '#141414', stitch: '#b8352f' },
   navyRubber: { type: 'rubber', color: '#1f3157', stitch: '#c9ad7c' },
@@ -483,48 +483,83 @@ function drawScreen(g, now, accent, page = 'face') {
 
 // Fine woven texture for the mesh bracelet
 function meshTexture() {
+  // Milanese weave: bright steel wires crossing at an angle, with dark gaps between
   const c = document.createElement('canvas')
   c.width = c.height = 128
   const g = c.getContext('2d')
-  g.fillStyle = '#8a8a88'
+  g.fillStyle = '#5a5a58'
   g.fillRect(0, 0, 128, 128)
-  g.strokeStyle = '#d6d6d2'
-  g.lineWidth = 2
-  for (let i = -128; i < 256; i += 8) {
-    g.beginPath()
-    g.moveTo(i, 0)
-    g.lineTo(i + 128, 128)
-    g.stroke()
-  }
-  g.strokeStyle = '#4a4a48'
-  g.lineWidth = 1.4
-  for (let i = -128; i < 256; i += 8) {
-    g.beginPath()
-    g.moveTo(i + 128, 0)
-    g.lineTo(i, 128)
-    g.stroke()
+  for (const [dir, col, lw] of [[1, '#f4f4f0', 3.2], [-1, '#c9c9c5', 2.6]]) {
+    g.strokeStyle = col
+    g.lineWidth = lw
+    for (let i = -128; i < 256; i += 8) {
+      g.beginPath()
+      if (dir > 0) {
+        g.moveTo(i, 0)
+        g.lineTo(i + 128, 128)
+      } else {
+        g.moveTo(i + 128, 0)
+        g.lineTo(i, 128)
+      }
+      g.stroke()
+    }
   }
   const t = new THREE.CanvasTexture(c)
   t.colorSpace = THREE.SRGBColorSpace
   t.wrapS = t.wrapT = THREE.RepeatWrapping
-  t.repeat.set(6, 2)
+  t.repeat.set(3, 2)
   return t
 }
 
-// Rubber strap: soft horizontal ribs
-function rubberTexture() {
+// Leather grain: soft pebbled bumps, used as bump and roughness map
+function leatherGrainTexture() {
+  const S = 256
+  const c = document.createElement('canvas')
+  c.width = c.height = S
+  const g = c.getContext('2d')
+  g.fillStyle = 'rgb(128,128,128)'
+  g.fillRect(0, 0, S, S)
+  let seed = 7
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647)
+  for (let i = 0; i < 2600; i++) {
+    const x = rnd() * S
+    const y = rnd() * S
+    const r = 1.2 + rnd() * 3.2
+    const v = 90 + rnd() * 120
+    const grd = g.createRadialGradient(x, y, 0, x, y, r)
+    grd.addColorStop(0, `rgba(${v},${v},${v},0.9)`)
+    grd.addColorStop(1, 'rgba(128,128,128,0)')
+    g.fillStyle = grd
+    g.beginPath()
+    g.arc(x, y, r, 0, Math.PI * 2)
+    g.fill()
+  }
+  const t = new THREE.CanvasTexture(c)
+  t.wrapS = t.wrapT = THREE.RepeatWrapping
+  t.repeat.set(3, 2)
+  return t
+}
+
+// Rubber strap: deep horizontal grooves (bump map)
+function rubberGrooveTexture() {
   const c = document.createElement('canvas')
   c.width = c.height = 128
   const g = c.getContext('2d')
   g.fillStyle = '#ffffff'
   g.fillRect(0, 0, 128, 128)
-  g.fillStyle = '#c4c4c4'
-  for (let y = 0; y < 128; y += 16) g.fillRect(14, y, 100, 6)
+  for (let y = 0; y < 128; y += 32) {
+    const grd = g.createLinearGradient(0, y, 0, y + 14)
+    grd.addColorStop(0, '#ffffff')
+    grd.addColorStop(0.5, '#202020')
+    grd.addColorStop(1, '#ffffff')
+    g.fillStyle = grd
+    g.fillRect(22, y, 84, 14)
+  }
   const t = new THREE.CanvasTexture(c)
-  t.colorSpace = THREE.SRGBColorSpace
   t.wrapS = t.wrapT = THREE.RepeatWrapping
   return t
 }
+
 
 // Côtes de Genève: fine, low-contrast wave stripes for plates and bridges.
 // Used both as colour and as roughness, so the stripes catch light like the real finish.
@@ -726,19 +761,22 @@ export function buildWatch(initialLook) {
     lume: track(new THREE.MeshStandardMaterial({ color: '#f2efe6', roughness: 0.5 })),
     dial: track(new THREE.MeshStandardMaterial({ roughness: 0.42, metalness: 0.55, roughnessMap: track(sunrayTexture()), envMapIntensity: 0.9 })),
     bezelInsert: track(new THREE.MeshStandardMaterial({ roughness: 0.35, metalness: 0.2, map: null })),
-    mesh: track(new THREE.MeshStandardMaterial({ color: '#a9aaa7', metalness: 1, roughness: 0.45, map: track(meshTexture()), envMapIntensity: 0.8 })),
-    rubber: track(new THREE.MeshStandardMaterial({ color: '#141414', roughness: 0.88, metalness: 0, map: track(rubberTexture()) })),
+    mesh: track(new THREE.MeshStandardMaterial({ color: '#a9aaa7', metalness: 1, roughness: 0.36, map: track(meshTexture()), bumpMap: null, envMapIntensity: 1.4 })),
+    rubber: track(new THREE.MeshStandardMaterial({ color: '#141414', roughness: 0.92, metalness: 0, bumpMap: track(rubberGrooveTexture()), bumpScale: 2.2 })),
     accent: track(metalMat('#c99273', 0.28)),
     board: track(new THREE.MeshStandardMaterial({ color: '#13261d', roughness: 0.6, metalness: 0.2 })),
     chip: track(new THREE.MeshStandardMaterial({ color: '#111114', roughness: 0.35, metalness: 0.4 })),
     copper: track(metalMat('#b87333', 0.35)),
     crystal: track(new THREE.MeshPhysicalMaterial({ color: '#dfe6f2', metalness: 0, roughness: 0.03, transparent: true, opacity: 0.14, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 1.1, depthWrite: false })),
-    leather: track(new THREE.MeshStandardMaterial({ color: '#6a3f26', roughness: 0.75, metalness: 0 })),
+    leather: track(new THREE.MeshPhysicalMaterial({ color: '#6a3f26', roughness: 0.62, metalness: 0, bumpMap: track(leatherGrainTexture()), bumpScale: 1.4, sheen: 0.35, sheenRoughness: 0.6, sheenColor: new THREE.Color('#8a6a52'), clearcoat: 0.15, clearcoatRoughness: 0.6 })),
     stitch: track(new THREE.MeshStandardMaterial({ color: '#d8b48b', roughness: 0.8 })),
+    strapHole: track(new THREE.MeshStandardMaterial({ color: '#050505', roughness: 1 })),
   }
   // the bracelet gets its own copies so it can fade out without fading the case
   M.sCase = track(M.case.clone())
   M.sPolish = track(M.polish.clone())
+  M.mesh.bumpMap = M.mesh.map // the weave also catches light as relief
+  M.mesh.bumpScale = 1.2
   const TEX = { diver: track(bezelTexture()), tachy: track(tachyTexture()) }
   {
     const cotes = track(cotesTexture())
@@ -1184,24 +1222,135 @@ export function buildWatch(initialLook) {
           d.position.set(sx * 0.325, p.y, p.z - 0.005)
           d.rotation.set(p.rx, 0, 0)
         })
-    } else if (spec.type === 'mesh') {
-      instanced(new RoundedBoxGeometry(0.94, 0.26, 0.045, 1, 0.006), M.mesh, N * 2, (d, p) => {
-        d.position.set(0, p.y, p.z)
-        d.rotation.set(p.rx, 0, 0)
-      })
     } else {
-      const strapMat = spec.type === 'rubber' ? M.rubber : M.leather
-      strapMat.color.set(spec.color)
-      M.stitch.color.set(spec.stitch)
-      instanced(new RoundedBoxGeometry(0.96, 0.26, spec.type === 'rubber' ? 0.09 : 0.075, 1, 0.008), strapMat, N * 2, (d, p) => {
-        d.position.set(0, p.y, p.z)
-        d.rotation.set(p.rx, 0, 0)
-      })
-      for (const sx of [-1, 1])
-        instanced(new THREE.BoxGeometry(0.012, 0.12, 0.08), M.stitch, N * 2, (d, p) => {
-          d.position.set(sx * 0.42, p.y, p.z + 0.002)
-          d.rotation.set(p.rx, 0, 0)
-        })
+      // leather, rubber and mesh are one continuous strap per side (not segments),
+      // so they bend smoothly like the real thing instead of looking like links
+      const type = spec.type
+      const mat = type === 'mesh' ? M.mesh : type === 'rubber' ? M.rubber : M.leather
+      if (type !== 'mesh') mat.color.set(spec.color)
+      // leather sheen in its own colour (a brown sheen made black leather look brown)
+      if (type === 'leather') M.leather.sheenColor.set(spec.color).lerp(new THREE.Color('#ffffff'), 0.12)
+      M.stitch.color.set(spec.stitch || '#888')
+      const aMax = (N * 0.215) / R
+      // width tapers towards the tip; leather is padded in the middle
+      const widthAt = (k) => (type === 'mesh' ? 0.94 : type === 'rubber' ? 0.96 - 0.06 * k : 0.96 - 0.14 * k)
+      const thick = type === 'mesh' ? 0.045 : type === 'rubber' ? 0.11 : 0.07
+      const pad = type === 'leather' ? 0.035 : type === 'rubber' ? 0.012 : 0
+      const topAt = (x, w) => {
+        const q = Math.min(1, Math.abs((2 * x) / w))
+        // rounded edge + padded middle
+        const edge = Math.sqrt(Math.max(0, 1 - Math.pow(Math.max(0, q - 0.86) / 0.14, 2)))
+        return thick * 0.5 * edge + pad * (1 - q * q) * edge
+      }
+      const frame = (a, sign) => {
+        const p = new THREE.Vector3(0, sign * (start + R * Math.sin(a)), -R + R * Math.cos(a) - 0.06)
+        const n = new THREE.Vector3(0, sign * Math.sin(a), Math.cos(a))
+        return { p, n }
+      }
+      const STEPS = 90
+      const COLS = 18
+      for (const sign of [1, -1]) {
+        const pos = []
+        const uv = []
+        const idx = []
+        const ring = 2 * (COLS + 1)
+        for (let i = 0; i <= STEPS; i++) {
+          const k = i / STEPS
+          const a = k * aMax
+          const { p, n } = frame(a, sign)
+          const w = widthAt(k)
+          // top surface left->right, then bottom surface right->left
+          for (let j = 0; j <= COLS; j++) {
+            const x = -w / 2 + (w * j) / COLS
+            const h = topAt(x, w)
+            pos.push(x, p.y + n.y * h, p.z + n.z * h)
+            uv.push(j / COLS, a * R * 1.6)
+          }
+          for (let j = COLS; j >= 0; j--) {
+            const x = -w / 2 + (w * j) / COLS
+            const h = -thick * 0.5 * Math.sqrt(Math.max(0, 1 - Math.pow(Math.max(0, Math.abs((2 * x) / w) - 0.86) / 0.14, 2)))
+            pos.push(x, p.y + n.y * h, p.z + n.z * h)
+            uv.push(j / COLS, a * R * 1.6)
+          }
+        }
+        for (let i = 0; i < STEPS; i++)
+          for (let j = 0; j < ring; j++) {
+            const a0 = i * ring + j
+            const a1 = i * ring + ((j + 1) % ring)
+            const b0 = a0 + ring
+            const b1 = a1 + ring
+            if (sign > 0) idx.push(a0, b0, a1, a1, b0, b1)
+            else idx.push(a0, a1, b0, a1, b1, b0)
+          }
+        const geo = new THREE.BufferGeometry()
+        geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+        geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
+        geo.setIndex(idx)
+        geo.computeVertexNormals()
+        const m = new THREE.Mesh(geo, mat)
+        strapG.add(m)
+        strapMeshes.push(m)
+      }
+      // mesh: polished rolled edges along both sides, like a Milanese strap
+      if (type === 'mesh') {
+        for (const sign of [1, -1])
+          for (const sx of [-1, 1]) {
+            const pts = []
+            for (let i = 0; i <= 40; i++) {
+              const { p } = frame((i / 40) * aMax, sign)
+              pts.push(new THREE.Vector3(sx * (widthAt(0) / 2), p.y, p.z))
+            }
+            const edge = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 80, 0.03, 10, false), M.sPolish)
+            strapG.add(edge)
+            strapMeshes.push(edge)
+          }
+      }
+      // leather: contrast stitching running along both edges
+      if (type === 'leather') {
+        const per = 34
+        const im = new THREE.InstancedMesh(new THREE.CapsuleGeometry(0.008, 0.03, 2, 6), M.stitch, per * 2 * 2)
+        let c = 0
+        for (const sign of [1, -1])
+          for (const sx of [-1, 1])
+            for (let i = 0; i < per; i++) {
+              const k = (i + 0.5) / per
+              const a = k * aMax * 0.97
+              const { p, n } = frame(a, sign)
+              const w = widthAt(k)
+              const x = sx * (w / 2 - 0.055)
+              const h = topAt(x, w) + 0.003
+              dummy.position.set(x, p.y + n.y * h, p.z + n.z * h)
+              dummy.rotation.set(-sign * a, 0, 0)
+              dummy.updateMatrix()
+              im.setMatrixAt(c++, dummy.matrix)
+            }
+        im.instanceMatrix.needsUpdate = true
+        strapG.add(im)
+        strapMeshes.push(im)
+      }
+      // leather and rubber: a keeper loop on one side and adjustment holes on the other
+      if (type !== 'mesh') {
+        const kA = 0.62
+        const { p, n } = frame(kA, 1)
+        const keeper = new THREE.Mesh(new RoundedBoxGeometry(widthAt(kA / aMax) + 0.05, 0.1, thick + pad + 0.07, 2, 0.03), mat)
+        keeper.position.set(0, p.y + n.y * 0.01, p.z + n.z * 0.01)
+        keeper.rotation.x = -kA
+        strapG.add(keeper)
+        strapMeshes.push(keeper)
+        const holes = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.035, 0.035, 0.01, 18), M.strapHole, 5)
+        for (let i = 0; i < 5; i++) {
+          const a = 0.7 + i * 0.16
+          const { p: hp, n: hn } = frame(a, -1)
+          const h = topAt(0, widthAt(a / aMax)) + 0.002
+          dummy.position.set(0, hp.y + hn.y * h, hp.z + hn.z * h)
+          dummy.rotation.set(Math.PI / 2 + a, 0, 0)
+          dummy.updateMatrix()
+          holes.setMatrixAt(i, dummy.matrix)
+        }
+        holes.instanceMatrix.needsUpdate = true
+        strapG.add(holes)
+        strapMeshes.push(holes)
+      }
     }
     // spring-bar block between the lugs
     for (const sy of [-1, 1]) {
@@ -1294,7 +1443,7 @@ export function buildWatch(initialLook) {
     // rose-gold hands on VOID and MONO, gold accents on APEX
     M.hand.color.set(L.model === 'void' || L.model === 'mono' ? ROSE : L.model === 'apex' ? '#d9c08a' : handMetal.polish)
     M.mesh.color.set(metal.color)
-    M.mesh.roughness = L.caseFinish === 'black' ? 0.55 : 0.42
+    M.mesh.roughness = L.caseFinish === 'black' ? 0.45 : 0.36
     M.lume.color.set(L.dial === 'ivory' ? '#1d1c1a' : '#f2efe6')
     M.dial.metalness = L.dial === 'ivory' ? 0.25 : 0.6
     if (L.dial !== currentLook.dial || L.model !== currentLook.model) {
@@ -1341,7 +1490,7 @@ export function buildWatch(initialLook) {
     // fade strap away during the exploded view
     const sv = 1 - hideStrap
     strapG.visible = sv > 0.02
-    for (const mat of [M.leather, M.stitch, M.sCase, M.sPolish, M.mesh, M.rubber]) {
+    for (const mat of [M.leather, M.stitch, M.sCase, M.sPolish, M.mesh, M.rubber, M.strapHole]) {
       const tr = sv < 1
       if (mat.transparent !== tr) {
         mat.transparent = tr
