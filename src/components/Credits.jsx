@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { photos } from '../data/photos'
+import { linkTo } from '../lib/router'
 
 /*
   ASSETS & CREDITS page (shown at #/credits).
@@ -39,7 +40,7 @@ export default function Credits() {
   return (
     <main id="main" className="credits theme-light">
       <div className="credits-inner">
-        <a href="#" className="btn-link credits-back">← Back to KAIROS</a>
+        <a href="#" className="btn-link credits-back" onClick={linkTo('')}>← Back to KAIROS</a>
         <p className="eyebrow">Legal &nbsp;/&nbsp; Resources</p>
         <h1 className="display-l">Assets &amp; Credits</h1>
         <p className="lede">
@@ -78,14 +79,17 @@ export default function Credits() {
           <div>
             <h2>Privacy</h2>
             <p>This concept site has no backend. Forms do not send or store data. Your saved watch configuration lives only in your own browser storage.</p>
+            <a href="#/legal/privacy" className="btn-link" onClick={linkTo('legal/privacy')}>Read the Privacy Notice →</a>
           </div>
           <div>
             <h2>Terms</h2>
             <p>KAIROS, its products, prices and studio details are fictional and shown for demonstration only. Nothing here is an offer for sale.</p>
+            <a href="#/legal/terms" className="btn-link" onClick={linkTo('legal/terms')}>Read the Terms of Use →</a>
           </div>
           <div>
             <h2>Shipping</h2>
             <p>No products are sold or shipped. The bag and wishlist show how a real store would behave.</p>
+            <a href="#/legal/shipping" className="btn-link" onClick={linkTo('legal/shipping')}>Read the Shipping &amp; Returns →</a>
           </div>
         </section>
       </div>
