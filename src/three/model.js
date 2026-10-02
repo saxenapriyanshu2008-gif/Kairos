@@ -252,7 +252,7 @@ function bezelTexture() {
 }
 
 // Smartwatch screen, redrawn once a second with the real time.
-function drawScreen(g, now, accent) {
+function drawFace(g, now, accent) {
   const S = g.canvas.width
   const R = S / 2
   g.clearRect(0, 0, S, S)
@@ -294,6 +294,191 @@ function drawScreen(g, now, accent) {
   g.font = '700 30px "Manrope Variable", Arial, sans-serif'
   g.fillStyle = accent
   g.fillText('KAIROS PULSE', R, R + 260)
+}
+
+// ---------- PULSE screen pages ----------
+// Simple line icons drawn on the canvas (original KAIROS set)
+const ICONS = {
+  run: (g) => { g.beginPath(); g.arc(4, -12, 4, 0, 7); g.moveTo(2, -6); g.lineTo(-2, 4); g.lineTo(-10, 12); g.moveTo(-2, 4); g.lineTo(6, 6); g.lineTo(8, 14); g.moveTo(0, -4); g.lineTo(-8, -2); g.moveTo(0, -4); g.lineTo(8, 0); g.stroke() },
+  bike: (g) => { g.beginPath(); g.arc(-9, 6, 7, 0, 7); g.moveTo(16, 6); g.arc(9, 6, 7, 0, 7); g.moveTo(-9, 6); g.lineTo(-2, -6); g.lineTo(9, 6); g.moveTo(-2, -6); g.lineTo(6, -6); g.stroke() },
+  swim: (g) => { g.beginPath(); for (const y of [4, 12]) { g.moveTo(-14, y); for (let x = -14; x <= 14; x += 7) g.quadraticCurveTo(x + 3.5, y - 4, x + 7, y) } g.arc(6, -10, 4, 0, 7); g.moveTo(-8, -2); g.lineTo(2, -6); g.stroke() },
+  heart: (g) => { g.beginPath(); g.moveTo(0, 12); g.bezierCurveTo(-18, 0, -10, -16, 0, -6); g.bezierCurveTo(10, -16, 18, 0, 0, 12); g.stroke() },
+  moon: (g) => { g.beginPath(); g.arc(0, 0, 12, 0.6, 5.7); g.arc(6, -3, 9, 5.2, 1.1, true); g.stroke() },
+  wind: (g) => { g.beginPath(); g.moveTo(-14, -4); g.lineTo(6, -4); g.arc(6, -9, 5, 1.57, -1.2, true); g.moveTo(-14, 4); g.lineTo(10, 4); g.arc(10, 9, 5, -1.57, 1.2); g.stroke() },
+  music: (g) => { g.beginPath(); g.moveTo(-4, 8); g.lineTo(-4, -12); g.lineTo(10, -15); g.lineTo(10, 5); g.stroke(); g.beginPath(); g.arc(-8, 8, 4, 0, 7); g.arc(6, 5, 4, 0, 7); g.fill() },
+  map: (g) => { g.beginPath(); g.moveTo(0, 14); g.bezierCurveTo(-14, -2, -10, -14, 0, -14); g.bezierCurveTo(10, -14, 14, -2, 0, 14); g.moveTo(4, -5); g.arc(0, -5, 4, 0, 7); g.stroke() },
+  sun: (g) => { g.beginPath(); g.arc(0, 0, 6, 0, 7); for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; g.moveTo(Math.cos(a) * 10, Math.sin(a) * 10); g.lineTo(Math.cos(a) * 14, Math.sin(a) * 14) } g.stroke() },
+  timer: (g) => { g.beginPath(); g.arc(0, 2, 11, 0, 7); g.moveTo(0, 2); g.lineTo(0, -5); g.moveTo(-4, -13); g.lineTo(4, -13); g.stroke() },
+  bell: (g) => { g.beginPath(); g.moveTo(-10, 6); g.lineTo(-8, -4); g.bezierCurveTo(-8, -14, 8, -14, 8, -4); g.lineTo(10, 6); g.closePath(); g.moveTo(-3, 10); g.lineTo(3, 10); g.stroke() },
+  phone: (g) => { g.beginPath(); g.moveTo(-10, -12); g.lineTo(-4, -12); g.lineTo(-2, -5); g.lineTo(-6, -2); g.quadraticCurveTo(-2, 6, 3, 7); g.lineTo(6, 3); g.lineTo(12, 5); g.lineTo(12, 11); g.quadraticCurveTo(-12, 12, -10, -12); g.stroke() },
+  chat: (g) => { g.beginPath(); g.moveTo(-13, -10); g.lineTo(13, -10); g.lineTo(13, 6); g.lineTo(-2, 6); g.lineTo(-9, 13); g.lineTo(-8, 6); g.lineTo(-13, 6); g.closePath(); g.stroke() },
+  wallet: (g) => { g.beginPath(); g.rect(-13, -9, 26, 19); g.moveTo(13, -2); g.lineTo(5, -2); g.lineTo(5, 4); g.lineTo(13, 4); g.stroke() },
+  gear: (g) => { g.beginPath(); for (let i = 0; i <= 16; i++) { const a = (i / 16) * Math.PI * 2; const r = i % 2 ? 9 : 13; i ? g.lineTo(Math.cos(a) * r, Math.sin(a) * r) : g.moveTo(r, 0) } g.moveTo(4, 0); g.arc(0, 0, 4, 0, 7); g.stroke() },
+  ski: (g) => { g.beginPath(); g.arc(6, -12, 4, 0, 7); g.moveTo(4, -6); g.lineTo(-2, 2); g.lineTo(6, 8); g.moveTo(-14, 6); g.lineTo(14, 14); g.moveTo(-4, -2); g.lineTo(-10, -6); g.stroke() },
+  racket: (g) => { g.beginPath(); g.ellipse(-3, -5, 8, 10, -0.6, 0, 7); g.moveTo(3, 3); g.lineTo(12, 13); g.stroke(); g.beginPath(); g.arc(10, -12, 2.5, 0, 7); g.fill() },
+  yoga: (g) => { g.beginPath(); g.arc(0, -12, 4, 0, 7); g.moveTo(0, -7); g.lineTo(0, 5); g.moveTo(-14, -4); g.lineTo(14, -4); g.moveTo(0, 5); g.lineTo(-10, 13); g.moveTo(0, 5); g.lineTo(10, 13); g.stroke() },
+}
+function icon(g, name, x, y, r, bg, fg = '#0b0b0c', scale = 1) {
+  g.save()
+  g.translate(x, y)
+  g.fillStyle = bg
+  g.beginPath()
+  g.arc(0, 0, r, 0, Math.PI * 2)
+  g.fill()
+  g.strokeStyle = fg
+  g.fillStyle = fg
+  g.lineWidth = 2.6
+  g.lineCap = 'round'
+  g.lineJoin = 'round'
+  g.scale((r / 26) * scale, (r / 26) * scale)
+  ICONS[name]?.(g)
+  g.restore()
+}
+
+export const SCREENS = ['face', 'apps', 'sports', 'workout', 'health']
+
+function drawScreen(g, now, accent, page = 'face') {
+  if (page === 'face') return drawFace(g, now, accent)
+  const S = g.canvas.width
+  const R = S / 2
+  g.clearRect(0, 0, S, S)
+  g.fillStyle = '#050506'
+  g.fillRect(0, 0, S, S)
+  g.textAlign = 'center'
+  g.textBaseline = 'middle'
+  const hh = String(now.getHours()).padStart(2, '0')
+  const mm = String(now.getMinutes()).padStart(2, '0')
+  const small = (t, y, col = '#a8a39a', size = 34, w = 600) => {
+    g.font = `${w} ${size}px "Manrope Variable", Arial, sans-serif`
+    g.fillStyle = col
+    g.fillText(t, R, y)
+  }
+  small(`${hh}:${mm}`, 92, '#efe9de', 34, 600)
+
+  if (page === 'apps') {
+    // honeycomb app launcher, centre app highlighted
+    const apps = [
+      ['run', '#c9ad7c'], ['heart', '#e0565b'], ['moon', '#6f7fd8'], ['music', '#e8e5dd'], ['map', '#58b37a'], ['sun', '#f0b450'], ['wind', '#7cc6d9'],
+      ['timer', '#efe9de'], ['bell', '#efe9de'], ['phone', '#58b37a'], ['chat', '#6f9be0'], ['wallet', '#c9ad7c'], ['gear', '#8f8a82'], ['bike', '#c9ad7c'],
+      ['swim', '#7cc6d9'], ['yoga', '#d08cc1'], ['ski', '#efe9de'], ['racket', '#f0b450'], ['heart', '#e0565b'],
+    ]
+    const pts = [[0, 0]]
+    for (let k = 0; k < 6; k++) pts.push([Math.cos((k / 6) * Math.PI * 2) * 150, Math.sin((k / 6) * Math.PI * 2) * 150])
+    for (let k = 0; k < 12; k++) {
+      const a = (k / 12) * Math.PI * 2 + Math.PI / 12
+      pts.push([Math.cos(a) * 290, Math.sin(a) * 290])
+    }
+    pts.forEach(([x, y], i) => {
+      const d = Math.hypot(x, y)
+      const r = i === 0 ? 74 : d < 200 ? 60 : 44
+      const fade = d > 260 ? 0.55 : 1
+      g.globalAlpha = fade
+      icon(g, apps[i % apps.length][0], R + x, R + y + 20, r, apps[i % apps.length][1])
+    })
+    g.globalAlpha = 1
+    small('Workout', S - 110, '#efe9de', 38, 700)
+    return
+  }
+
+  if (page === 'sports') {
+    small('Sports', 150, '#efe9de', 46, 700)
+    const rows = [['run', 'Outdoor run', '#c9ad7c'], ['bike', 'Outdoor cycling', '#e8e5dd'], ['swim', 'Pool swim', '#7cc6d9'], ['racket', 'Badminton', '#f0b450'], ['ski', 'Skiing', '#efe9de']]
+    rows.forEach(([ic, name, col], i) => {
+      const y = 260 + i * 132
+      const sel = i === 0
+      g.fillStyle = sel ? '#1c1b19' : '#111112'
+      g.beginPath()
+      g.roundRect(170, y - 54, S - 340, 108, 54)
+      g.fill()
+      if (sel) {
+        g.strokeStyle = '#c9ad7c'
+        g.lineWidth = 3
+        g.stroke()
+      }
+      icon(g, ic, 240, y, 40, col)
+      g.textAlign = 'left'
+      g.font = '600 40px "Manrope Variable", Arial, sans-serif'
+      g.fillStyle = '#efe9de'
+      g.fillText(name, 300, y + 2)
+      g.textAlign = 'center'
+    })
+    small('100+ modes', S - 90, '#c9ad7c', 32, 700)
+    return
+  }
+
+  if (page === 'workout') {
+    // live outdoor run
+    const el = (now.getMinutes() % 30) * 60 + now.getSeconds() + 840
+    const t = `${String(Math.floor(el / 3600)).padStart(2, '0')}:${String(Math.floor(el / 60) % 60).padStart(2, '0')}:${String(el % 60).padStart(2, '0')}`
+    const hr = 142 + Math.round(Math.sin(now.getSeconds() / 4) * 6)
+    // heart-rate zone arc
+    const zones = ['#6f9be0', '#58b37a', '#f0b450', '#e8833a', '#e0565b']
+    zones.forEach((c, i) => {
+      g.strokeStyle = c
+      g.globalAlpha = i === 3 ? 1 : 0.35
+      g.lineWidth = 26
+      g.lineCap = 'butt'
+      g.beginPath()
+      const a0 = Math.PI * 0.8 + i * (Math.PI * 1.4) / 5 + 0.03
+      g.arc(R, R, R - 40, a0, a0 + (Math.PI * 1.4) / 5 - 0.06)
+      g.stroke()
+    })
+    g.globalAlpha = 1
+    icon(g, 'run', R, 165, 32, '#c9ad7c')
+    small('OUTDOOR RUN', 230, '#a8a39a', 28, 700)
+    g.font = '300 150px "Manrope Variable", Arial, sans-serif'
+    g.fillStyle = '#efe9de'
+    g.fillText(t, R, 360)
+    const stat = (label, val, x, y, col = '#efe9de') => {
+      g.font = `600 64px "Manrope Variable", Arial, sans-serif`
+      g.fillStyle = col
+      g.fillText(val, x, y)
+      g.font = '600 26px "Manrope Variable", Arial, sans-serif'
+      g.fillStyle = '#8f8a82'
+      g.fillText(label, x, y + 52)
+    }
+    stat('KM', ((el / 60) * 0.19).toFixed(2), R - 170, 520)
+    stat("PACE /KM", `5'12"`, R + 170, 520)
+    stat('BPM · ZONE 4', `${hr}`, R, 680, '#e8833a')
+    small('GPS L1 + L5', S - 110, '#58b37a', 26, 700)
+    return
+  }
+
+  if (page === 'health') {
+    small('Health', 150, '#efe9de', 46, 700)
+    // heart-rate line chart
+    g.strokeStyle = '#e0565b'
+    g.lineWidth = 6
+    g.lineJoin = 'round'
+    g.beginPath()
+    for (let i = 0; i <= 40; i++) {
+      const x = 200 + i * 15.5
+      const y = 330 - (Math.sin(i * 0.5 + now.getSeconds() * 0.1) * 30 + Math.sin(i * 1.7) * 14 + (i > 26 && i < 31 ? 50 : 0))
+      i ? g.lineTo(x, y) : g.moveTo(x, y)
+    }
+    g.stroke()
+    g.font = '600 72px "Manrope Variable", Arial, sans-serif'
+    g.fillStyle = '#efe9de'
+    g.fillText(`${68 + (now.getSeconds() % 6)}`, R - 40, 440)
+    g.font = '600 30px "Manrope Variable", Arial, sans-serif'
+    g.fillStyle = '#e0565b'
+    g.fillText('BPM', R + 70, 448)
+    const tiles = [['SpO2', '98%', '#7cc6d9'], ['Sleep', '7h 24m', '#6f7fd8'], ['Stress', '32 · Low', '#58b37a']]
+    tiles.forEach(([k, v, c], i) => {
+      const x = R + (i - 1) * 205
+      g.fillStyle = '#121214'
+      g.beginPath()
+      g.roundRect(x - 92, 520, 184, 170, 30)
+      g.fill()
+      g.font = '600 26px "Manrope Variable", Arial, sans-serif'
+      g.fillStyle = c
+      g.fillText(k, x, 565)
+      g.font = '600 40px "Manrope Variable", Arial, sans-serif'
+      g.fillStyle = '#efe9de'
+      g.fillText(v, x, 630)
+    })
+    small('VO2 max 46 · Good', S - 140, '#a8a39a', 30, 600)
+  }
 }
 
 // Fine woven texture for the mesh bracelet
@@ -632,6 +817,7 @@ export function buildWatch(initialLook) {
   screen.position.z = 0.002
   dialG.add(screen)
   let screenSecond = -1
+  let screenPage = 'face'
   const indexGroup = new THREE.Group()
   dialG.add(indexGroup)
   const dateGroup = new THREE.Group()
@@ -1075,7 +1261,7 @@ export function buildWatch(initialLook) {
     subB.rotation.z = -(h / 12) * Math.PI * 2
     if (screen.visible && now.getSeconds() !== screenSecond) {
       screenSecond = now.getSeconds()
-      drawScreen(screenCanvas.getContext('2d'), now, '#c9ad7c')
+      drawScreen(screenCanvas.getContext('2d'), now, '#c9ad7c', screenPage)
       screenTex.needsUpdate = true
     }
     // movement life
@@ -1117,5 +1303,11 @@ export function buildWatch(initialLook) {
     root.traverse((o) => o.geometry?.dispose?.())
   }
 
-  return { root, parts, setLook, update, anchors, handTime, materials: M, dispose }
+  // switch the smartwatch screen page (face, apps, sports, workout, health)
+  function setScreen(page) {
+    screenPage = SCREENS.includes(page) ? page : 'face'
+    screenSecond = -1
+  }
+
+  return { root, parts, setLook, setScreen, update, anchors, handTime, materials: M, dispose }
 }
