@@ -238,11 +238,19 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
   let raf = 0
   let running = false
 
+  const _centre = new THREE.Vector3()
   function applyPose() {
     const s = Math.min(state.size * halfH, state.maxW * halfW)
     pivot.scale.setScalar(s)
     pivot.position.set(state.x * halfW, state.y * halfH, state.z)
     pivot.rotation.set(state.rx + state.tiltX, state.ry + state.tiltY, state.rz)
+    // the front parts travel further than the back ones (crystal 1.55, caseback 1.05),
+    // so slide the whole watch back by half the difference: the opened watch stays
+    // centred on its case and spreads evenly to both sides
+    if (state.explode > 0.001) {
+      _centre.set(0, 0, -0.25 * state.explode * s).applyEuler(pivot.rotation)
+      pivot.position.add(_centre)
+    }
     points.position.copy(pivot.position)
     points.scale.setScalar(s * 0.9)
     // lineup: slots across the screen, the extras slide in from the right one by one
