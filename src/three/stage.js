@@ -248,13 +248,16 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
     // lineup: slots across the screen, the extras slide in from the right one by one
     const SLOTS = [-0.75, -0.25, 0.25, 0.75]
     for (const e of extras) {
-      const l = Math.max(0, Math.min(1, state.lineup * 1.6 - e.k * 0.2))
+      // the extras only start once the hero watch has nearly reached its slot,
+      // then rise into their own slots from below and from further back,
+      // so they never cross the hero watch's path
+      const l = Math.max(0, Math.min(1, (state.lineup - 0.62) * 4.6 - e.k * 0.25))
       e.p.visible = l > 0.01
       if (!e.p.visible) continue
       const ease = 1 - Math.pow(1 - l, 3)
-      e.p.scale.setScalar(s)
-      e.p.position.set((SLOTS[e.slot] + (1 - ease) * 1.9) * halfW, state.y * halfH, -0.3 * (1 - ease))
-      e.p.rotation.set(state.rx + state.tiltX, state.ry + state.tiltY + (1 - ease) * 1.2, state.rz)
+      e.p.scale.setScalar(s * (0.85 + 0.15 * ease))
+      e.p.position.set(SLOTS[e.slot] * halfW, state.y * halfH - (1 - ease) * 1.1 * halfH, -1.8 * (1 - ease))
+      e.p.rotation.set(state.rx + state.tiltX + (1 - ease) * 0.6, state.ry + state.tiltY + (1 - ease) * 0.8, state.rz)
     }
     if (ringG) {
       ringG.visible = state.textRing > 0.01
