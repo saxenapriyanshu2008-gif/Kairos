@@ -4,6 +4,7 @@
 import '@fontsource-variable/manrope'
 import '@fontsource-variable/bodoni-moda'
 import { createStage } from '../src/three/stage.js'
+import { watches } from '../src/data/watches.js'
 
 // fake clock: the screen shows video time, not the (slow) real render time
 const RealDate = Date
@@ -51,6 +52,16 @@ const STILLS = {
   workout: { screen: 'workout', p: { rx: -0.06, ry: -0.1, size: 0.66 }, light: [-0.3, 0.7] },
   health: { screen: 'health', p: { rx: -0.06, ry: 0.1, size: 0.66 }, light: [0.4, 0.7] },
 }
+// gallery photo for any watch in the collection (hands read 10:08)
+window.photoOf = (id) => {
+  const w = watches.find((x) => x.id === id)
+  st.setLook(w.look)
+  st.setScreen('face')
+  pose(STILLS.photo.p)
+  settle(60, ...STILLS.photo.light)
+  return true
+}
+
 window.still = (name) => {
   const s = STILLS[name]
   st.setScreen(s.screen)

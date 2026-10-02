@@ -4,7 +4,7 @@ import asyncio, sys, os, subprocess, shutil
 from playwright.async_api import async_playwright
 URL = 'http://localhost:5199/tools/pulse-render.html'
 OUT = os.path.join(os.path.dirname(__file__), '..', 'public', 'media')
-MODE = sys.argv[1] if len(sys.argv) > 1 else 'all'   # stills | video | test | all
+MODE = sys.argv[1] if len(sys.argv) > 1 else 'all'   # stills | watches | video | test | all
 FPS = 24
 async def main():
     os.makedirs(OUT, exist_ok=True)
@@ -18,6 +18,15 @@ async def main():
                 png = f'/tmp/pulse-{n}.png'
                 await pg.screenshot(path=png)
                 subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', png, '-q:v', '82', os.path.join(OUT, f'pulse-{n}.webp')], check=True)
+            await pg.close()
+        if MODE in ('watches', 'all'):
+            pg = await b.new_page(viewport={'width': 1200, 'height': 1200})
+            await pg.goto(URL); await pg.evaluate('window.ready')
+            for n in ['arc', 'noir', 'atlas', 'elan', 'void', 'apex', 'mono']:
+                await pg.evaluate(f'window.photoOf("{n}")'); await pg.wait_for_timeout(300)
+                png = f'/tmp/watch-{n}.png'
+                await pg.screenshot(path=png)
+                subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', png, '-q:v', '82', os.path.join(OUT, f'{n}-photo.webp')], check=True)
             await pg.close()
         if MODE in ('video', 'all', 'test'):
             pg = await b.new_page(viewport={'width': 960, 'height': 960})
