@@ -626,6 +626,16 @@ em { font-style: italic; }
 .jcard-more svg { width: 16px; height: 16px; }
 .jcard-btn:hover .jcard-more { gap: 1rem; }
 
+/* ---------- 6l. Final CTA ---------- */
+.final { position: relative; min-height: 100vh; min-height: 100svh; display: grid; place-items: center; overflow: hidden; text-align: center; padding: 6rem var(--gutter); }
+.final-bg { position: absolute; inset: 0; display: grid; place-items: center; background: radial-gradient(circle at 50% 50%, #1c2333 0%, #0c0b0a 60%); }
+.final-watch { height: 130%; opacity: 0.38; display: grid; }
+.final-watch .watch-svg { height: 100%; width: auto; }
+.final-bg::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(12, 11, 10, 0.75) 65%); }
+.final-inner { position: relative; z-index: 2; display: grid; justify-items: center; gap: 1.8rem; }
+.final-title { display: grid; justify-items: center; }
+.final-title em { color: var(--gold); }
+
 /* movement animations */
 .spin-slow { animation: spin 24s linear infinite; }
 .spin-rev { animation: spin 16s linear infinite reverse; }
