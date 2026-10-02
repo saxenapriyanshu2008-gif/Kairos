@@ -71,7 +71,7 @@ function poses(mobile) {
     c2: { x: 0.2, y: 0, size: 0.78, maxW: 1.3, rx: 0, ry: 0, rz: 0.35, explode: 1, fly: 1, particles: 0.6, smoke: 1 },
     p: { x: 0, y: -0.16, size: 0.5, maxW: 0.9, rx: -0.25, ry: -0.35, rz: 0.06, explode: 0, fly: 0, hideStrap: 0, particles: 0, smoke: 1 },
     e: { x: 0, y: -0.42, size: 0.62, maxW: 0.9, rx: -1.0, ry: 0, rz: 0, smoke: 0 },
-    sl: { x: 0, y: -0.62, size: 0.8, maxW: 1.2, rx: 0.3, ry: 1.5, rz: 0 },
+    sl: { x: 0.3, y: -0.5, size: 0.8, maxW: 1.2, rx: 0.3, ry: 1.5, rz: 0 },
     d2: { x: 0.26, y: 0, size: 0.6, maxW: 0.9, rx: -0.12, ry: -0.35, rz: 0.05 },
   }
 }
@@ -381,6 +381,11 @@ export default function Cinema({ ready }) {
           <span className="gt gt-l">KAIROS</span>
           <span className="gt gt-c">184</span>
           <span className="gt gt-c2">28,800</span>
+          <span className="gt gt-d">Moment</span>
+        </div>
+        <canvas ref={canvasRef} className="cin-canvas" />
+        {/* above the watch: inverts against it, so it reads over metal and background */}
+        <div className="cin-type cin-type-top">
           <span className="gt gt-p">
             Precise
             <br />
@@ -388,9 +393,7 @@ export default function Cinema({ ready }) {
             <br />
             movement
           </span>
-          <span className="gt gt-d">Moment</span>
         </div>
-        <canvas ref={canvasRef} className="cin-canvas" />
         <div className="cin-labels">
           {LABELS.map((l, i) => (
             <div key={l.part} ref={(el) => (labelRefs.current[i] = el)} className={`cin-label is-${l.side}`}>
