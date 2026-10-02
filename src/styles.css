@@ -184,3 +184,25 @@ em { font-style: italic; }
 }
 .chip:hover { border-color: rgba(239, 233, 222, 0.5); }
 .chip.is-on { background: var(--ivory); color: var(--obsidian); border-color: var(--ivory); }
+
+/* ---------- 5. Layout ---------- */
+.section {
+  position: relative;
+  padding: clamp(5rem, 11vw, 10rem) var(--gutter);
+}
+.section > * { max-width: var(--max); margin-left: auto; margin-right: auto; }
+.section-head { display: grid; gap: 1.4rem; margin-bottom: clamp(3rem, 6vw, 5.5rem); }
+
+.specs { display: grid; grid-template-columns: repeat(2, 1fr); border-top: 1px solid var(--line-dark); }
+.spec { padding: 1.2rem 0; border-bottom: 1px solid var(--line-dark); }
+.spec:nth-child(odd) { padding-right: 1rem; }
+.spec dt { font-size: 0.66rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted-on-dark); margin-bottom: 0.3rem; }
+.spec dd { font-family: var(--f-display); font-size: clamp(1.15rem, 1.6vw, 1.5rem); }
+
+.watch-svg { width: 100%; height: auto; overflow: visible; }
+/* Containers that size a watch by height: give the grid a definite row so
+   height: 100% on the SVG resolves (an auto row would ignore it). */
+.cfg-preview, .fw-watch, .wcard-media, .dw-visual, .dw-thumb, .ss-static-visual, .final-watch, .ss-watch, .ss-movement {
+  grid-template-rows: minmax(0, 100%);
+  justify-items: center;
+}
