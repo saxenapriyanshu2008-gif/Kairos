@@ -542,6 +542,28 @@ em { font-style: italic; }
 .cfg-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem 1.4rem; padding-top: 0.6rem; }
 .cfg-note { font-size: 0.76rem; color: var(--muted-on-light); }
 
+/* ---------- 6h. Brand story ---------- */
+.story-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(2rem, 6vw, 7rem); align-items: center; }
+.story-copy { display: grid; gap: 2rem; }
+.story-title em { color: var(--silver-light); }
+.story-body { display: grid; gap: 1.4rem; max-width: 36rem; font-family: var(--f-display); font-size: clamp(1.25rem, 1.9vw, 1.75rem); line-height: 1.4; }
+.story-sign { display: flex; align-items: center; gap: 1rem; font-size: 0.7rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--muted-on-dark); }
+.rule { width: 3rem; height: 1px; background: var(--gold); }
+.story-figure { display: grid; gap: 1rem; }
+.story-frame {
+  position: relative; overflow: hidden; aspect-ratio: 4 / 5.4;
+  background: linear-gradient(160deg, #2a241c 0%, #0f0d0b 55%, #070605 100%);
+}
+.story-light {
+  position: absolute; inset: -20%;
+  background: linear-gradient(120deg, transparent 30%, rgba(201, 173, 124, 0.32) 46%, rgba(239, 233, 222, 0.14) 52%, transparent 66%);
+  mix-blend-mode: screen;
+}
+.story-watch { position: absolute; inset: -6% -24%; display: grid; place-items: center; transform-origin: center; }
+.story-watch .watch-svg { height: 112%; width: auto; transform: rotate(-28deg); filter: saturate(0.92); }
+.story-figure figcaption { display: flex; gap: 1rem; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted-on-dark); }
+.story-figure figcaption span { color: var(--gold); }
+
 /* movement animations */
 .spin-slow { animation: spin 24s linear infinite; }
 .spin-rev { animation: spin 16s linear infinite reverse; }
