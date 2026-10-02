@@ -590,6 +590,18 @@ em { font-style: italic; }
 }
 .craft-card article:hover .craft-detail, .craft-card article:focus-visible .craft-detail { max-height: 10rem; opacity: 1; margin-top: 0.4rem; }
 
+/* ---------- 6j. Moment ---------- */
+.moment { overflow: hidden; }
+.moment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 6vw, 6rem); align-items: center; }
+.moment-copy { display: grid; gap: 1.8rem; justify-items: start; }
+.moment-copy h2 em { color: var(--gold); }
+.moment-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.moment-line { font-family: var(--f-display); font-style: italic; font-size: clamp(1.15rem, 1.7vw, 1.5rem); color: var(--silver-light); min-height: 2.2em; }
+.moment-clock { position: relative; display: grid; justify-items: center; gap: 1rem; }
+.moment-clock svg { width: min(100%, 600px); height: auto; overflow: visible; }
+.mc-num { font-family: var(--f-display); font-size: 38px; fill: var(--ivory); }
+.moment-digital { font-family: var(--f-ui); font-weight: 300; font-size: clamp(2rem, 5vw, 4.4rem); letter-spacing: 0.08em; font-variant-numeric: tabular-nums; line-height: 1; color: var(--ivory); }
+
 /* movement animations */
 .spin-slow { animation: spin 24s linear infinite; }
 .spin-rev { animation: spin 16s linear infinite reverse; }
