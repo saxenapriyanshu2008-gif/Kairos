@@ -6,6 +6,7 @@ import Loader from './components/Loader'
 import CustomCursor from './components/CustomCursor'
 import Navbar from './components/Navbar'
 import Cinema from './components/Cinema'
+import Manifesto from './components/Manifesto'
 import Collection from './components/Collection'
 import FeaturedWatch from './components/FeaturedWatch'
 import WatchConfigurator from './components/WatchConfigurator'
@@ -51,8 +52,13 @@ function useRevealAnimations(route) {
       })
       gsap.utils.toArray('[data-split]').forEach((el) => {
         el.classList.add('split-ready')
-        gsap.fromTo(el, { clipPath: 'inset(0% -10% 100% -10%)', y: 60 }, {
-          clipPath: 'inset(-20% -10% -30% -10%)', y: 0, duration: 1.3, ease: 'power4.out', clearProps: 'clipPath',
+        // rise out of a mask with a short RGB split that settles (ALCHE-style)
+        gsap.fromTo(el, {
+          clipPath: 'inset(0% -10% 100% -10%)', y: 60,
+          textShadow: '-10px 0px 0px rgba(255,40,90,0.55), 10px 0px 0px rgba(40,170,255,0.55)',
+        }, {
+          clipPath: 'inset(-20% -10% -30% -10%)', y: 0, duration: 1.3, ease: 'power4.out', clearProps: 'clipPath,textShadow',
+          textShadow: '0px 0px 0px rgba(255,40,90,0), 0px 0px 0px rgba(40,170,255,0)',
           scrollTrigger: { trigger: el, start: 'top 88%', once: true },
         })
       })
@@ -87,6 +93,7 @@ export default function App() {
       ) : (
         <main id="main">
           <Cinema ready={ready} />
+          <Manifesto />
           <Collection />
           <FeaturedWatch />
           <WatchConfigurator />
