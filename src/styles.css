@@ -665,6 +665,33 @@ em { font-style: italic; }
 .contact-form .btn { justify-self: start; }
 .form-status { font-size: 0.92rem; color: var(--muted-on-light); min-height: 1.5em; max-width: 34rem; }
 
+/* ---------- 6n. Footer ---------- */
+.footer { padding: clamp(4rem, 8vw, 7rem) var(--gutter) 2rem; overflow: hidden; }
+.footer > * { max-width: var(--max); margin-left: auto; margin-right: auto; }
+.footer-top { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; padding-bottom: 3.5rem; border-bottom: 1px solid var(--line-dark); }
+.footer-brand { display: grid; gap: 1rem; align-content: start; }
+.footer-tag { font-family: var(--f-display); font-style: italic; font-size: 1.4rem; color: var(--silver-light); }
+.newsletter { display: grid; gap: 0.8rem; }
+.newsletter-title { font-family: var(--f-display); font-size: clamp(1.6rem, 2.6vw, 2.4rem); line-height: 1.1; }
+.newsletter-sub { color: var(--muted-on-dark); font-size: 0.92rem; }
+.newsletter-row { display: flex; gap: 1rem; align-items: end; }
+.newsletter input { border-bottom-color: rgba(239, 233, 222, 0.35); }
+.newsletter input::placeholder { color: rgba(239, 233, 222, 0.55); }
+.newsletter input:focus { outline: none; border-bottom-color: var(--gold); }
+.newsletter-status { font-size: 0.85rem; color: var(--gold); min-height: 1.4em; }
+.footer-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; padding: 3rem 0; }
+.footer-cols h3 { font-size: 0.66rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--muted-on-dark); font-weight: 600; margin-bottom: 1rem; }
+.footer-cols ul { display: grid; gap: 0.2rem; }
+.footer-cols a { display: inline-block; padding: 0.35rem 0; font-size: 0.95rem; background: linear-gradient(var(--gold), var(--gold)) left 85% / 0 1px no-repeat; transition: background-size 0.5s var(--ease); }
+.footer-cols a:hover { background-size: 100% 1px; }
+.footer-word {
+  font-family: var(--f-display); font-size: clamp(5rem, 22vw, 22rem); line-height: 0.8; letter-spacing: 0.06em;
+  text-align: center; color: transparent; -webkit-text-stroke: 1px rgba(239, 233, 222, 0.16);
+  user-select: none; margin: 1rem auto 2rem;
+}
+.footer-bottom { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-on-dark); border-top: 1px solid var(--line-dark); padding-top: 1.4rem; }
+.footer-bottom a { padding: 0.3rem 0; }
+
 /* movement animations */
 .spin-slow { animation: spin 24s linear infinite; }
 .spin-rev { animation: spin 16s linear infinite reverse; }
