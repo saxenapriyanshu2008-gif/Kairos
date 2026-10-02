@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react'
 
 /*
-  Product gallery for KAIROS PULSE, shown in the studio stage.
-  Slides: a still photo, a drag-to-rotate 3D view, four screen images,
-  a feature video and an exploded view with every part explained.
+  Product gallery shown in the studio stage for every watch.
+  Every watch: a still photo, a drag-to-rotate 3D view, and an exploded
+  "Inside" view with each part numbered and explained.
+  PULSE also gets four screen images and a feature video.
   The 3D slides use the studio canvas underneath; image and video slides
   sit on top of it. Arrows, dots, keyboard arrows and swipe all work.
   All images and the video are rendered from our own 3D model
@@ -13,7 +14,7 @@ import { useEffect, useRef } from 'react'
 const BASE = import.meta.env.BASE_URL
 const media = (f) => `${BASE}media/${f}`
 
-export const PULSE_SLIDES = [
+const PULSE_SLIDES = [
   { type: 'image', id: 'photo', label: 'Photo', src: media('pulse-photo.webp'), alt: 'KAIROS PULSE in black aluminium with a navy rubber strap' },
   { type: '3d', id: '360', label: '360°' },
   { type: 'image', id: 'apps', label: 'Apps', src: media('pulse-apps.webp'), alt: 'PULSE app launcher with round app icons', k: 'Wear OS 4', t: 'Your apps on your wrist', s: 'Calls, messages, music, maps, weather and NFC payments.' },
@@ -25,7 +26,7 @@ export const PULSE_SLIDES = [
 ]
 
 // parts in the exploded view: [part, name, what it does]
-export const PULSE_PARTS = [
+const PULSE_PARTS = [
   ['crystal', 'Toughened glass', 'Flat, scratch-resistant glass over the screen.'],
   ['bezel', 'Bezel', 'Raised aluminium ring that guards the glass edge.'],
   ['dial', 'AMOLED screen', '1.43 in, 466 x 466, up to 1000 nits, always-on.'],
@@ -33,6 +34,41 @@ export const PULSE_PARTS = [
   ['movement', 'Dual chips + battery', 'Snapdragon W5 and BES2700 with a 500 mAh cell for up to 100 hours.'],
   ['caseback', 'Sensor back', 'Heart rate, SpO2 and the charging contacts.'],
 ]
+
+// slides for any watch
+export function slidesFor(watch) {
+  if (watch.id === 'pulse') return PULSE_SLIDES
+  return [
+    { type: 'image', id: 'photo', label: 'Photo', src: media(`${watch.id}-photo.webp`), alt: `${watch.name}, ${watch.category.toLowerCase()}` },
+    { type: '3d', id: '360', label: '360°' },
+    { type: 'explode', id: 'inside', label: 'Inside' },
+  ]
+}
+
+// exploded-view parts for any watch: [part, name, what it does]
+export function partsFor(watch) {
+  if (watch.id === 'pulse') return PULSE_PARTS
+  const m = watch.look.model
+  const dial = {
+    void: ['Open dial', 'A skeleton chapter ring, so the whole movement shows through.'],
+    apex: ['Chronograph dial', 'Three sub-dials for running seconds, 30 minutes and 12 hours.'],
+    atlas: ['Dive dial', 'Large lume plots and a date window, easy to read underwater.'],
+    mono: ['Dial', 'Matte black with a small seconds sub-dial at six.'],
+  }[m] || ['Dial', 'Sunray finish with applied, hand-set indices.']
+  const bezel = {
+    atlas: ['Dive bezel', 'Turns one way only, with a 60-minute scale to time a dive.'],
+    apex: ['Tachymetre bezel', 'Reads speed over a measured distance with the chronograph.'],
+  }[m] || ['Bezel', 'Polished ring that seats the crystal and seals the case.']
+  return [
+    ['crystal', 'Sapphire crystal', 'Scratch-resistant sapphire with anti-reflective coating.'],
+    ['bezel', ...bezel],
+    ['hands', 'Hands', 'Faceted and hand-polished, filled with lume.'],
+    ['dial', ...dial],
+    ['case', 'Case', `${watch.specs.Case}. Water resistant to ${watch.specs.Resistance}.`],
+    ['movement', 'Calibre', `${watch.specs.Movement}: 28,800 vph, 42-hour reserve, 25 jewels.`],
+    ['caseback', 'Caseback', 'Screw-down back with a sapphire window onto the rotor.'],
+  ]
+}
 
 function Arrow({ dir }) {
   return (
@@ -42,9 +78,12 @@ function Arrow({ dir }) {
   )
 }
 
-export default function PulseGallery({ slide, setSlide, name }) {
-  const n = PULSE_SLIDES.length
-  const cur = PULSE_SLIDES[slide]
+export default function ProductGallery({ watch, slide, setSlide }) {
+  const name = watch.name
+  const SLIDES = slidesFor(watch)
+  const PARTS = partsFor(watch)
+  const n = SLIDES.length
+  const cur = SLIDES[Math.min(slide, n - 1)]
   const video = useRef(null)
   const go = (d) => setSlide((s) => (s + d + n) % n)
 
@@ -79,7 +118,7 @@ export default function PulseGallery({ slide, setSlide, name }) {
 
   return (
     <div className="pg" role="region" aria-roledescription="carousel" aria-label={`${name} gallery`} onKeyDown={key}>
-      {PULSE_SLIDES.map((s, i) =>
+      {SLIDES.map((s, i) =>
         s.type === 'image' || s.type === 'video' ? (
           <figure
             key={s.id}
@@ -108,8 +147,8 @@ export default function PulseGallery({ slide, setSlide, name }) {
       )}
 
       {cur.type === 'explode' && (
-        <ol className="pg-legend" aria-label="Parts of PULSE">
-          {PULSE_PARTS.map(([part, title, text], i) => (
+        <ol className="pg-legend" aria-label={`Parts of ${name}`}>
+          {PARTS.map(([part, title, text], i) => (
             <li key={part}>
               <em>{String(i + 1).padStart(2, '0')}</em>
               <strong>{title}</strong>
@@ -131,7 +170,7 @@ export default function PulseGallery({ slide, setSlide, name }) {
           {String(slide + 1).padStart(2, '0')} / {String(n).padStart(2, '0')} <b>{cur.label}</b>
         </span>
         <div className="pg-dots">
-          {PULSE_SLIDES.map((s, i) => (
+          {SLIDES.map((s, i) => (
             <button key={s.id} className={i === slide ? 'is-on' : ''} onClick={() => setSlide(i)} aria-label={`Show ${s.label}`} aria-current={i === slide ? 'true' : undefined} />
           ))}
         </div>
