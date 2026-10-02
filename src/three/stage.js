@@ -19,8 +19,12 @@ import { buildWatch } from './model'
     ring        0..1 gold ring drawn around the dial
     particles   0..1 particle field around the movement
     tiltX/Y     extra rotation from the cursor
+  Film-only extras (film: true):
+    lineup      0..1 three more KAIROS models fly in beside the main watch
+    textRing    0..1 a ring of giant type circling the watch in 3D
+    smoke       0..1 flowing light streams around the movement
 */
-export function createStage(canvas, { look, maxDpr = 1.75, onFrame } = {}) {
+export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr))
   renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -93,7 +97,122 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame } = {}) {
   const points = new THREE.Points(pGeo, pMat)
   scene.add(points)
 
-  const state = { x: 0, y: 0, z: 0, fly: 0, size: 0.6, maxW: 0.84, rx: 0, ry: 0, rz: 0, explode: 0, hideStrap: 0, ring: 0, particles: 0, tiltX: 0, tiltY: 0, opacity: 1 }
+  // ---------- film extras ----------
+  const extras = []
+  let ringG = null
+  let smoke = null
+  const disposeExtra = []
+  if (film) {
+    // 1. lineup: three more models that fly in beside the main watch
+    const LOOKS = [
+      { model: 'noir', caseFinish: 'black', dial: 'obsidian', strap: 'blackLeather' },
+      { model: 'void', caseFinish: 'blue', dial: 'midnight', strap: 'steel' },
+      { model: 'elan', caseFinish: 'champagne', dial: 'ivory', strap: 'brownLeather' },
+    ]
+    LOOKS.forEach((l, k) => {
+      const p = new THREE.Group()
+      const wch = buildWatch(l)
+      wch.parts.movement.visible = false // never opened, so skip the calibre
+      p.add(wch.root)
+      p.visible = false
+      scene.add(p)
+      extras.push({ p, w: wch, slot: [0, 2, 3][k], k })
+      disposeExtra.push(() => wch.dispose())
+    })
+
+    // 2. a ring of giant type that circles the watch (front letters pass in front of it)
+    const c = document.createElement('canvas')
+    c.width = 4096
+    c.height = 512
+    const g = c.getContext('2d')
+    g.fillStyle = '#efe9de'
+    g.font = '800 300px "Manrope Variable", Arial, sans-serif'
+    g.textBaseline = 'middle'
+    const phrase = 'KAIROS — K-01 — 316L — '
+    let x = 0
+    while (x < c.width) {
+      g.fillText(phrase, x, 270)
+      x += g.measureText(phrase).width
+    }
+    const tex = new THREE.CanvasTexture(c)
+    tex.colorSpace = THREE.SRGBColorSpace
+    tex.wrapS = THREE.RepeatWrapping
+    tex.anisotropy = 8
+    const geo = new THREE.CylinderGeometry(1.75, 1.75, 0.62, 160, 1, true)
+    const front = new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.3, side: THREE.FrontSide, toneMapped: false })
+    const back = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.22, side: THREE.BackSide, depthWrite: false, toneMapped: false })
+    ringG = new THREE.Group()
+    ringG.add(new THREE.Mesh(geo, back), new THREE.Mesh(geo, front))
+    ringG.visible = false
+    scene.add(ringG)
+    disposeExtra.push(() => {
+      geo.dispose()
+      front.dispose()
+      back.dispose()
+      tex.dispose()
+    })
+
+    // 3. smoke: particles drift through a flow field; each is drawn as a short
+    //    streak (from its position back along its velocity) so they read as silk threads
+    const N = window.innerWidth < 768 ? 900 : 2000
+    const P = new Float32Array(N * 3)
+    const V = new Float32Array(N * 3)
+    const age = new Float32Array(N)
+    const seg = new Float32Array(N * 6)
+    const spawn = (i) => {
+      const a = Math.random() * Math.PI * 2
+      const r = 1.2 + Math.random() * 1.6
+      P[i * 3] = Math.cos(a) * r
+      P[i * 3 + 1] = Math.sin(a) * r * 0.7
+      P[i * 3 + 2] = (Math.random() - 0.5) * 0.8
+      age[i] = Math.random() * 6
+    }
+    for (let i = 0; i < N; i++) spawn(i)
+    const sgeo = new THREE.BufferGeometry()
+    sgeo.setAttribute('position', new THREE.BufferAttribute(seg, 3))
+    const smat = new THREE.LineBasicMaterial({ color: '#efe9de', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })
+    const lines = new THREE.LineSegments(sgeo, smat)
+    lines.frustumCulled = false
+    lines.visible = false
+    scene.add(lines)
+    smoke = {
+      lines,
+      step(t, dt) {
+        for (let i = 0; i < N; i++) {
+          const j = i * 3
+          const x = P[j]
+          const y = P[j + 1]
+          const z = P[j + 2]
+          const r = Math.hypot(x, y) + 0.4
+          let vx = Math.sin(y * 1.7 + t * 0.4) - Math.cos(z * 1.3) * 0.6 - (y / r) * 1.2 - x * 0.08
+          let vy = Math.sin(z * 1.5 + t * 0.3) + Math.cos(x * 1.1) * 0.8 + (x / r) * 1.2 - y * 0.08
+          let vz = Math.sin(x * 1.3 - t * 0.2) * 0.5 - z * 0.3
+          V[j] += (vx - V[j]) * 0.1
+          V[j + 1] += (vy - V[j + 1]) * 0.1
+          V[j + 2] += (vz - V[j + 2]) * 0.1
+          P[j] += V[j] * dt * 0.55
+          P[j + 1] += V[j + 1] * dt * 0.55
+          P[j + 2] += V[j + 2] * dt * 0.55
+          age[i] += dt
+          if (age[i] > 7 || r > 4.2) spawn(i)
+          const k = i * 6
+          seg[k] = P[j]
+          seg[k + 1] = P[j + 1]
+          seg[k + 2] = P[j + 2]
+          seg[k + 3] = P[j] - V[j] * 0.09
+          seg[k + 4] = P[j + 1] - V[j + 1] * 0.09
+          seg[k + 5] = P[j + 2] - V[j + 2] * 0.09
+        }
+        sgeo.attributes.position.needsUpdate = true
+      },
+    }
+    disposeExtra.push(() => {
+      sgeo.dispose()
+      smat.dispose()
+    })
+  }
+
+  const state = { x: 0, y: 0, z: 0, fly: 0, size: 0.6, maxW: 0.84, rx: 0, ry: 0, rz: 0, explode: 0, hideStrap: 0, ring: 0, particles: 0, tiltX: 0, tiltY: 0, opacity: 1, lineup: 0, textRing: 0, ringSpin: 0, smoke: 0 }
 
   let w = 1
   let h = 1
@@ -122,11 +241,43 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame } = {}) {
     pivot.rotation.set(state.rx + state.tiltX, state.ry + state.tiltY, state.rz)
     points.position.copy(pivot.position)
     points.scale.setScalar(s * 0.9)
+    // lineup: slots across the screen, the extras slide in from the right one by one
+    const SLOTS = [-0.75, -0.25, 0.25, 0.75]
+    for (const e of extras) {
+      const l = Math.max(0, Math.min(1, state.lineup * 1.6 - e.k * 0.2))
+      e.p.visible = l > 0.01
+      if (!e.p.visible) continue
+      const ease = 1 - Math.pow(1 - l, 3)
+      e.p.scale.setScalar(s)
+      e.p.position.set((SLOTS[e.slot] + (1 - ease) * 1.9) * halfW, state.y * halfH, -0.3 * (1 - ease))
+      e.p.rotation.set(state.rx + state.tiltX, state.ry + state.tiltY + (1 - ease) * 1.2, state.rz)
+    }
+    if (ringG) {
+      ringG.visible = state.textRing > 0.01
+      ringG.position.copy(pivot.position)
+      ringG.scale.setScalar(s)
+      ringG.children.forEach((m, i) => (m.material.opacity = state.textRing * (i === 0 ? 0.22 : 1)))
+    }
+    if (smoke) {
+      smoke.lines.visible = state.smoke > 0.01
+      smoke.lines.position.copy(pivot.position)
+      smoke.lines.scale.setScalar(s * 0.95)
+      smoke.lines.material.opacity = state.smoke * 0.42
+    }
   }
 
+  let lastT = 0
   function frame() {
     const t = clock.getElapsedTime()
+    const dt = Math.min(0.05, t - lastT)
+    lastT = t
     applyPose()
+    for (const e of extras) if (e.p.visible) e.w.update(t)
+    if (ringG?.visible) {
+      ringG.rotation.set(0.28 + state.tiltX * 0.5, t * 0.12 + state.ringSpin, -0.08)
+      ringG.children[1].material.alphaTest = 0.3
+    }
+    if (smoke?.lines.visible) smoke.step(t, dt)
     // cursor light: follow the pointer; with no pointer, drift slowly by itself
     if (!pointer.active || t - pointer.last > 4) {
       pointer.tx = Math.sin(t * 0.35) * 0.7
@@ -185,6 +336,7 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame } = {}) {
     pMat.dispose()
     ringGeo.dispose()
     ringMat.dispose()
+    disposeExtra.forEach((f) => f())
     envTex.dispose()
     pmrem.dispose()
     renderer.dispose()
