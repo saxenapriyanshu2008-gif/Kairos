@@ -1453,3 +1453,17 @@ body[data-route='credits'] .nav, body[data-route='legal'] .nav { background: rgb
 /* live photo / screen slides: the 3D model shows through; the stored image is only a fallback */
 .pg-slide.is-live { background: transparent; }
 .pg-slide.is-live img { visibility: hidden; }
+
+/* founder's signature (brand story) */
+.story-signature { display: grid; gap: 0.15rem; margin: 0; }
+.story-signature .sig {
+  font-family: 'Mrs Saint Delafield', 'Brush Script MT', cursive; font-size: clamp(2.6rem, 4vw, 3.6rem);
+  line-height: 1; letter-spacing: 0; text-transform: none; color: var(--ivory); padding: 0.2em 0.3em 0 0;
+}
+.story-signature .sig-role { font-size: 0.66rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--gold); }
+.story-sign .rule { transform-origin: left; transform: scaleX(0); transition: transform 0.8s var(--ease); }
+.story-signature .sig { clip-path: inset(0 100% 0 0); transition: clip-path 1.8s cubic-bezier(0.65, 0, 0.35, 1) 0.3s; }
+.story-signature .sig-role { opacity: 0; transition: opacity 0.8s ease 1.6s; }
+.story-sign.is-signed .rule { transform: scaleX(1); }
+.story-sign.is-signed .sig { clip-path: inset(-20% -5% -20% 0); }
+.story-sign.is-signed .sig-role { opacity: 1; }
