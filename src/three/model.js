@@ -681,7 +681,7 @@ export const FOUNDER = 'Priyanshu Saxena'
 // text written around a circle (clockwise, centred on angle a0)
 function arcText(g, text, r, a0, size, spacing, inward = false) {
   g.save()
-  g.font = `600 ${size}px "Manrope Variable", Arial, sans-serif`
+  g.font = `700 ${size}px "Manrope Variable", Arial, sans-serif`
   const chars = [...text]
   const widths = chars.map((c) => g.measureText(c).width + spacing)
   const total = widths.reduce((a, b) => a + b, 0)
@@ -703,7 +703,7 @@ function arcText(g, text, r, a0, size, spacing, inward = false) {
 // text along the bottom of a circle, upright and reading left to right
 function arcTextBottom(g, text, r, size, spacing) {
   g.save()
-  g.font = `600 ${size}px "Manrope Variable", Arial, sans-serif`
+  g.font = `700 ${size}px "Manrope Variable", Arial, sans-serif`
   const chars = [...text]
   const widths = chars.map((c) => g.measureText(c).width + spacing)
   const total = widths.reduce((a, b) => a + b, 0)
@@ -751,8 +751,8 @@ function casebackRingTexture(model, light) {
   c.width = c.height = S
   const g = c.getContext('2d')
   const info = BACK_INFO[model] || BACK_INFO.arc
-  const ink = light ? 'rgba(232,230,224,0.82)' : 'rgba(20,20,22,0.78)'
-  const hi = light ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.35)' // engraving edge
+  const ink = light ? 'rgba(246,244,238,0.98)' : 'rgba(14,14,16,0.95)'
+  const hi = light ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.5)' // engraving edge
   g.translate(S / 2, S / 2)
   const R = S / 2 // = 0.9 world units
   const px = (u) => (u / 0.9) * R
@@ -768,24 +768,24 @@ function casebackRingTexture(model, light) {
     fn()
   }
   draw(() => {
-    g.lineWidth = 2
+    g.lineWidth = 3
     for (const r of [px(0.625), px(0.865)]) {
       g.beginPath()
       g.arc(0, 0, r, 0, Math.PI * 2)
       g.stroke()
     }
     // outer line of text all the way round
-    arcText(g, `KAIROS ${info.name}  ·  ${info.cal}  ·  ${model === 'pulse' ? 'TOUGHENED GLASS' : 'SAPPHIRE CRYSTAL'}  ·  ${model === 'pulse' ? '' : '316L STAINLESS STEEL  ·  '}WATER RESISTANT ${info.water}  ·  ${info.size}  ·  `, px(0.8), 0, 25, 4.2)
+    arcText(g, `KAIROS ${info.name}  ·  ${info.cal}  ·  ${model === 'pulse' ? 'TOUGHENED GLASS' : 'SAPPHIRE CRYSTAL'}  ·  ${model === 'pulse' ? '' : '316L STAINLESS STEEL  ·  '}WATER RESISTANT ${info.water}  ·  ${info.size}  ·  `, px(0.79), 0, 29, 3)
     // inner line: serial at the bottom, swiss-style details at the top
-    arcTextBottom(g, `N° ${info.no} / 1000`, px(0.715), 28, 6)
+    arcTextBottom(g, `N° ${info.no} / 1000`, px(0.705), 36, 7)
     if (model === 'pulse') {
       // PULSE has no window, so the founder's signature is engraved here instead
       g.save()
       g.textAlign = 'center'
-      g.font = '58px "Mrs Saint Delafield", "Brush Script MT", cursive'
-      g.fillText(FOUNDER, 0, -px(0.69))
+      g.font = '62px "Mrs Saint Delafield", "Brush Script MT", cursive'
+      g.fillText(FOUNDER, 0, -px(0.652))
       g.restore()
-    } else arcText(g, 'SCREW-DOWN CASEBACK', px(0.705), 0, 20, 5)
+    } else arcText(g, 'SCREW-DOWN CASEBACK', px(0.705), 0, 26, 5)
     // screw-down notches on the rim
     for (let i = 0; i < 6; i++) {
       g.save()
@@ -795,8 +795,8 @@ function casebackRingTexture(model, light) {
     }
   })
   // the K mark at the top, between the two text rows
-  kMark(g, px(0.705) * Math.sin(-0.62), -px(0.705) * Math.cos(-0.62), 20, ink, 2.6)
-  kMark(g, px(0.705) * Math.sin(0.62), -px(0.705) * Math.cos(0.62), 20, ink, 2.6)
+  kMark(g, px(0.705) * Math.sin(-0.66), -px(0.705) * Math.cos(-0.66), 24, ink, 3.4)
+  kMark(g, px(0.705) * Math.sin(0.66), -px(0.705) * Math.cos(0.66), 24, ink, 3.4)
   const t = new THREE.CanvasTexture(c)
   t.colorSpace = THREE.SRGBColorSpace
   t.anisotropy = 8
@@ -810,25 +810,37 @@ function sapphirePrintTexture() {
   c.width = c.height = S
   const g = c.getContext('2d')
   g.translate(S / 2, S / 2)
-  const gold = '#d9bf86'
+  const gold = '#f0d49a'
+  // smoked tint behind the printing (real backs often have a tinted print zone)
+  for (const [y, h] of [[-300, 150], [300, 190]]) {
+    const grd = g.createLinearGradient(0, y - h / 2, 0, y + h / 2)
+    grd.addColorStop(0, 'rgba(8,8,10,0)')
+    grd.addColorStop(0.5, 'rgba(8,8,10,0.62)')
+    grd.addColorStop(1, 'rgba(8,8,10,0)')
+    g.fillStyle = grd
+    g.fillRect(-420, y - h / 2, 840, h)
+  }
   g.fillStyle = gold
   g.textAlign = 'center'
-  kMark(g, 0, -330, 34, gold, 4)
-  g.font = '600 40px "Manrope Variable", Arial, sans-serif'
-  g.letterSpacing = '16px'
-  g.fillText('KAIROS', 8, -250)
+  kMark(g, 0, -345, 40, gold, 5)
+  g.font = '700 50px "Manrope Variable", Arial, sans-serif'
+  g.letterSpacing = '18px'
+  g.fillText('KAIROS', 9, -260)
   g.letterSpacing = '0px'
-  g.font = '128px "Mrs Saint Delafield", "Brush Script MT", cursive'
-  g.fillText(FOUNDER, 0, 290)
+  g.font = '150px "Mrs Saint Delafield", "Brush Script MT", cursive'
+  g.lineWidth = 2.2
   g.strokeStyle = gold
-  g.lineWidth = 2
+  g.fillText(FOUNDER, 0, 292)
+  g.strokeText(FOUNDER, 0, 292) // a slightly heavier pen line
+  g.strokeStyle = gold
+  g.lineWidth = 3
   g.beginPath()
-  g.moveTo(-230, 322)
-  g.quadraticCurveTo(0, 306, 250, 318)
+  g.moveTo(-260, 326)
+  g.quadraticCurveTo(0, 308, 280, 320)
   g.stroke()
-  g.font = '600 22px "Manrope Variable", Arial, sans-serif'
-  g.letterSpacing = '8px'
-  g.fillText('FOUNDER', 4, 372)
+  g.font = '700 28px "Manrope Variable", Arial, sans-serif'
+  g.letterSpacing = '10px'
+  g.fillText('FOUNDER', 5, 376)
   const t = new THREE.CanvasTexture(c)
   t.colorSpace = THREE.SRGBColorSpace
   t.anisotropy = 8
@@ -1360,12 +1372,12 @@ export function buildWatch(initialLook) {
   window_.rotation.y = Math.PI // faces out of the back
   window_.position.z = -0.192
   casebackG.add(window_)
-  const backRingMat = track(new THREE.MeshStandardMaterial({ transparent: true, metalness: 0.7, roughness: 0.45, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }))
+  const backRingMat = track(new THREE.MeshStandardMaterial({ transparent: true, metalness: 0.35, roughness: 0.55, emissive: '#ffffff', emissiveIntensity: 0.18, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }))
   const backRing = new THREE.Mesh(track(new THREE.RingGeometry(0.6, 0.9, 96, 1)), backRingMat)
   backRing.rotation.y = Math.PI
   backRing.position.z = -0.2015
   casebackG.add(backRing)
-  const printMat = track(new THREE.MeshStandardMaterial({ map: null, transparent: true, metalness: 0.85, roughness: 0.3, depthWrite: false }))
+  const printMat = track(new THREE.MeshStandardMaterial({ map: null, transparent: true, metalness: 0.45, roughness: 0.35, emissive: '#ffffff', emissiveIntensity: 0.32, depthWrite: false }))
   const print = new THREE.Mesh(track(new THREE.CircleGeometry(0.6, 96)), printMat)
   print.rotation.y = Math.PI
   print.position.z = -0.194
@@ -1374,6 +1386,7 @@ export function buildWatch(initialLook) {
   const drawPrint = () => {
     printMat.map?.dispose()
     printMat.map = track(sapphirePrintTexture())
+    printMat.emissiveMap = printMat.map
     printMat.needsUpdate = true
   }
   drawPrint()
@@ -1382,6 +1395,7 @@ export function buildWatch(initialLook) {
     backKey = model + finish
     backRingMat.map?.dispose()
     backRingMat.map = track(casebackRingTexture(model, finish !== 'steel' && finish !== 'champagne'))
+    backRingMat.emissiveMap = backRingMat.map
     backRingMat.needsUpdate = true
   }
   document.fonts?.load?.('92px "Mrs Saint Delafield"').then(() => {
