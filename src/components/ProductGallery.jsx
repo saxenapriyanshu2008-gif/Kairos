@@ -15,12 +15,12 @@ const BASE = import.meta.env.BASE_URL
 const media = (f) => `${BASE}media/${f}`
 
 const PULSE_SLIDES = [
-  { type: 'image', id: 'photo', label: 'Photo', src: media('pulse-photo.webp'), alt: 'KAIROS PULSE in black aluminium with a navy rubber strap' },
+  { type: 'photo', id: 'photo', label: 'Photo', src: media('pulse-photo.webp'), alt: 'KAIROS PULSE in black aluminium with a navy rubber strap' },
   { type: '3d', id: '360', label: '360°' },
-  { type: 'image', id: 'apps', label: 'Apps', src: media('pulse-apps.webp'), alt: 'PULSE app launcher with round app icons', k: 'Wear OS 4', t: 'Your apps on your wrist', s: 'Calls, messages, music, maps, weather and NFC payments.' },
-  { type: 'image', id: 'sports', label: 'Sports', src: media('pulse-sports.webp'), alt: 'PULSE sports mode list', k: 'Sport', t: '100+ sports modes', s: 'Running, cycling, pool swim, badminton, skiing and more.' },
-  { type: 'image', id: 'workout', label: 'Workout', src: media('pulse-workout.webp'), alt: 'PULSE live outdoor run with time, distance, pace and heart rate', k: 'Dual-band GPS', t: 'Every run, tracked right', s: 'L1 + L5 GPS, live pace and heart-rate zones.' },
-  { type: 'image', id: 'health', label: 'Health', src: media('pulse-health.webp'), alt: 'PULSE health page with heart rate, SpO2, sleep and stress', k: 'Health', t: 'Heart, SpO2, sleep, stress', s: 'Measured all day and shown on one page.' },
+  { type: 'screen', page: 'apps', id: 'apps', label: 'Apps', src: media('pulse-apps.webp'), alt: 'PULSE app launcher with round app icons', k: 'Wear OS 4', t: 'Your apps on your wrist', s: 'Calls, messages, music, maps, weather and NFC payments.' },
+  { type: 'screen', page: 'sports', id: 'sports', label: 'Sports', src: media('pulse-sports.webp'), alt: 'PULSE sports mode list', k: 'Sport', t: '100+ sports modes', s: 'Running, cycling, pool swim, badminton, skiing and more.' },
+  { type: 'screen', page: 'workout', id: 'workout', label: 'Workout', src: media('pulse-workout.webp'), alt: 'PULSE live outdoor run with time, distance, pace and heart rate', k: 'Dual-band GPS', t: 'Every run, tracked right', s: 'L1 + L5 GPS, live pace and heart-rate zones.' },
+  { type: 'screen', page: 'health', id: 'health', label: 'Health', src: media('pulse-health.webp'), alt: 'PULSE health page with heart rate, SpO2, sleep and stress', k: 'Health', t: 'Heart, SpO2, sleep, stress', s: 'Measured all day and shown on one page.' },
   { type: 'video', id: 'video', label: 'Video', src: media('pulse-features.mp4'), webm: media('pulse-features.webm'), poster: media('pulse-features-poster.webp') },
   { type: 'explode', id: 'inside', label: 'Inside' },
 ]
@@ -39,7 +39,7 @@ const PULSE_PARTS = [
 export function slidesFor(watch) {
   if (watch.id === 'pulse') return PULSE_SLIDES
   return [
-    { type: 'image', id: 'photo', label: 'Photo', src: media(`${watch.id}-photo.webp`), alt: `${watch.name}, ${watch.category.toLowerCase()}` },
+    { type: 'photo', id: 'photo', label: 'Photo', src: media(`${watch.id}-photo.webp`), alt: `${watch.name}, ${watch.category.toLowerCase()}` },
     { type: '3d', id: '360', label: '360°' },
     { type: 'explode', id: 'inside', label: 'Inside' },
   ]
@@ -78,7 +78,7 @@ function Arrow({ dir }) {
   )
 }
 
-export default function ProductGallery({ watch, slide, setSlide }) {
+export default function ProductGallery({ watch, slide, setSlide, live }) {
   const name = watch.name
   const SLIDES = slidesFor(watch)
   const PARTS = partsFor(watch)
@@ -119,15 +119,15 @@ export default function ProductGallery({ watch, slide, setSlide }) {
   return (
     <div className="pg" role="region" aria-roledescription="carousel" aria-label={`${name} gallery`} onKeyDown={key}>
       {SLIDES.map((s, i) =>
-        s.type === 'image' || s.type === 'video' ? (
+        s.type === 'image' || s.type === 'video' || s.type === 'photo' || s.type === 'screen' ? (
           <figure
             key={s.id}
-            className={`pg-slide pg-${s.type} ${i === slide ? 'is-on' : ''}`}
+            className={`pg-slide pg-${s.type} ${i === slide ? 'is-on' : ''} ${live && (s.type === 'photo' || s.type === 'screen') ? 'is-live' : ''}`}
             aria-hidden={i !== slide}
             onPointerDown={down}
             onPointerUp={up}
           >
-            {s.type === 'image' ? (
+            {s.type !== 'video' ? (
               <img src={s.src} alt={s.alt} draggable="false" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
             ) : (
               <video ref={video} poster={s.poster} muted playsInline loop controls preload="none" aria-label={`${name} feature video`}>
