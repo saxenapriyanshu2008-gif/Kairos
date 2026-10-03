@@ -1456,3 +1456,6 @@ body[data-route='credits'] .nav, body[data-route='legal'] .nav { background: rgb
   .legal-side li a[aria-current='page'] { border-color: var(--gold); }
   .legal-toc ol { columns: 1; }
 }
+/* live photo / screen slides: the 3D model shows through; the stored image is only a fallback */
+.pg-slide.is-live { background: transparent; }
+.pg-slide.is-live img { visibility: hidden; }
