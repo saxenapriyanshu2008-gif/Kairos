@@ -35,12 +35,6 @@ export const photos = {
     creator: 'Mohammad Hossein Mirzagol',
     page: 'https://unsplash.com/photos/a-man-with-a-watch-on-his-wrist-e69369Ekths',
   },
-  gears: {
-    id: 'photo-1633451238208-11c8e6c1fed4',
-    alt: 'Macro view of the gears and balance wheel inside a mechanical watch',
-    creator: 'Lukas Tennie',
-    page: 'https://unsplash.com/photos/a-close-up-of-a-watch-face-showing-the-gears-DAWnMmUSMdU',
-  },
   movement: {
     id: 'photo-1768062251809-739d987a42fe',
     alt: 'Close-up of an intricate rose gold mechanical watch movement',
