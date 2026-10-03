@@ -30,6 +30,9 @@ const can3D = () => {
 
 const VIEW = { rx: -0.28, ry: -0.45 } // resting 3/4 view
 const SIDE = { rx: 0.2, ry: -1.25 } // side view for the exploded parts
+// the gallery "photo" angle and the face-on angle for smartwatch screens
+const PHOTO = { rx: -0.3, ry: -0.5 }
+const SCREEN = { rx: -0.06, ry: -0.08 }
 
 export default function ProductStudio() {
   const { drawer, setDrawer, addToBag, wishlist, toggleWish } = useShop()
@@ -57,7 +60,7 @@ export default function ProductStudio() {
     setLook({ ...watch.look })
     setExplode(0)
     setSlide(0)
-    ctl.current.target = { ...VIEW }
+    ctl.current.target = { ...PHOTO } // every gallery starts on the photo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawer?.id, open])
 
@@ -77,7 +80,7 @@ export default function ProductStudio() {
       engine.current = st
       setReady(true)
       const S = st.state
-      Object.assign(S, { x: 0, y: 0.02, size: 0.42, maxW: 0.72, ...VIEW })
+      Object.assign(S, { x: 0, y: 0.02, size: 0.46, maxW: 0.72, ...ctl.current.target })
 
       const loop = () => {
         const c = ctl.current
@@ -99,7 +102,7 @@ export default function ProductStudio() {
         // the strap fades while the watch turns, before the parts open
         const goalStrap = opening ? 1 : Math.min(1, S.explode * 1.6)
         S.hideStrap += (goalStrap - S.hideStrap) * 0.08
-        const goalSize = 0.42 - 0.13 * Math.min(1, c.explode)
+        const goalSize = c.size || 0.42 - 0.13 * Math.min(1, c.explode)
         S.size += (goalSize - S.size) * 0.1
         const goalY = c.lift ? 0.21 : 0.02
         S.y += (goalY - S.y) * 0.1
@@ -123,6 +126,7 @@ export default function ProductStudio() {
       let sy = 0
       let start = null
       const down = (e) => {
+        if (ctl.current.locked) return
         ctl.current.dragging = true
         sx = e.clientX
         sy = e.clientY
@@ -138,6 +142,7 @@ export default function ProductStudio() {
       }
       const up = () => (ctl.current.dragging = false)
       const key = (e) => {
+        if (ctl.current.locked) return
         const t = ctl.current.target
         if (e.key === 'ArrowLeft') t.ry -= 0.35
         else if (e.key === 'ArrowRight') t.ry += 0.35
@@ -172,16 +177,22 @@ export default function ProductStudio() {
   }, [open, webgl, look === null])
 
   // gallery: only the 3D slides use the stage
-  const kind = watch ? slidesFor(watch)[slide]?.type || '3d' : '3d'
-  ctl.current.active = kind === '3d' || kind === 'explode'
+  // the photo and screen slides are rendered live from the 3D model in a fixed pose,
+  // so they always show the case, dial and strap that are currently chosen
+  const cur = watch ? slidesFor(watch)[slide] : null
+  const kind = cur?.type || '3d'
+  ctl.current.active = kind === '3d' || kind === 'explode' || kind === 'photo' || kind === 'screen'
+  ctl.current.locked = kind === 'photo' || kind === 'screen' // fixed shot, no dragging
   ctl.current.lift = kind === 'explode'
+  ctl.current.size = kind === 'screen' ? 0.6 : kind === 'photo' ? 0.46 : null
   useEffect(() => {
     if (!watch) return
     const ex = kind === 'explode'
     setExplode(ex ? 1 : 0)
-    ctl.current.target = ex ? { ...SIDE } : { ...VIEW }
+    ctl.current.target = ex ? { ...SIDE } : kind === 'photo' ? { ...PHOTO } : kind === 'screen' ? { ...SCREEN } : { ...VIEW }
+    engine.current?.setScreen?.(kind === 'screen' ? cur.page : 'face')
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slide, watch?.id])
+  }, [slide, watch?.id, ready])
 
   // apply option changes instantly
   useEffect(() => {
@@ -243,7 +254,7 @@ export default function ProductStudio() {
             </div>
           )}
 
-          <ProductGallery watch={watch} slide={slide} setSlide={setSlide} />
+          <ProductGallery watch={watch} slide={slide} setSlide={setSlide} live={webgl && ready} />
 
           {kind === '3d' && <p className="studio-hint" aria-hidden="true">{webgl ? 'Drag to rotate 360°' : 'Interactive 3D needs WebGL'}</p>}
         </div>
