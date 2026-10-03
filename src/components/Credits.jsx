@@ -12,6 +12,7 @@ import { linkTo } from '../lib/router'
 export const CREDITS = [
   { asset: 'Bodoni Moda (display typeface)', creator: 'Owen Earl (indestructible type*)', source: 'Google Fonts, via Fontsource', license: 'SIL Open Font License 1.1', url: 'https://fonts.google.com/specimen/Bodoni+Moda' },
   { asset: 'Manrope (UI typeface)', creator: 'Mikhail Sharanda', source: 'Google Fonts, via Fontsource', license: 'SIL Open Font License 1.1', url: 'https://fonts.google.com/specimen/Manrope' },
+  { asset: 'Mrs Saint Delafield (signature script)', creator: 'Sudtipos (Alejandro Paul)', source: 'Google Fonts, via Fontsource', license: 'SIL Open Font License 1.1', url: 'https://fonts.google.com/specimen/Mrs+Saint+Delafield' },
   { asset: 'GSAP + ScrollTrigger', creator: 'GreenSock / Webflow', source: 'npm: gsap', license: 'GSAP Standard License (free)', url: 'https://gsap.com/licensing/' },
   { asset: 'Three.js (3D rendering)', creator: 'three.js authors', source: 'npm: three', license: 'MIT', url: 'https://github.com/mrdoob/three.js' },
   { asset: 'React and React DOM', creator: 'Meta Platforms and contributors', source: 'npm: react', license: 'MIT', url: 'https://github.com/facebook/react' },

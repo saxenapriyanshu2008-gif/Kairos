@@ -66,6 +66,7 @@ Sections switch between dark and ivory, like turning pages in a print magazine. 
 - **Blueprint footer mark.** The K-clock logo draws itself with construction lines next to the KAIROS wordmark.
 - **Product studio.** Selecting any watch opens a full-screen 3D studio:
   - **Product gallery:** every watch opens a gallery with arrows, dots, swipe and keyboard. Slides: a still photo, a drag-to-rotate 360° view (arrow keys work too), and an "Inside" exploded view with each part numbered and explained in a legend.
+  - **Back slide:** every watch shows its caseback: an engraved steel ring (model, calibre, materials, water resistance, numbered serial, K-clock marks, screw-down notches) and a sapphire window onto the rotor with gold printing and founder Priyanshu Saxena's signature. PULSE has a domed sensor back with heart-rate LEDs that pulse, photodiodes, Fresnel rings and charging contacts, with the signature engraved on its ring.
   - **PULSE extras:** the smartwatch gallery also has the apps, sports, workout and health screens and a 30 second feature video. All icons and screen layouts are original and drawn in code.
   - **How the PULSE media is made:** `tools/pulse-render.html` poses the same Three.js model, and `tools/render-pulse.py` (Playwright + ffmpeg) saves the stills (every watch's gallery photo plus the PULSE screens) as WebP and the video as H.264 MP4 into `public/media/`. Run `npx vite --port 5199`, then `python3 tools/render-pulse.py`.
   - **Options:** case colour (steel, black, gunmetal, blue, champagne), dial colour (ivory, obsidian, midnight, slate), strap type (leather, metal bracelet, mesh, rubber) and strap colour. The price updates as you choose.
@@ -89,7 +90,7 @@ Sections switch between dark and ivory, like turning pages in a print magazine. 
 - **Three.js** for the 3D watch (lazy-loaded chunk)
 - **GSAP 3 + ScrollTrigger** for all scroll and pointer animation
 - Plain **CSS** with design tokens (custom properties). No UI framework was needed.
-- **@fontsource-variable** for self-hosted Bodoni Moda and Manrope
+- **@fontsource-variable** for self-hosted Bodoni Moda and Manrope, and **@fontsource** for the Mrs Saint Delafield signature script
 
 There is no React Three Fiber, icon library or state library. Three.js is used directly through one small module (`src/three/stage.js`), and the page only changes a plain `state` object that GSAP animates. The icons are inline SVG and the shop state is a small React context. This keeps the JavaScript small and the code easy to explain.
 
@@ -153,6 +154,7 @@ All assets are free or licensed. The full table is also on the site at **Footer 
 | Hand holding analog watch | Jaelynn Castillo | [Unsplash](https://unsplash.com/photos/person-holding-analog-watch-xfNeB1stZ_0) | Unsplash License |
 | Bodoni Moda | Owen Earl | [Google Fonts](https://fonts.google.com/specimen/Bodoni+Moda) | SIL OFL 1.1 |
 | Manrope | Mikhail Sharanda | [Google Fonts](https://fonts.google.com/specimen/Manrope) | SIL OFL 1.1 |
+| Mrs Saint Delafield (founder's signature) | Sudtipos (Alejandro Paul) | [Google Fonts](https://fonts.google.com/specimen/Mrs+Saint+Delafield) | SIL OFL 1.1 |
 | GSAP + ScrollTrigger | GreenSock / Webflow | [gsap.com](https://gsap.com/licensing/) | GSAP Standard License (free) |
 | Three.js | three.js authors | npm | MIT |
 | React, Vite, Fontsource | Open-source contributors | npm | MIT |

@@ -3,6 +3,7 @@
 // and window.videoAt(t) and saves each frame. Not part of the site build.
 import '@fontsource-variable/manrope'
 import '@fontsource-variable/bodoni-moda'
+import '@fontsource/mrs-saint-delafield/latin-400.css'
 import { createStage } from '../src/three/stage.js'
 import { watches } from '../src/data/watches.js'
 
@@ -38,7 +39,7 @@ function settle(n = 40, px = -0.45, py = 0.55) {
 
 window.ready = (async () => {
   await document.fonts.ready
-  await Promise.all([document.fonts.load('600 40px "Manrope Variable"'), document.fonts.load('400 40px "Bodoni Moda Variable"')])
+  await Promise.all([document.fonts.load('600 40px "Manrope Variable"'), document.fonts.load('400 40px "Bodoni Moda Variable"'), document.fonts.load('92px "Mrs Saint Delafield"')])
   st.setScreen('face')
   settle(5)
   return true
