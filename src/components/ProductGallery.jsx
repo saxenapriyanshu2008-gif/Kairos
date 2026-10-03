@@ -17,6 +17,7 @@ const media = (f) => `${BASE}media/${f}`
 const PULSE_SLIDES = [
   { type: 'photo', id: 'photo', label: 'Photo', src: media('pulse-photo.webp'), alt: 'KAIROS PULSE in black aluminium with a navy rubber strap' },
   { type: '3d', id: '360', label: '360°' },
+  { type: 'back', id: 'back', label: 'Back', k: 'Sensor back', t: 'Heart rate, SpO2 and charging', s: 'Green and red LEDs, four photodiodes and two gold charging contacts under domed glass.' },
   { type: 'screen', page: 'apps', id: 'apps', label: 'Apps', src: media('pulse-apps.webp'), alt: 'PULSE app launcher with round app icons', k: 'Wear OS 4', t: 'Your apps on your wrist', s: 'Calls, messages, music, maps, weather and NFC payments.' },
   { type: 'screen', page: 'sports', id: 'sports', label: 'Sports', src: media('pulse-sports.webp'), alt: 'PULSE sports mode list', k: 'Sport', t: '100+ sports modes', s: 'Running, cycling, pool swim, badminton, skiing and more.' },
   { type: 'screen', page: 'workout', id: 'workout', label: 'Workout', src: media('pulse-workout.webp'), alt: 'PULSE live outdoor run with time, distance, pace and heart rate', k: 'Dual-band GPS', t: 'Every run, tracked right', s: 'L1 + L5 GPS, live pace and heart-rate zones.' },
@@ -32,7 +33,7 @@ const PULSE_PARTS = [
   ['dial', 'AMOLED screen', '1.43 in, 466 x 466, up to 1000 nits, always-on.'],
   ['case', 'Aluminium case', '47 mm and 37 g. Sealed to 5 ATM and IP68.'],
   ['movement', 'Dual chips + battery', 'Snapdragon W5 and BES2700 with a 500 mAh cell for up to 100 hours.'],
-  ['caseback', 'Sensor back', 'Heart rate, SpO2 and the charging contacts.'],
+  ['caseback', 'Sensor back', 'Heart-rate LEDs, SpO2 sensors, charging contacts and the founder\'s engraved signature.'],
 ]
 
 // slides for any watch
@@ -41,6 +42,7 @@ export function slidesFor(watch) {
   return [
     { type: 'photo', id: 'photo', label: 'Photo', src: media(`${watch.id}-photo.webp`), alt: `${watch.name}, ${watch.category.toLowerCase()}` },
     { type: '3d', id: '360', label: '360°' },
+    { type: 'back', id: 'back', label: 'Back', k: 'Caseback', t: 'Signed by our founder', s: 'Engraved details, a numbered serial and Priyanshu Saxena\'s signature in gold.' },
     { type: 'explode', id: 'inside', label: 'Inside' },
   ]
 }
@@ -66,7 +68,7 @@ export function partsFor(watch) {
     ['dial', ...dial],
     ['case', 'Case', `${watch.specs.Case}. Water resistant to ${watch.specs.Resistance}.`],
     ['movement', 'Calibre', `${watch.specs.Movement}: 28,800 vph, 42-hour reserve, 25 jewels.`],
-    ['caseback', 'Caseback', 'Screw-down back with a sapphire window onto the rotor.'],
+    ['caseback', 'Caseback', 'Sapphire window onto the rotor, engraved details and the founder\'s signature.'],
   ]
 }
 
@@ -119,15 +121,15 @@ export default function ProductGallery({ watch, slide, setSlide, live }) {
   return (
     <div className="pg" role="region" aria-roledescription="carousel" aria-label={`${name} gallery`} onKeyDown={key}>
       {SLIDES.map((s, i) =>
-        s.type === 'image' || s.type === 'video' || s.type === 'photo' || s.type === 'screen' ? (
+        s.type === 'image' || s.type === 'video' || s.type === 'photo' || s.type === 'screen' || s.type === 'back' ? (
           <figure
             key={s.id}
-            className={`pg-slide pg-${s.type} ${i === slide ? 'is-on' : ''} ${live && (s.type === 'photo' || s.type === 'screen') ? 'is-live' : ''}`}
+            className={`pg-slide pg-${s.type} ${i === slide ? 'is-on' : ''} ${(live && (s.type === 'photo' || s.type === 'screen')) || s.type === 'back' ? 'is-live' : ''}`}
             aria-hidden={i !== slide}
             onPointerDown={down}
             onPointerUp={up}
           >
-            {s.type !== 'video' ? (
+            {s.type === 'back' ? null : s.type !== 'video' ? (
               <img src={s.src} alt={s.alt} draggable="false" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
             ) : (
               <video ref={video} poster={s.poster} muted playsInline loop controls preload="none" aria-label={`${name} feature video`}>
