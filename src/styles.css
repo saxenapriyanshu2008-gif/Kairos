@@ -709,24 +709,18 @@ em { font-style: italic; }
 /* ---------- 7. Overlays: cursor, drawer, search, toast ---------- */
 .cursor { display: none; }
 .has-cursor .cursor { display: block; }
-.has-cursor body, .has-cursor a, .has-cursor button, .has-cursor label, .has-cursor [data-cursor] { cursor: none; }
-.has-cursor input, .has-cursor textarea { cursor: text; }
-.cursor-dot, .cursor-ring { position: fixed; left: 0; top: 0; z-index: 400; pointer-events: none; opacity: 0; mix-blend-mode: difference; }
-.cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: #fff; }
+.has-cursor, .has-cursor * { cursor: none !important; }
+.has-cursor input:not([type='radio']):not([type='checkbox']):not([type='range']), .has-cursor textarea { cursor: text !important; }
+.cursor-dot, .cursor-ring { position: fixed; left: 0; top: 0; z-index: 400; pointer-events: none; opacity: 0; }
+.cursor-dot {
+  width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+  background: #c9ad7c; box-shadow: 0 0 0 1px rgba(12, 11, 10, 0.55);
+}
 .cursor-ring {
   width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  display: grid; place-items: center;
-  transition: width 0.45s var(--ease), height 0.45s var(--ease), margin 0.45s var(--ease), background 0.45s, border-color 0.45s;
+  border: 1px solid rgba(201, 173, 124, 0.9);
+  box-shadow: 0 0 0 1px rgba(12, 11, 10, 0.25), inset 0 0 0 1px rgba(12, 11, 10, 0.15);
 }
-.cursor-ring[data-mode='link'] { width: 50px; height: 50px; margin: -25px 0 0 -25px; }
-.cursor-ring[data-mode='view'], .cursor-ring[data-mode='open'], .cursor-ring[data-mode='discover'] {
-  width: 92px; height: 92px; margin: -46px 0 0 -46px; background: #fff; border-color: #fff;
-}
-.cursor-ring[data-mode='hide'] { width: 0; height: 0; margin: 0; border-color: transparent; }
-.cursor-ring.is-down { scale: 0.85; }
-.cursor-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #000; opacity: 0; transition: opacity 0.3s; padding-left: 0.2em; }
-.cursor-ring[data-mode='view'] .cursor-label, .cursor-ring[data-mode='open'] .cursor-label, .cursor-ring[data-mode='discover'] .cursor-label { opacity: 1; }
 
 .drawer-root, .search-root { position: fixed; inset: 0; z-index: 150; visibility: hidden; transition: visibility 0s 0.7s; }
 .drawer-root.is-open, .search-root.is-open { visibility: visible; transition: visibility 0s; }
