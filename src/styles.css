@@ -639,12 +639,12 @@ em { font-style: italic; }
 /* ---------- 6m. Contact ---------- */
 .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2.5rem, 6vw, 7rem); align-items: start; }
 .contact-copy { display: grid; gap: 1.8rem; }
-.studio { border-top: 1px solid var(--line-light); padding-top: 1.4rem; display: grid; gap: 0.6rem; }
+.contact-studio { border-top: 1px solid var(--line-light); padding-top: 1.4rem; display: grid; gap: 0.6rem; }
 .studio-name { font-family: var(--f-display); font-size: 1.6rem; }
 .demo-tag { display: inline-block; justify-self: start; font-size: 0.64rem; letter-spacing: 0.18em; text-transform: uppercase; padding: 0.3rem 0.6rem; border: 1px solid var(--line-light); color: var(--muted-on-light); }
-.studio dl { display: grid; gap: 0.4rem; margin-top: 0.4rem; }
-.studio dl div { display: grid; grid-template-columns: 5rem 1fr; }
-.studio dt { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted-on-light); padding-top: 0.2rem; }
+.contact-studio dl { display: grid; gap: 0.4rem; margin-top: 0.4rem; }
+.contact-studio dl div { display: grid; grid-template-columns: 5rem 1fr; }
+.contact-studio dt { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted-on-light); padding-top: 0.2rem; }
 
 .contact-form { display: grid; gap: 1.6rem; }
 .field { display: grid; gap: 0.4rem; }
@@ -1467,3 +1467,50 @@ body[data-route='credits'] .nav, body[data-route='legal'] .nav { background: rgb
 .story-sign.is-signed .rule { transform: scaleX(1); }
 .story-sign.is-signed .sig { clip-path: inset(-20% -5% -20% 0); }
 .story-sign.is-signed .sig-role { opacity: 1; }
+
+/* ---------- contact: ways to reach us + full message form ---------- */
+.contact-ways { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+.way {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem;
+  padding: 1rem 1.2rem; border: 1px solid var(--line-light); background: rgba(255, 255, 255, 0.35);
+  transition: border-color 0.3s, background 0.3s, transform 0.3s var(--ease);
+}
+.way::after { content: '→'; color: var(--gold-ink, #8a6d3b); transition: transform 0.3s var(--ease); }
+.way:hover, .way:focus-visible { border-color: var(--ink); background: rgba(255, 255, 255, 0.7); }
+.way:hover::after { transform: translateX(4px); }
+.way-icon { width: 2.6rem; height: 2.6rem; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--ivory); }
+.way-text { display: grid; gap: 0.15rem; min-width: 0; }
+.way-text strong { font-size: 0.95rem; font-weight: 650; }
+.way-text em { font-style: normal; font-size: 0.85rem; color: var(--muted-on-light); overflow-wrap: anywhere; }
+.contact-studio a { text-decoration: underline; text-decoration-color: var(--line-light); text-underline-offset: 3px; }
+
+.contact-form { gap: 1.3rem; padding: clamp(1.4rem, 3vw, 2.4rem); border: 1px solid var(--line-light); background: rgba(255, 255, 255, 0.4); }
+.form-title { font-family: var(--f-display); font-size: 1.7rem; line-height: 1.1; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem; }
+.field-hint { font-size: 0.8rem; color: var(--muted-on-light); }
+.req { color: #9b1f33; }
+.field select {
+  width: 100%; font: inherit; font-size: 1rem; color: inherit; background: transparent;
+  border: 0; border-bottom: 1px solid rgba(22, 21, 20, 0.35); border-radius: 0; padding: 0.7rem 0; appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 10px) 55%, calc(100% - 5px) 55%; background-size: 5px 5px; background-repeat: no-repeat;
+}
+.field select:focus { outline: none; border-bottom-color: var(--ink); box-shadow: 0 1px 0 0 var(--ink); }
+.field-radios { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.field-radios legend { font-size: 0.68rem; font-weight: 650; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 0.5rem; padding: 0; }
+.radio { position: relative; padding: 0.5rem 0.95rem; border: 1px solid var(--line-light); border-radius: 99px; font-size: 0.85rem; cursor: pointer; }
+.radio input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.radio.is-on { border-color: var(--ink); background: var(--ink); color: var(--ivory); }
+.radio:focus-within { outline: 2px solid var(--gold); outline-offset: 2px; }
+.check { display: grid; grid-template-columns: auto 1fr; gap: 0.7rem; align-items: start; font-size: 0.88rem; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.field .check { font-size: 0.88rem; letter-spacing: 0; text-transform: none; font-weight: 400; }
+.check input { width: 1.1rem; height: 1.1rem; margin-top: 0.15rem; accent-color: var(--ink); }
+.check a { text-decoration: underline; text-underline-offset: 3px; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.contact-form .btn[disabled] { opacity: 0.6; }
+.form-status .ok { color: #1f5c38; }
+.form-status .warn { color: #8a4b12; }
+.form-status a { text-decoration: underline; text-underline-offset: 3px; font-weight: 600; }
+@media (max-width: 640px) {
+  .field-row { grid-template-columns: minmax(0, 1fr); }
+}
