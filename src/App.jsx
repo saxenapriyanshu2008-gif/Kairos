@@ -34,35 +34,67 @@ function useRevealAnimations(route) {
   useEffect(() => {
     if (route !== 'home') return
     if (prefersReducedMotion()) return
-    const ctx = gsap.context(() => {
-      gsap.set('[data-reveal]', { y: 36, opacity: 0 })
-      ScrollTrigger.batch('[data-reveal]', {
-        start: 'top 88%',
-        once: true,
-        onEnter: (els) => gsap.fromTo(els, { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 1.1, stagger: 0.09, overwrite: true }),
-      })
-      gsap.utils.toArray('[data-split]').forEach((el) => {
-        el.classList.add('split-ready')
-        // rise out of a mask with a short RGB split that settles (ALCHE-style)
+    const reveal = gsap.utils.toArray('[data-reveal]')
+    const split = gsap.utils.toArray('[data-split]')
+    const imgs = gsap.utils.toArray('[data-reveal-img]')
+    gsap.set(reveal, { y: 36, opacity: 0 })
+    split.forEach((el) => el.classList.add('split-ready'))
+    gsap.set(split, { clipPath: 'inset(0% -10% 100% -10%)', y: 60 })
+    gsap.set(imgs, { clipPath: 'inset(100% 0 0 0)' })
+
+    // On every scroll (once per frame), reveal anything whose top has reached the
+    // lower 12% of the screen or gone past it. Elements skipped by a fast scroll
+    // or a menu jump are revealed too, and nothing depends on positions measured
+    // before the pinned film was built.
+    let pending = [...reveal, ...split, ...imgs]
+    let raf = 0
+    const animate = (el, i) => {
+      if (el.hasAttribute('data-split')) {
         gsap.fromTo(el, {
-          clipPath: 'inset(0% -10% 100% -10%)', y: 60,
           textShadow: '-10px 0px 0px rgba(255,40,90,0.55), 10px 0px 0px rgba(40,170,255,0.55)',
         }, {
-          clipPath: 'inset(-20% -10% -30% -10%)', y: 0, duration: 1.3, ease: 'power4.out', clearProps: 'clipPath,textShadow',
+          clipPath: 'inset(-20% -10% -30% -10%)', y: 0, duration: 1.3, ease: 'power4.out', delay: i * 0.06, clearProps: 'clipPath,textShadow',
           textShadow: '0px 0px 0px rgba(255,40,90,0), 0px 0px 0px rgba(40,170,255,0)',
-          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
         })
+      } else if (el.hasAttribute('data-reveal-img')) {
+        gsap.to(el, { clipPath: 'inset(0% 0 0 0)', duration: 1.4, ease: 'power4.inOut', delay: i * 0.09 })
+      } else {
+        gsap.to(el, { y: 0, opacity: 1, duration: 1.1, delay: i * 0.09, overwrite: true })
+      }
+    }
+    const check = () => {
+      raf = 0
+      const line = window.innerHeight * 0.88
+      const now = []
+      pending = pending.filter((el) => {
+        if (el.getBoundingClientRect().top < line) {
+          now.push(el)
+          return false
+        }
+        return true
       })
-      gsap.utils.toArray('[data-reveal-img]').forEach((el) => {
-        gsap.fromTo(el, { clipPath: 'inset(100% 0 0 0)' }, {
-          clipPath: 'inset(0% 0 0 0)', duration: 1.4, ease: 'power4.inOut',
-          scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-        })
-      })
-    })
-    // fonts change text heights, so measure again once they are ready
+      // things far above the screen appear at once; things arriving together come in one after another
+      let k = 0
+      now.forEach((el) => animate(el, el.getBoundingClientRect().bottom < 0 ? 0 : k++))
+      if (!pending.length) stop()
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(check)
+    }
+    const stop = () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    onScroll()
+    // fonts change text heights, so measure the pinned sections again once they are ready
     document.fonts?.ready.then(() => ScrollTrigger.refresh())
-    return () => ctx.revert()
+    return () => {
+      stop()
+      cancelAnimationFrame(raf)
+      gsap.set([...reveal, ...split, ...imgs], { clearProps: 'all' })
+    }
   }, [route])
 }
 
