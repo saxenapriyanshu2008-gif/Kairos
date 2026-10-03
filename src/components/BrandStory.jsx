@@ -5,6 +5,28 @@ import { gsap, prefersReducedMotion } from '../lib/gsap'
 
 export default function BrandStory() {
   const root = useRef(null)
+  const sign = useRef(null)
+
+  // the founder's signature writes itself from left to right when it comes into view
+  useEffect(() => {
+    const el = sign.current
+    if (!el) return
+    if (prefersReducedMotion() || !('IntersectionObserver' in window)) {
+      el.classList.add('is-signed')
+      return
+    }
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          el.classList.add('is-signed')
+          io.disconnect()
+        }
+      },
+      { threshold: 0.6 },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
   useEffect(() => {
     if (prefersReducedMotion()) return
@@ -48,9 +70,13 @@ export default function BrandStory() {
             <p>{words(para1)}</p>
             <p>{words(para2)}</p>
           </div>
-          <p className="story-sign" data-reveal>
-            <span className="rule" aria-hidden="true" /> The KAIROS Studio
-          </p>
+          <div className="story-sign" ref={sign}>
+            <span className="rule" aria-hidden="true" />
+            <p className="story-signature">
+              <span className="sig" aria-label="Signed, Priyanshu Saxena">Priyanshu Saxena</span>
+              <span className="sig-role">Founder, KAIROS</span>
+            </p>
+          </div>
         </div>
 
         <figure className="story-figure" data-reveal-img data-cursor="discover">
