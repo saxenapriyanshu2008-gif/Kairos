@@ -664,6 +664,177 @@ function engravingTexture() {
   return t
 }
 
+// ---------- caseback artwork ----------
+// What each model has engraved on its back
+const BACK_INFO = {
+  arc: { name: 'ARC', cal: 'AUTOMATIC CALIBRE K-01', water: '100 M', size: '39 MM', no: '0427' },
+  noir: { name: 'NOIR', cal: 'AUTOMATIC CALIBRE K-01', water: '100 M', size: '41 MM', no: '0118' },
+  atlas: { name: 'ATLAS', cal: 'AUTOMATIC CALIBRE K-02', water: '200 M', size: '42 MM', no: '0356' },
+  elan: { name: 'ÉLAN', cal: 'AUTOMATIC CALIBRE K-01 SLIM', water: '50 M', size: '38 MM', no: '0072' },
+  void: { name: 'VOID', cal: 'SKELETON CALIBRE K-01', water: '50 M', size: '42 MM', no: '0241' },
+  apex: { name: 'APEX', cal: 'CHRONOGRAPH CALIBRE K-03', water: '100 M', size: '44 MM', no: '0503' },
+  pulse: { name: 'PULSE', cal: 'SNAPDRAGON W5 + BES2700', water: '5 ATM · IP68', size: '47 MM ALUMINIUM', no: '1931' },
+  mono: { name: 'MONO', cal: 'AUTOMATIC CALIBRE K-01', water: '50 M', size: '40 MM', no: '0614' },
+}
+export const FOUNDER = 'Priyanshu Saxena'
+
+// text written around a circle (clockwise, centred on angle a0)
+function arcText(g, text, r, a0, size, spacing, inward = false) {
+  g.save()
+  g.font = `600 ${size}px "Manrope Variable", Arial, sans-serif`
+  const chars = [...text]
+  const widths = chars.map((c) => g.measureText(c).width + spacing)
+  const total = widths.reduce((a, b) => a + b, 0)
+  let a = a0 - (inward ? -1 : 1) * (total / r) / 2
+  chars.forEach((c, i) => {
+    const w = widths[i]
+    const mid = a + ((inward ? -1 : 1) * (w / 2)) / r
+    g.save()
+    g.rotate(mid)
+    g.translate(0, inward ? r : -r)
+    if (inward) g.rotate(Math.PI)
+    g.fillText(c, -(w - spacing) / 2, size * 0.35)
+    g.restore()
+    a += ((inward ? -1 : 1) * w) / r
+  })
+  g.restore()
+}
+
+// text along the bottom of a circle, upright and reading left to right
+function arcTextBottom(g, text, r, size, spacing) {
+  g.save()
+  g.font = `600 ${size}px "Manrope Variable", Arial, sans-serif`
+  const chars = [...text]
+  const widths = chars.map((c) => g.measureText(c).width + spacing)
+  const total = widths.reduce((a, b) => a + b, 0)
+  let th = Math.PI + total / r / 2
+  chars.forEach((c, i) => {
+    const w = widths[i]
+    const mid = th - w / 2 / r
+    g.save()
+    g.translate(Math.sin(mid) * r, -Math.cos(mid) * r)
+    g.rotate(mid - Math.PI)
+    g.fillText(c, -(w - spacing) / 2, size * 0.35)
+    g.restore()
+    th -= w / r
+  })
+  g.restore()
+}
+
+// the K-clock mark, drawn small (hour hand 41.25 deg, minute hand 135 deg)
+function kMark(g, x, y, r, col, lw) {
+  g.save()
+  g.translate(x, y)
+  g.strokeStyle = col
+  g.lineWidth = lw
+  g.lineCap = 'round'
+  g.beginPath()
+  g.arc(0, 0, r, 0, Math.PI * 2)
+  g.moveTo(0, -r * 0.8)
+  g.lineTo(0, r * 0.8)
+  const hand = (deg, len) => {
+    const a = (deg * Math.PI) / 180
+    g.moveTo(0, 0)
+    g.lineTo(Math.sin(a) * len, -Math.cos(a) * len)
+  }
+  hand(41.25, r * 0.7)
+  hand(135, r * 0.85)
+  g.stroke()
+  g.restore()
+}
+
+// Engraved steel ring around the window: model, calibre, materials, serial,
+// the K-clock mark and the screw-down notches. Light engraving on dark cases.
+function casebackRingTexture(model, light) {
+  const S = 1024
+  const c = document.createElement('canvas')
+  c.width = c.height = S
+  const g = c.getContext('2d')
+  const info = BACK_INFO[model] || BACK_INFO.arc
+  const ink = light ? 'rgba(232,230,224,0.82)' : 'rgba(20,20,22,0.78)'
+  const hi = light ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.35)' // engraving edge
+  g.translate(S / 2, S / 2)
+  const R = S / 2 // = 0.9 world units
+  const px = (u) => (u / 0.9) * R
+  const draw = (fn) => {
+    g.save()
+    g.translate(1, 1)
+    g.fillStyle = hi
+    g.strokeStyle = hi
+    fn()
+    g.restore()
+    g.fillStyle = ink
+    g.strokeStyle = ink
+    fn()
+  }
+  draw(() => {
+    g.lineWidth = 2
+    for (const r of [px(0.625), px(0.865)]) {
+      g.beginPath()
+      g.arc(0, 0, r, 0, Math.PI * 2)
+      g.stroke()
+    }
+    // outer line of text all the way round
+    arcText(g, `KAIROS ${info.name}  ·  ${info.cal}  ·  ${model === 'pulse' ? 'TOUGHENED GLASS' : 'SAPPHIRE CRYSTAL'}  ·  ${model === 'pulse' ? '' : '316L STAINLESS STEEL  ·  '}WATER RESISTANT ${info.water}  ·  ${info.size}  ·  `, px(0.8), 0, 25, 4.2)
+    // inner line: serial at the bottom, swiss-style details at the top
+    arcTextBottom(g, `N° ${info.no} / 1000`, px(0.715), 28, 6)
+    if (model === 'pulse') {
+      // PULSE has no window, so the founder's signature is engraved here instead
+      g.save()
+      g.textAlign = 'center'
+      g.font = '58px "Mrs Saint Delafield", "Brush Script MT", cursive'
+      g.fillText(FOUNDER, 0, -px(0.69))
+      g.restore()
+    } else arcText(g, 'SCREW-DOWN CASEBACK', px(0.705), 0, 20, 5)
+    // screw-down notches on the rim
+    for (let i = 0; i < 6; i++) {
+      g.save()
+      g.rotate((i / 6) * Math.PI * 2 + Math.PI / 6)
+      g.fillRect(-14, -px(0.9), 28, px(0.035))
+      g.restore()
+    }
+  })
+  // the K mark at the top, between the two text rows
+  kMark(g, px(0.705) * Math.sin(-0.62), -px(0.705) * Math.cos(-0.62), 20, ink, 2.6)
+  kMark(g, px(0.705) * Math.sin(0.62), -px(0.705) * Math.cos(0.62), 20, ink, 2.6)
+  const t = new THREE.CanvasTexture(c)
+  t.colorSpace = THREE.SRGBColorSpace
+  t.anisotropy = 8
+  return t
+}
+
+// Gold printing on the sapphire window: wordmark, K mark and the founder's signature
+function sapphirePrintTexture() {
+  const S = 1024
+  const c = document.createElement('canvas')
+  c.width = c.height = S
+  const g = c.getContext('2d')
+  g.translate(S / 2, S / 2)
+  const gold = '#d9bf86'
+  g.fillStyle = gold
+  g.textAlign = 'center'
+  kMark(g, 0, -330, 34, gold, 4)
+  g.font = '600 40px "Manrope Variable", Arial, sans-serif'
+  g.letterSpacing = '16px'
+  g.fillText('KAIROS', 8, -250)
+  g.letterSpacing = '0px'
+  g.font = '128px "Mrs Saint Delafield", "Brush Script MT", cursive'
+  g.fillText(FOUNDER, 0, 290)
+  g.strokeStyle = gold
+  g.lineWidth = 2
+  g.beginPath()
+  g.moveTo(-230, 322)
+  g.quadraticCurveTo(0, 306, 250, 318)
+  g.stroke()
+  g.font = '600 22px "Manrope Variable", Arial, sans-serif'
+  g.letterSpacing = '8px'
+  g.fillText('FOUNDER', 4, 372)
+  const t = new THREE.CanvasTexture(c)
+  t.colorSpace = THREE.SRGBColorSpace
+  t.anisotropy = 8
+  return t
+}
+
 // ---------- geometry helpers ----------
 function lathe(points, segments = 128) {
   const geo = new THREE.LatheGeometry(points.map(([r, z]) => new THREE.Vector2(r, z)), segments)
@@ -1180,11 +1351,88 @@ export function buildWatch(initialLook) {
   movementG.add(elecG)
 
   // ---------- CASEBACK ----------
-  const back = new THREE.Mesh(track(lathe([[0.0, -0.2], [0.9, -0.2], [0.93, -0.17], [0.9, -0.15], [0.62, -0.15], [0.62, -0.18], [0, -0.18]], 96)), M.case)
+  // Screw-down steel back with an exhibition window. The ring carries engraved
+  // details; the sapphire carries gold printing and the founder's signature.
+  // PULSE swaps the window for a domed sensor module.
+  const back = new THREE.Mesh(track(lathe([[0.6, -0.2], [0.9, -0.2], [0.93, -0.17], [0.9, -0.15], [0.62, -0.15], [0.6, -0.17], [0.6, -0.2]], 96)), M.case)
   casebackG.add(back)
-  const window_ = new THREE.Mesh(track(new THREE.CircleGeometry(0.62, 96)), M.crystal)
-  window_.position.z = -0.149
+  const window_ = new THREE.Mesh(track(new THREE.CircleGeometry(0.6, 96)), M.crystal)
+  window_.rotation.y = Math.PI // faces out of the back
+  window_.position.z = -0.192
   casebackG.add(window_)
+  const backRingMat = track(new THREE.MeshStandardMaterial({ transparent: true, metalness: 0.7, roughness: 0.45, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }))
+  const backRing = new THREE.Mesh(track(new THREE.RingGeometry(0.6, 0.9, 96, 1)), backRingMat)
+  backRing.rotation.y = Math.PI
+  backRing.position.z = -0.2015
+  casebackG.add(backRing)
+  const printMat = track(new THREE.MeshStandardMaterial({ map: null, transparent: true, metalness: 0.85, roughness: 0.3, depthWrite: false }))
+  const print = new THREE.Mesh(track(new THREE.CircleGeometry(0.6, 96)), printMat)
+  print.rotation.y = Math.PI
+  print.position.z = -0.194
+  casebackG.add(print)
+  // fonts may still be loading: draw now and again once they are ready
+  const drawPrint = () => {
+    printMat.map?.dispose()
+    printMat.map = track(sapphirePrintTexture())
+    printMat.needsUpdate = true
+  }
+  drawPrint()
+  let backKey = ''
+  const drawBackRing = (model, finish) => {
+    backKey = model + finish
+    backRingMat.map?.dispose()
+    backRingMat.map = track(casebackRingTexture(model, finish !== 'steel' && finish !== 'champagne'))
+    backRingMat.needsUpdate = true
+  }
+  document.fonts?.load?.('92px "Mrs Saint Delafield"').then(() => {
+    drawPrint()
+    if (currentLook) drawBackRing(currentLook.model, currentLook.caseFinish)
+  })
+
+  // PULSE sensor back: black glass dome, green heart-rate LEDs, red/IR LEDs,
+  // photodiodes, Fresnel rings and two gold charging contacts
+  const sensorG = new THREE.Group()
+  const glass = track(new THREE.MeshPhysicalMaterial({ color: '#0a0a0b', roughness: 0.12, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 1.2, side: THREE.DoubleSide }))
+  sensorG.add(new THREE.Mesh(track(lathe([[0.6, -0.19], [0.58, -0.205], [0.5, -0.225], [0.3, -0.24], [0, -0.245]], 96)), glass))
+  const ledGreen = track(new THREE.MeshStandardMaterial({ color: '#0c3a1a', emissive: '#2cff6e', emissiveIntensity: 0.8, roughness: 0.3 }))
+  const ledRed = track(new THREE.MeshStandardMaterial({ color: '#3a0c0c', emissive: '#ff3b30', emissiveIntensity: 0.45, roughness: 0.3 }))
+  const diode = track(new THREE.MeshStandardMaterial({ color: '#1d2230', roughness: 0.25, metalness: 0.4 }))
+  const ringMat = track(new THREE.MeshStandardMaterial({ color: '#2a2a2e', roughness: 0.4, metalness: 0.5 }))
+  // height of the dome surface at radius r (same profile as the lathe), just outside it
+  const DOME = [[0, -0.245], [0.3, -0.24], [0.5, -0.225], [0.58, -0.205], [0.6, -0.19]]
+  const domeZ = (r) => {
+    for (let i = 1; i < DOME.length; i++)
+      if (r <= DOME[i][0]) {
+        const [r0, z0] = DOME[i - 1]
+        const [r1, z1] = DOME[i]
+        return z0 + ((r - r0) / (r1 - r0)) * (z1 - z0) - 0.0018
+      }
+    return -0.19
+  }
+  const putBack = (mesh, x, y, z) => {
+    mesh.position.set(x, y, z)
+    mesh.rotation.y = Math.PI
+    sensorG.add(mesh)
+  }
+  for (let k = 0; k < 4; k++) {
+    const a = (k / 4) * Math.PI * 2 + Math.PI / 4
+    putBack(new THREE.Mesh(track(new THREE.CircleGeometry(0.03, 24)), ledGreen), Math.cos(a) * 0.09, Math.sin(a) * 0.09, domeZ(0.09))
+  }
+  for (const x of [-0.04, 0.04]) putBack(new THREE.Mesh(track(new THREE.CircleGeometry(0.018, 20)), ledRed), x, 0, domeZ(0.04) - 0.0002)
+  for (let k = 0; k < 4; k++) {
+    const a = (k / 4) * Math.PI * 2
+    putBack(new THREE.Mesh(track(new THREE.PlaneGeometry(0.075, 0.075)), diode), Math.cos(a) * 0.24, Math.sin(a) * 0.24, domeZ(0.24))
+  }
+  for (const r of [0.16, 0.32, 0.44]) {
+    const ring = new THREE.Mesh(track(new THREE.RingGeometry(r - 0.004, r, 96)), ringMat)
+    putBack(ring, 0, 0, domeZ(r))
+  }
+  for (const a of [-2.4, -0.74]) {
+    const pin = new THREE.Mesh(track(new THREE.CylinderGeometry(0.03, 0.03, 0.02, 20).rotateX(Math.PI / 2)), M.chaton)
+    pin.position.set(Math.cos(a) * 0.38, Math.sin(a) * 0.38, domeZ(0.38) - 0.006)
+    sensorG.add(pin)
+  }
+  casebackG.add(sensorG)
 
   // ---------- STRAP ----------
   let strapMeshes = []
@@ -1453,6 +1701,10 @@ export function buildWatch(initialLook) {
     }
     if (L.model !== currentLook.model) buildIndices(L.model)
     if (L.strap !== currentLook.strap) buildStrap(L.strap)
+    if (backKey !== L.model + L.caseFinish) drawBackRing(L.model, L.caseFinish)
+    const pulseBack = L.model === 'pulse'
+    sensorG.visible = pulseBack
+    print.visible = !pulseBack
     screenSecond = -1
     currentLook = L
   }
@@ -1478,6 +1730,11 @@ export function buildWatch(initialLook) {
       screenSecond = now.getSeconds()
       drawScreen(screenCanvas.getContext('2d'), now, '#c9ad7c', screenPage)
       screenTex.needsUpdate = true
+    }
+    // PULSE sensor LEDs flash with a heartbeat
+    if (sensorG.visible) {
+      const beat = (t * 1.15) % 1
+      ledGreen.emissiveIntensity = 0.35 + 1.4 * Math.exp(-beat * 9) + 0.6 * Math.exp(-Math.abs(beat - 0.18) * 30)
     }
     // movement life
     gears.forEach(({ g, speed }) => (g.rotation.z = t * speed))
