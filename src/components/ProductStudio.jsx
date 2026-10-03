@@ -33,7 +33,7 @@ const SIDE = { rx: 0.2, ry: -1.25 } // side view for the exploded parts
 // the gallery "photo" angle and the face-on angle for smartwatch screens
 const PHOTO = { rx: -0.3, ry: -0.5 }
 const SCREEN = { rx: -0.06, ry: -0.08 }
-const BACK = { rx: -0.14, ry: Math.PI + 0.2 } // the caseback, slightly turned
+const BACK = { rx: -0.06, ry: Math.PI + 0.1 } // the caseback, slightly turned
 
 export default function ProductStudio() {
   const { drawer, setDrawer, addToBag, wishlist, toggleWish } = useShop()
@@ -185,12 +185,16 @@ export default function ProductStudio() {
   ctl.current.active = kind === '3d' || kind === 'explode' || kind === 'photo' || kind === 'screen' || kind === 'back'
   ctl.current.locked = kind === 'photo' || kind === 'screen' || kind === 'back' // fixed shot, no dragging
   ctl.current.lift = kind === 'explode'
-  ctl.current.size = kind === 'screen' ? 0.6 : kind === 'photo' ? 0.46 : kind === 'back' ? 0.52 : null
+  ctl.current.size = kind === 'screen' ? 0.6 : kind === 'photo' ? 0.46 : kind === 'back' ? 0.64 : null
   useEffect(() => {
     if (!watch) return
     const ex = kind === 'explode'
     setExplode(ex ? 1 : 0)
-    ctl.current.target = ex ? { ...SIDE } : kind === 'photo' ? { ...PHOTO } : kind === 'screen' ? { ...SCREEN } : kind === 'back' ? { ...BACK } : { ...VIEW }
+    const goal = ex ? { ...SIDE } : kind === 'photo' ? { ...PHOTO } : kind === 'screen' ? { ...SCREEN } : kind === 'back' ? { ...BACK } : { ...VIEW }
+    // turn the short way round (the 360 view may have spun the watch several times)
+    const curRy = engine.current?.state.ry ?? goal.ry
+    goal.ry += Math.PI * 2 * Math.round((curRy - goal.ry) / (Math.PI * 2))
+    ctl.current.target = goal
     engine.current?.setScreen?.(kind === 'screen' ? cur.page : 'face')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slide, watch?.id, ready])
