@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom/client'
 import '@fontsource-variable/bodoni-moda/wght.css'
 import '@fontsource-variable/bodoni-moda/wght-italic.css'
 import '@fontsource-variable/manrope/wght.css'
+// founder's signature on the casebacks and in the brand story
+import '@fontsource/mrs-saint-delafield/latin-400.css'
 import './styles.css'
 import App from './App'
 
