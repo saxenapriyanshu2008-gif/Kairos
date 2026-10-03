@@ -567,28 +567,19 @@ em { font-style: italic; }
 /* ---------- 6i. Craft ---------- */
 .craft-head { grid-template-columns: minmax(0, 1fr); }
 .craft-head h2 { max-width: 14ch; }
-.craft-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.8rem, 1.6vw, 1.5rem); align-items: start; }
-.craft-card.k2 { margin-top: 4rem; }
-.craft-card.k3 { margin-top: 1.5rem; }
-.craft-card.k4 { margin-top: 5.5rem; }
-.craft-card article { position: relative; overflow: hidden; aspect-ratio: 3 / 4.4; background: var(--obsidian); color: var(--ivory); outline-offset: 4px; }
-.craft-media { position: absolute; inset: 0; }
-.craft-art { width: 100%; height: 100%; transition: transform 1.4s var(--ease); }
-.craft-card article:hover .craft-art, .craft-card article:focus-visible .craft-art { transform: scale(1.08) translateY(-3%); }
-.craft-info {
-  position: absolute; inset: auto 0 0 0; padding: 1.4rem;
-  background: linear-gradient(0deg, rgba(12, 11, 10, 0.94) 30%, rgba(12, 11, 10, 0));
-  display: grid; gap: 0.4rem;
-}
-.craft-num { font-size: 0.66rem; letter-spacing: 0.22em; color: var(--gold); }
-.craft-info h3 { font-family: var(--f-display); font-weight: 450; font-size: clamp(1.3rem, 1.8vw, 1.7rem); line-height: 1.1; }
-.craft-line { font-size: 0.88rem; color: var(--silver-light); }
-.craft-detail {
-  font-size: 0.82rem; color: var(--muted-on-dark);
-  max-height: 0; opacity: 0; overflow: hidden;
-  transition: max-height 0.7s var(--ease), opacity 0.5s, margin 0.5s;
-}
-.craft-card article:hover .craft-detail, .craft-card article:focus-visible .craft-detail { max-height: 10rem; opacity: 1; margin-top: 0.4rem; }
+.craft-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(1.2rem, 2.2vw, 2.2rem); align-items: start; list-style: none; margin: 0; padding: 0; }
+.craft-card figure { margin: 0; display: grid; gap: 1.3rem; }
+.craft-media { position: relative; overflow: hidden; aspect-ratio: 3 / 4; background: #0c0b0a; }
+.craft-img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.02); transition: transform 1.6s var(--ease), filter 0.8s; filter: saturate(0.92) contrast(1.02); }
+.craft-card:hover .craft-img { transform: scale(1.07); filter: saturate(1) contrast(1.05); }
+.craft-fallback { display: none; position: absolute; inset: 0; }
+.craft-media.is-fallback .craft-fallback { display: block; }
+.craft-media.is-fallback .craft-img { display: none; }
+.craft-info { display: grid; gap: 0.45rem; padding-top: 1rem; border-top: 1px solid var(--line-light); }
+.craft-num { font-size: 0.66rem; font-weight: 650; letter-spacing: 0.24em; color: var(--gold-ink, #8a6d3b); }
+.craft-info h3 { font-family: var(--f-display); font-weight: 450; font-size: clamp(1.35rem, 1.7vw, 1.65rem); line-height: 1.1; color: var(--ink); }
+.craft-line { font-size: 0.92rem; color: var(--ink); }
+.craft-detail { font-size: 0.84rem; line-height: 1.6; color: var(--muted-on-light); }
 
 /* ---------- 6j. Moment ---------- */
 .moment { overflow: hidden; }
@@ -811,8 +802,6 @@ svg [class*='spin'], svg .rotor, svg .balance { transform-box: view-box; }
   .ss-pin { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .ss-progress { display: none; }
   .craft-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .craft-card.k2, .craft-card.k4 { margin-top: 3rem; }
-  .craft-card.k3 { margin-top: 0; }
 }
 
 @media (max-width: 1024px) {
@@ -887,9 +876,6 @@ svg [class*='spin'], svg .rotor, svg .balance { transform-box: view-box; }
   .cfg-actions .btn { flex: 1 1 auto; }
 
   .craft-grid { grid-template-columns: minmax(0, 1fr); }
-  .craft-card.k2, .craft-card.k3, .craft-card.k4 { margin-top: 0; }
-  .craft-card article { aspect-ratio: 4 / 4.2; }
-  .craft-detail { max-height: none; opacity: 1; margin-top: 0.3rem; } /* no hover on touch: always show */
 
   .footer-top, .footer-cols { grid-template-columns: minmax(0, 1fr); }
   .footer-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -902,13 +888,9 @@ svg [class*='spin'], svg .rotor, svg .balance { transform-box: view-box; }
   .nav-actions .icon-btn { width: 36px; height: 40px; }
   .logo .logo-mark { display: none; }
   .hero-ctas { flex-direction: column; }
-  .studio dl div { grid-template-columns: minmax(0, 1fr); }
+  .contact-studio dl div { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Touch devices: always show craft detail (no hover) */
-@media (hover: none) {
-  .craft-detail { max-height: none; opacity: 1; margin-top: 0.3rem; }
-}
 
 /* ---------- 8. Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
@@ -953,7 +935,7 @@ svg [class*='spin'], svg .rotor, svg .balance { transform-box: view-box; }
 .dw-photo + .dw-visual { height: 260px; }
 
 /* journal + craft photos keep the same zoom-on-hover as the illustrations */
-img.journal-art, img.craft-art { filter: saturate(0.85); }
+img.journal-art { filter: saturate(0.85); }
 .jcard-media { background: var(--graphite); }
 
 /* credits page has a light background, so the navbar starts solid */
