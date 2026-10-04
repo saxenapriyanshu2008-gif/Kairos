@@ -1492,3 +1492,8 @@ body[data-route='credits'] .nav, body[data-route='legal'] .nav { background: rgb
 @media (max-width: 640px) {
   .field-row { grid-template-columns: minmax(0, 1fr); }
 }
+/* help shown when a sandboxed preview blocks mailto:/tel: */
+.reach-help { position: relative; display: grid; gap: 0.6rem; padding: 1rem 2.6rem 1rem 1.1rem; border: 1px solid var(--ink); background: rgba(255, 255, 255, 0.75); font-size: 0.9rem; }
+.reach-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.reach-addr { font-weight: 650; overflow-wrap: anywhere; }
+.reach-close { position: absolute; top: 0.4rem; right: 0.6rem; font-size: 1.4rem; line-height: 1; padding: 0.2rem 0.4rem; }
