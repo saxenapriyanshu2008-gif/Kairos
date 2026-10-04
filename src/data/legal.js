@@ -19,7 +19,7 @@ export const legalPages = [
       {
         h: 'What this concept site collects',
         p: [
-          'The contact form sends what you type (name, email, phone, city, topic, the watch you chose and your message) to the KAIROS studio inbox by email, using the form-to-email service FormSubmit. We use it only to reply to you. The newsletter form checks your address but does not send or store it. Your bag and wishlist live only in this browser tab and are cleared when you close it.',
+          'The contact form sends what you type (name, email, phone, city, topic, the watch you chose and your message) to the KAIROS studio. Messages are kept in a private Google Sheet owned by the studio and summarised in one daily email; if that is unavailable, the message is emailed straight away using the form-to-email service FormSubmit. We use your details only to reply to you. The newsletter form checks your address but does not send or store it. Your bag and wishlist live only in this browser tab and are cleared when you close it.',
           'The watch configurator remembers your last design in your browser\'s local storage, so it is still there when you come back. That data stays on your device and you can clear it in your browser settings.',
           'Campaign photos load from Unsplash, so Unsplash receives a normal web request (including your IP address) when an image loads. Fonts are hosted with the site itself.',
           'The site does not use analytics, advertising pixels or tracking cookies.',
