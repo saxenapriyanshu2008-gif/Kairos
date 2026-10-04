@@ -1028,6 +1028,67 @@ export function buildWatch(initialLook) {
   // skeleton: only the outer chapter ring, so the movement shows through
   const dialRing = new THREE.Mesh(track(new THREE.RingGeometry(0.6, 0.84, 128, 1)), M.dial)
   dialG.add(dialRing)
+  // VOID: an openworked dial plate inside the chapter ring. Round windows sit
+  // over the steel wheels, the gilt train and the balance, with polished
+  // bevelled edges, and a lightly smoked sapphire layer covers the whole centre.
+  const openG = new THREE.Group()
+  dialG.add(openG)
+  const openMat = track(new THREE.MeshStandardMaterial({ color: '#1c2742', metalness: 0.75, roughness: 0.32, envMapIntensity: 0.9 }))
+  {
+    const dg = (d) => (d * Math.PI) / 180
+    const at = (r, d) => [Math.cos(dg(d)) * r, Math.sin(dg(d)) * r]
+    const bev = { depth: 0.012, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.005, bevelSegments: 2, curveSegments: 64 }
+    const addPart = (shape) => {
+      const m = new THREE.Mesh(track(new THREE.ExtrudeGeometry(shape, bev)), [openMat, M.polish])
+      m.position.z = -0.02
+      openG.add(m)
+    }
+    // outer ring
+    const ring = new THREE.Shape()
+    ring.absarc(0, 0, 0.6, 0, Math.PI * 2, false)
+    const ringHole = new THREE.Path()
+    ringHole.absarc(0, 0, 0.53, 0, Math.PI * 2, true)
+    ring.holes.push(ringHole)
+    addPart(ring)
+    // centre hub with a hole for the hand pinion
+    const hub = new THREE.Shape()
+    hub.absarc(0, 0, 0.115, 0, Math.PI * 2, false)
+    const hubHole = new THREE.Path()
+    hubHole.absarc(0, 0, 0.05, 0, Math.PI * 2, true)
+    hub.holes.push(hubHole)
+    addPart(hub)
+    // three tapered arms, placed in the gaps between the wheels and the balance
+    for (const d of [70, 195, 340]) {
+      const arm = new THREE.Shape()
+      const a0 = dg(d)
+      const n = [-Math.sin(a0), Math.cos(a0)] // sideways
+      const p = (r, w) => [Math.cos(a0) * r + n[0] * w, Math.sin(a0) * r + n[1] * w]
+      const [x1, y1] = p(0.1, 0.032)
+      const [x2, y2] = p(0.545, 0.016)
+      const [x3, y3] = p(0.545, -0.016)
+      const [x4, y4] = p(0.1, -0.032)
+      arm.moveTo(x1, y1)
+      arm.lineTo(x2, y2)
+      arm.lineTo(x3, y3)
+      arm.lineTo(x4, y4)
+      arm.closePath()
+      addPart(arm)
+    }
+    // polished screws holding the plate
+    for (const d of [70, 195, 340]) {
+      const [x, y] = at(0.5, d)
+      const head = new THREE.Mesh(track(new THREE.CylinderGeometry(0.018, 0.018, 0.01, 18).rotateX(Math.PI / 2)), M.polish)
+      head.position.set(x, y, -0.002)
+      openG.add(head)
+    }
+    // smoked sapphire over the centre
+    const smoke = new THREE.Mesh(
+      track(new THREE.CircleGeometry(0.6, 96)),
+      track(new THREE.MeshPhysicalMaterial({ color: '#0e1420', transparent: true, opacity: 0.2, roughness: 0.06, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04, depthWrite: false, envMapIntensity: 1.2 })),
+    )
+    smoke.position.z = 0.003
+    openG.add(smoke)
+  }
   // smartwatch screen
   const screenCanvas = document.createElement('canvas')
   screenCanvas.width = screenCanvas.height = 1024
@@ -1677,6 +1738,7 @@ export function buildWatch(initialLook) {
     const isPulse = model === 'pulse'
     dialMesh.visible = model !== 'void' && !isPulse
     dialRing.visible = model === 'void'
+    openG.visible = model === 'void'
     screen.visible = isPulse
     for (const h of [hourHand, minuteHand, secondHand, cap]) h.visible = !isPulse
     secondHand.visible = !isPulse && model !== 'mono'
@@ -1708,6 +1770,10 @@ export function buildWatch(initialLook) {
     M.mesh.roughness = L.caseFinish === 'black' ? 0.45 : 0.36
     M.lume.color.set(L.dial === 'ivory' ? '#1d1c1a' : '#f2efe6')
     M.dial.metalness = L.dial === 'ivory' ? 0.25 : 0.6
+    {
+      const dc = DIALS[L.dial] || DIALS.midnight
+      openMat.color.set(dc.a).lerp(new THREE.Color(dc.b), 0.4)
+    }
     if (L.dial !== currentLook.dial || L.model !== currentLook.model) {
       M.dial.map?.dispose()
       M.dial.map = dialTexture(L.dial, L.model)
