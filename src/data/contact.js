@@ -15,4 +15,12 @@ export const CONTACT = {
 
 export const FORM_ENDPOINT = `https://formsubmit.co/ajax/${CONTACT.email}`
 
+/*
+  Daily digest (tools/daily-digest): paste the Google Apps Script web app URL here.
+  When set, form messages are saved to a Google Sheet and ONE email a day with all of
+  that day's messages, grouped by topic, goes to CONTACT.email (no email per message).
+  When empty, each message is emailed straight away through FormSubmit as before.
+*/
+export const DIGEST_ENDPOINT = ''
+
 export const TOPICS = ['General question', 'A specific watch', 'My configuration', 'Book a private viewing', 'Service or repair', 'Press or partnership']

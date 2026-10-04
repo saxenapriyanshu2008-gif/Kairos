@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { CONTACT, FORM_ENDPOINT, TOPICS } from '../data/contact'
+import { CONTACT, DIGEST_ENDPOINT, FORM_ENDPOINT, TOPICS } from '../data/contact'
 import { watches } from '../data/watches'
 
 /*
@@ -175,32 +175,65 @@ export default function Contact() {
     const v = values
     const first = v.name.trim().split(' ')[0]
     setStatus({ state: 'sending' })
-    try {
+    const post = async (url, opts) => {
       const ctrl = new AbortController()
       const timer = setTimeout(() => ctrl.abort(), 15000)
-      const res = await fetch(FORM_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        signal: ctrl.signal,
-        body: JSON.stringify({
-          _subject: `KAIROS enquiry: ${v.topic} from ${v.name.trim()}`,
-          _template: 'table',
-          _captcha: 'false',
-          _replyto: v.email.trim(),
-          Name: v.name.trim(),
-          Email: v.email.trim(),
-          Phone: v.phone.trim(),
-          'City / country': v.city.trim(),
-          Topic: v.topic,
-          Watch: v.watch || 'Not specified',
-          'Preferred reply': v.contactBy,
-          Message: v.message.trim(),
-          'Sent from': window.location.href.split('#')[0],
-        }),
-      })
-      clearTimeout(timer)
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok || String(data.success) === 'false') throw new Error(data.message || `HTTP ${res.status}`)
+      try {
+        const res = await fetch(url, { method: 'POST', signal: ctrl.signal, ...opts })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok || data.ok === false || String(data.success) === 'false') throw new Error(data.error || data.message || `HTTP ${res.status}`)
+        return data
+      } finally {
+        clearTimeout(timer)
+      }
+    }
+    try {
+      let delivered = false
+      // 1. the daily-digest store (one summary email a day), when it is set up
+      if (DIGEST_ENDPOINT) {
+        try {
+          await post(DIGEST_ENDPOINT, {
+            // text/plain keeps this a "simple" request, so no CORS preflight is needed
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              name: v.name.trim(),
+              email: v.email.trim(),
+              phone: v.phone.trim(),
+              city: v.city.trim(),
+              topic: v.topic,
+              watch: v.watch || 'Not specified',
+              contactBy: v.contactBy,
+              message: v.message.trim(),
+              page: window.location.href.split('#')[0],
+              website: v.website,
+            }),
+          })
+          delivered = true
+        } catch {
+          /* fall through to the instant email below */
+        }
+      }
+      // 2. otherwise (or if the store is unreachable) email this one message now
+      if (!delivered) {
+        await post(FORM_ENDPOINT, {
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            _subject: `KAIROS enquiry: ${v.topic} from ${v.name.trim()}`,
+            _template: 'table',
+            _captcha: 'false',
+            _replyto: v.email.trim(),
+            Name: v.name.trim(),
+            Email: v.email.trim(),
+            Phone: v.phone.trim(),
+            'City / country': v.city.trim(),
+            Topic: v.topic,
+            Watch: v.watch || 'Not specified',
+            'Preferred reply': v.contactBy,
+            Message: v.message.trim(),
+            'Sent from': window.location.href.split('#')[0],
+          }),
+        })
+      }
       setStatus({ state: 'sent', first })
       setValues(EMPTY)
     } catch (err) {
