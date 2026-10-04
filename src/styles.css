@@ -425,16 +425,17 @@ em { font-style: italic; }
 
 .coll-grid {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: clamp(1.5rem, 3vw, 3rem) clamp(1rem, 2vw, 2rem);
-  align-items: start;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(2rem, 3.5vw, 3.5rem) clamp(1rem, 2vw, 2rem);
+  align-items: stretch;
 }
 .coll-grid:focus-visible { outline-offset: 8px; }
-.wcard { position: relative; display: grid; }
-.wcard.c1 { grid-column: 1 / span 7; }
-.wcard.c2 { grid-column: 9 / span 4; margin-top: clamp(4rem, 12vw, 12rem); }
-.wcard.c3 { grid-column: 2 / span 4; margin-top: clamp(-6rem, -6vw, -2rem); }
-.wcard.c4 { grid-column: 7 / span 6; margin-top: clamp(2rem, 5vw, 5rem); }
+/* an even grid: every card the same width and shape, rows aligned */
+.wcard { position: relative; display: grid; grid-template-rows: auto 1fr; }
+.wcard .wcard-body { grid-template-rows: auto auto 1fr auto; }
+@media (max-width: 1180px) and (min-width: 768px) {
+  .coll-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 .wcard-media {
   position: relative; overflow: hidden;
@@ -442,8 +443,6 @@ em { font-style: italic; }
   display: grid; place-items: center;
   cursor: pointer;
 }
-.wcard.c1 .wcard-media { aspect-ratio: 5 / 5.2; }
-.wcard.c4 .wcard-media { aspect-ratio: 6 / 5; }
 .tone-ivory .wcard-media, .dw-visual.tone-ivory { background: radial-gradient(circle at 50% 42%, #fbf8f1, #ddd5c4); }
 .tone-dark .wcard-media, .dw-visual.tone-dark { background: radial-gradient(circle at 50% 40%, #2b2a27, #0d0c0b); }
 .tone-graphite .wcard-media, .dw-visual.tone-graphite { background: radial-gradient(circle at 50% 40%, #4a4945, #1c1b19); }
@@ -836,8 +835,7 @@ svg [class*='spin'], svg .rotor, svg .balance { transform-box: view-box; }
     max-width: none;
   }
   .coll-grid::-webkit-scrollbar { display: none; }
-  .wcard, .wcard.c1, .wcard.c2, .wcard.c3, .wcard.c4 { flex: 0 0 min(72vw, 420px); margin-top: 0; scroll-snap-align: start; }
-  .wcard .wcard-media, .wcard.c1 .wcard-media, .wcard.c4 .wcard-media { aspect-ratio: 4 / 5; }
+  .wcard { flex: 0 0 min(72vw, 420px); margin-top: 0; scroll-snap-align: start; }
   .coll-progress { display: block; margin-top: 1.4rem; }
   .coll-progress span { display: block; height: 1px; background: var(--ink); transform-origin: left; transition: transform 0.3s; }
   .coll-progress { position: relative; }
@@ -1071,8 +1069,6 @@ body[data-route='credits'] .nav, body[data-route='legal'] .nav { background: rgb
 .chip-light:hover { border-color: rgba(22, 21, 20, 0.45); }
 .chip-light.is-on { background: var(--ink); color: var(--ivory); border-color: var(--ink); }
 .chip-count { font-size: 0.66rem; opacity: 0.6; margin-left: 0.25rem; font-variant-numeric: tabular-nums; }
-/* rows after the first four repeat the editorial rhythm */
-.coll-grid > .wcard:nth-child(n + 5).c1, .coll-grid > .wcard:nth-child(n + 5).c3 { margin-top: clamp(1rem, 4vw, 4rem); }
 
 /* =========================================================
    PRODUCT STUDIO: full-screen 3D view with options
