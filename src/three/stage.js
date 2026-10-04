@@ -112,7 +112,8 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
     LOOKS.forEach((l, k) => {
       const p = new THREE.Group()
       const wch = buildWatch(l)
-      wch.parts.movement.visible = false // never opened, so skip the calibre
+      // never opened, so skip the calibre, except on VOID whose open dial shows it
+      wch.parts.movement.visible = l.model === 'void'
       p.add(wch.root)
       p.visible = false
       scene.add(p)
