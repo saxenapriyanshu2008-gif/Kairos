@@ -27,6 +27,64 @@ function validate(v) {
 
 const telHref = `tel:${CONTACT.phone.replace(/[^\d+]/g, '')}`
 
+// Inside some embedded previews (sandboxed frames) the browser is not allowed to
+// hand mailto: and tel: links to another app. There we try a new window and also
+// offer web mail and copy options. On a normal page the links just work.
+const isFramed = () => {
+  try {
+    return window.self !== window.top
+  } catch {
+    return true
+  }
+}
+const webMail = (subject = '', body = '') => ({
+  gmail: `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT.email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+  outlook: `https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(CONTACT.email)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+})
+
+function ReachHelp({ help, onClose }) {
+  const [copied, setCopied] = useState('')
+  if (!help) return null
+  const copy = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(text)
+    } catch {
+      setCopied('')
+      window.prompt('Copy this:', text)
+    }
+  }
+  const links = webMail(help.subject, help.body)
+  return (
+    <div className="reach-help" role="dialog" aria-label={help.kind === 'mail' ? 'Ways to email us' : 'Ways to call us'}>
+      {help.kind === 'mail' ? (
+        <>
+          <p>If your mail app did not open, write to us here:</p>
+          <div className="reach-actions">
+            <a className="chip chip-light" href={links.gmail} target="_blank" rel="noopener noreferrer">Open in Gmail</a>
+            <a className="chip chip-light" href={links.outlook} target="_blank" rel="noopener noreferrer">Open in Outlook</a>
+            <button type="button" className="chip chip-light" onClick={() => copy(CONTACT.email)}>
+              {copied === CONTACT.email ? 'Address copied' : 'Copy address'}
+            </button>
+          </div>
+          <p className="reach-addr">{CONTACT.email}</p>
+        </>
+      ) : (
+        <>
+          <p>If your phone app did not open, call us on:</p>
+          <p className="reach-addr">{CONTACT.phone}</p>
+          <div className="reach-actions">
+            <button type="button" className="chip chip-light" onClick={() => copy(CONTACT.phone)}>
+              {copied === CONTACT.phone ? 'Number copied' : 'Copy number'}
+            </button>
+          </div>
+        </>
+      )}
+      <button type="button" className="reach-close" onClick={onClose} aria-label="Close">×</button>
+    </div>
+  )
+}
+
 function MailIcon() {
   return (
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
@@ -56,6 +114,19 @@ export default function Contact() {
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState({ state: 'idle' }) // idle | sending | sent | fallback | error
   const formRef = useRef(null)
+  const [help, setHelp] = useState(null)
+
+  // mailto: / tel: links: normal behaviour on a normal page, extra help inside a sandboxed preview
+  const reach = (kind, href, subject = '', body = '') => (e) => {
+    if (!isFramed()) return
+    e.preventDefault()
+    try {
+      window.open(href, '_blank')
+    } catch {
+      /* blocked: the help panel below covers it */
+    }
+    setHelp({ kind, subject, body })
+  }
 
   // the configurator can pre-fill the message
   useEffect(() => {
@@ -134,7 +205,7 @@ export default function Contact() {
       setValues(EMPTY)
     } catch (err) {
       // could not reach the mail service: hand the same message to the visitor's email app
-      setStatus({ state: 'fallback', first, href: mailtoFor(v), reason: String(err.message || err) })
+      setStatus({ state: 'fallback', first, href: mailtoFor(v), web: webMail(`KAIROS enquiry: ${v.topic} from ${v.name.trim()}`, summary(v)), reason: String(err.message || err) })
     }
   }
 
@@ -182,7 +253,7 @@ export default function Contact() {
 
           <ul className="contact-ways" aria-label="Ways to contact us">
             <li>
-              <a className="way" href={`mailto:${CONTACT.email}?subject=${encodeURIComponent('Hello KAIROS')}`}>
+              <a className="way" href={`mailto:${CONTACT.email}?subject=${encodeURIComponent('Hello KAIROS')}`} onClick={reach('mail', `mailto:${CONTACT.email}?subject=${encodeURIComponent('Hello KAIROS')}`, 'Hello KAIROS')}>
                 <span className="way-icon"><MailIcon /></span>
                 <span className="way-text">
                   <strong>Email us</strong>
@@ -191,7 +262,7 @@ export default function Contact() {
               </a>
             </li>
             <li>
-              <a className="way" href={telHref}>
+              <a className="way" href={telHref} onClick={reach('tel', telHref)}>
                 <span className="way-icon"><PhoneIcon /></span>
                 <span className="way-text">
                   <strong>Call us</strong>
@@ -209,13 +280,14 @@ export default function Contact() {
               </a>
             </li>
           </ul>
+          <ReachHelp help={help} onClose={() => setHelp(null)} />
 
           <address className="contact-studio" data-reveal>
             <p className="studio-name">KAIROS Studio</p>
             <dl>
               <div><dt>Studio</dt><dd>{CONTACT.city}</dd></div>
-              <div><dt>Email</dt><dd><a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></dd></div>
-              <div><dt>Phone</dt><dd><a href={telHref}>{CONTACT.phone}</a></dd></div>
+              <div><dt>Email</dt><dd><a href={`mailto:${CONTACT.email}`} onClick={reach('mail', `mailto:${CONTACT.email}`)}>{CONTACT.email}</a></dd></div>
+              <div><dt>Phone</dt><dd><a href={telHref} onClick={reach('tel', telHref)}>{CONTACT.phone}</a></dd></div>
               <div><dt>Hours</dt><dd>{CONTACT.hours}</dd></div>
             </dl>
           </address>
@@ -282,7 +354,7 @@ export default function Contact() {
             {status.state === 'sent' && <p className="ok">Thank you, {status.first}. Your message is on its way to the KAIROS studio. We will reply within two working days.</p>}
             {status.state === 'fallback' && (
               <p className="warn">
-                Sorry {status.first}, we could not send the form from here. <a href={status.href}>Open your email app</a> and your message will be ready to send to {CONTACT.email}.
+                Sorry {status.first}, we could not send the form from here. <a href={status.href}>Open your email app</a> or <a href={status.web.gmail} target="_blank" rel="noopener noreferrer">open it in Gmail</a>, and your message will be ready to send to {CONTACT.email}.
               </p>
             )}
           </div>
