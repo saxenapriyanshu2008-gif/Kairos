@@ -1,4 +1,5 @@
-// Journal articles. `art` picks which illustration <JournalArt /> draws.
+// Journal articles. `image` is a render of our own 3D watch in public/media.
+// `art` is the drawn illustration, used only if the image cannot load.
 export const articles = [
   {
     id: 'anatomy',
@@ -8,7 +9,8 @@ export const articles = [
     date: 'Sep 18, 2026',
     read: '7 min read',
     art: 'anatomy',
-    photo: 'holding',
+    image: 'journal-anatomy.webp',
+    alt: 'An exploded KAIROS ARC: sapphire crystal, bezel, dial, case and movement separated in a line',
     body: [
       'A mechanical watch is a small city of parts. The case protects, the crystal reveals, the dial translates and the movement does the quiet work underneath.',
       'Inside the K-01 there are more than 180 components. The mainspring stores energy, the gear train divides it, and the balance wheel releases it in perfectly even beats, eight times every second.',
@@ -23,7 +25,8 @@ export const articles = [
     date: 'Aug 29, 2026',
     read: '5 min read',
     art: 'gear',
-    photo: 'movement',
+    image: 'journal-mechanical.webp',
+    alt: 'Close-up of the KAIROS VOID skeleton dial, with gears and jewels of the movement showing through',
     body: [
       'A phone tells better time than any mechanical watch. That has never been the point.',
       'A mechanical watch runs on nothing but a spring and the motion of the person wearing it. No battery, no update, no signal. It can be repaired by hand and passed on, which means it can outlast its first owner.',
@@ -38,7 +41,8 @@ export const articles = [
     date: 'Aug 06, 2026',
     read: '4 min read',
     art: 'wrist',
-    photo: 'wrist',
+    image: 'journal-wearing.webp',
+    alt: 'A black KAIROS NOIR on a stitched black leather strap, lit from the side',
     body: [
       'A watch is the only piece of jewellery most people look at dozens of times a day. It becomes part of how you move, how you check in with yourself, how you leave a room.',
       'Over years, the steel picks up small marks. A scratch from a first apartment move, a faint dent from a mountain trail. These are not flaws. They are the record.',
@@ -53,6 +57,8 @@ export const articles = [
     date: 'Jul 14, 2026',
     read: '6 min read',
     art: 'blueprint',
+    image: 'journal-blueprint.webp',
+    alt: 'Macro of a champagne KAIROS ELAN dial with applied gold indices and hands',
     body: [
       'Every KAIROS begins as a pencil line on paper, long before anyone opens a CAD file. The first question is always the same: what moment is this watch for?',
       'From there come hundreds of decisions. The radius of a lug, the width of an index, the exact angle at which the hands catch light at 10:09.',
