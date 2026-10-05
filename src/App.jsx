@@ -21,6 +21,7 @@ import Credits from './components/Credits'
 import { Drawer, Search, Toast } from './components/Overlays'
 import ProductStudio from './components/ProductStudio'
 import LegalPage from './components/LegalPage'
+import WarrantyPage from './components/WarrantyPage'
 import { useRoute } from './lib/router'
 
 
@@ -113,6 +114,8 @@ export default function App() {
       <Navbar />
       {route === 'credits' ? (
         <Credits />
+      ) : route === 'warranty' ? (
+        <WarrantyPage />
       ) : route === 'legal' ? (
         <LegalPage key={legalPage} slug={legalPage} />
       ) : (

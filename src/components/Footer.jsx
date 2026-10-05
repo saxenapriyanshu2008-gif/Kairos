@@ -80,6 +80,7 @@ export default function Footer() {
                 <a href={`#/legal/${p.slug}`} onClick={linkTo(`legal/${p.slug}`)}>{p.title}</a>
               </li>
             ))}
+            <li><a href="#/warranty" onClick={linkTo('warranty')}>Warranty</a></li>
             <li><a href="#/credits" onClick={linkTo('credits')}>Assets &amp; Credits</a></li>
           </ul>
         </div>

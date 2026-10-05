@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 /*
   Tiny hash router.
     #/credits          Assets & Credits
-    #/legal/<page>     a legal page (privacy, terms, shipping, warranty, cookies)
+    #/warranty         the two-year warranty page (#/legal/warranty points here too)
+    #/legal/<page>     a legal page (privacy, terms, shipping, cookies)
     anything else      the home page
   navigate() updates the hash AND tells the app directly, so links still work
   where the page runs inside a frame that does not fire hashchange.
@@ -13,6 +14,7 @@ const EVENT = 'kairos:route'
 
 export function parseRoute(hash = window.location.hash) {
   if (hash.startsWith('#/credits')) return { name: 'credits' }
+  if (hash.startsWith('#/warranty') || hash.startsWith('#/legal/warranty')) return { name: 'warranty' }
   const m = hash.match(/^#\/legal\/([a-z-]+)/)
   if (m) return { name: 'legal', page: m[1] }
   return { name: 'home' }

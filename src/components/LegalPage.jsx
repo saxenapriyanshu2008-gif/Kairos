@@ -40,6 +40,11 @@ export default function LegalPage({ slug }) {
                 </li>
               ))}
               <li>
+                <a href="#/warranty" onClick={linkTo('warranty')}>
+                  Warranty
+                </a>
+              </li>
+              <li>
                 <a href="#/credits" onClick={linkTo('credits')}>
                   Assets &amp; Credits
                 </a>
