@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CraftArt } from './Art'
 
-const BASE = import.meta.env.BASE_URL
+import { mediaUrl } from '../lib/media'
 
 /*
   Craft: four close-ups rendered from our own 3D watch (tools/render-pulse.py),
@@ -47,7 +47,7 @@ function CraftMedia({ it }) {
     <div className={`craft-media ${failed ? 'is-fallback' : ''}`} data-reveal-img>
       <img
         className="craft-img"
-        src={`${BASE}media/craft-${it.kind}.webp`}
+        src={mediaUrl(`craft-${it.kind}.webp`)}
         alt={it.alt}
         loading="lazy"
         decoding="async"

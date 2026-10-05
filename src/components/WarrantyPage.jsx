@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { linkTo, navigate } from '../lib/router'
 import { WARRANTY_UPDATED, highlights, covered, notCovered, components, steps, needs, notes, faqs } from '../data/warranty'
 
-const BASE = import.meta.env.BASE_URL
+import { mediaUrl } from '../lib/media'
 
 /*
   WARRANTY page (#/warranty).
@@ -91,7 +91,7 @@ export default function WarrantyPage() {
             </div>
           </div>
           <div className="wty-hero-visual">
-            <img src={`${BASE}media/warranty-back.webp`} alt="The caseback of a KAIROS ARC, engraved with its serial number and the founder's signature" width="1100" height="1100" />
+            <img src={mediaUrl('warranty-back.webp')} alt="The caseback of a KAIROS ARC, engraved with its serial number and the founder's signature" width="1100" height="1100" />
             <Seal />
           </div>
         </div>

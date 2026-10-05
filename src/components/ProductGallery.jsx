@@ -11,8 +11,7 @@ import { useEffect, useRef } from 'react'
   (see tools/render-pulse.py).
 */
 
-const BASE = import.meta.env.BASE_URL
-const media = (f) => `${BASE}media/${f}`
+import { mediaUrl as media } from '../lib/media'
 
 const PULSE_SLIDES = [
   { type: 'photo', id: 'photo', label: 'Photo', src: media('pulse-photo.webp'), alt: 'KAIROS PULSE in black aluminium with a navy rubber strap' },
