@@ -128,6 +128,62 @@ export const watches = [
     look: { model: 'mono', caseFinish: 'black', dial: 'obsidian', strap: 'mesh' },
     tone: 'silver',
   },
+  {
+    id: 'flora',
+    name: 'KAIROS FLORA',
+    short: 'FLORA',
+    category: 'Floral Automatic',
+    group: 'women',
+    price: 112000,
+    description: 'A hand-painted cherry blossom branch on mother-of-pearl.',
+    long:
+      'FLORA carries a cherry blossom branch painted by hand across a mother-of-pearl dial, so no two dials are quite alike. A 34 mm rose-gold case, a bezel set with 44 brilliant-cut stones, diamond hour markers and a blush leather strap.',
+    specs: { Case: '34 mm, rose-gold PVD steel', Bezel: '44 brilliant-cut stones', Dial: 'Mother-of-pearl, hand-painted', Movement: 'Automatic K-01 petite', Resistance: '30M' },
+    look: { model: 'flora', caseFinish: 'rose', dial: 'pearl', strap: 'blushLeather' },
+    tone: 'ivory',
+  },
+  {
+    id: 'jardin',
+    name: 'KAIROS JARDIN',
+    short: 'JARDIN',
+    category: 'Floral Automatic',
+    group: 'women',
+    price: 136000,
+    description: 'An engraved gold garden on a deep emerald dial.',
+    long:
+      'JARDIN is a garden in miniature. A deep emerald sunray dial with a gold rosette guilloche at its centre and a ring of engraved vines, leaves and tiny flowers between the hours. A 36 mm champagne-gold case on a matching bracelet.',
+    specs: { Case: '36 mm, champagne-gold PVD steel', Dial: 'Emerald sunray, engraved gold garden', Movement: 'Automatic K-01', Resistance: '50M' },
+    look: { model: 'jardin', caseFinish: 'champagne', dial: 'emerald', strap: 'steel' },
+    tone: 'dark',
+  },
+  {
+    id: 'luna',
+    name: 'KAIROS LUNA',
+    short: 'LUNA',
+    category: 'Jewellery Automatic',
+    group: 'women',
+    price: 118000,
+    description: 'A starry midnight dial, a crescent moon and a stone-set bezel.',
+    long:
+      'LUNA puts the night sky on the wrist. A midnight blue dial scattered with star dust, a polished crescent moon above six, a stone at every hour and a bezel set with 44 brilliant-cut stones, in a 34 mm steel case on a fine mesh bracelet.',
+    specs: { Case: '34 mm, 316L steel', Bezel: '44 brilliant-cut stones', Dial: 'Midnight blue, star dust and crescent', Movement: 'Automatic K-01 petite', Resistance: '30M' },
+    look: { model: 'luna', caseFinish: 'steel', dial: 'midnight', strap: 'mesh' },
+    tone: 'dark',
+  },
+  {
+    id: 'aura',
+    name: 'KAIROS AURA',
+    short: 'AURA',
+    category: 'Petite Dress Watch',
+    group: 'women',
+    price: 96000,
+    description: 'Blush sunray dial, rose-gold case and a single stone at twelve.',
+    long:
+      'AURA is light and quiet. A 32 mm rose-gold case, a blush pink sunray dial with slim indices, a single brilliant-cut stone at twelve and its name written in script, on a rose-gold mesh bracelet.',
+    specs: { Case: '32 mm, rose-gold PVD steel', Dial: 'Blush sunray, stone at twelve', Movement: 'Automatic K-01 petite', Resistance: '30M' },
+    look: { model: 'aura', caseFinish: 'rose', dial: 'blush', strap: 'mesh' },
+    tone: 'ivory',
+  },
 ]
 
 // Collection filters
@@ -136,6 +192,7 @@ export const groups = [
   { id: 'dress', label: 'Dress' },
   { id: 'sport', label: 'Sport' },
   { id: 'digital', label: 'Digital' },
+  { id: 'women', label: 'Women' },
 ]
 
 export const getWatch = (id) => watches.find((w) => w.id === id)
@@ -180,6 +237,7 @@ export const studioOptions = {
     { id: 'black', label: 'Black PVD', price: 15000, swatch: 'linear-gradient(135deg,#55565a,#141416 55%,#3a3b3f)' },
     { id: 'gunmetal', label: 'Gunmetal', price: 12000, swatch: 'linear-gradient(135deg,#8a8b90,#3d3e42 55%,#6d6e73)' },
     { id: 'blue', label: 'Blue PVD', price: 18000, swatch: 'linear-gradient(135deg,#5b77ad,#1d2d52 55%,#3d5488)' },
+    { id: 'rose', label: 'Rose gold', price: 22000, swatch: 'linear-gradient(135deg,#f3cdb8,#a8664a 55%,#e3b296)' },
     { id: 'champagne', label: 'Champagne', price: 28000, swatch: 'linear-gradient(135deg,#e0cb9f,#8f7448 55%,#c9ad7c)' },
   ],
   dial: [
@@ -187,6 +245,9 @@ export const studioOptions = {
     { id: 'obsidian', label: 'Obsidian', price: 6000, swatch: 'radial-gradient(circle at 40% 35%,#36363a,#070708)' },
     { id: 'midnight', label: 'Midnight blue', price: 9000, swatch: 'radial-gradient(circle at 40% 35%,#2e4570,#0a1324)' },
     { id: 'slate', label: 'Slate grey', price: 6000, swatch: 'radial-gradient(circle at 40% 35%,#5a6067,#1b1e22)' },
+    { id: 'pearl', label: 'Mother-of-pearl', price: 14000, swatch: 'radial-gradient(circle at 35% 30%,#ffffff,#f4dfe6 40%,#dfe8f2 70%,#d8cfd0)' },
+    { id: 'blush', label: 'Blush pink', price: 6000, swatch: 'radial-gradient(circle at 40% 35%,#f6d8d0,#c98f86)' },
+    { id: 'emerald', label: 'Emerald', price: 9000, swatch: 'radial-gradient(circle at 40% 35%,#2a6c55,#06231a)' },
   ],
   strapType: [
     { id: 'leather', label: 'Leather', price: 0 },
@@ -200,6 +261,7 @@ export const studioOptions = {
       { id: 'brown', label: 'Brown', swatch: '#4f2c1a' },
       { id: 'tan', label: 'Tan', swatch: '#9a6a3c' },
       { id: 'navy', label: 'Navy', swatch: '#1d2840' },
+      { id: 'blush', label: 'Blush', swatch: '#c99088' },
     ],
     rubber: [
       { id: 'black', label: 'Black', swatch: '#141414' },
