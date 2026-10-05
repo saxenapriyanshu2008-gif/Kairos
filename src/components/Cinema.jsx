@@ -44,13 +44,28 @@ const SPECS = [
   ['Water', '100 M'],
 ]
 
+// Phones: the hero watch is sized and placed to fit the free space between the
+// menu bar and the start of the hero text, so the text never sits on the dial.
+function fitMobileHero() {
+  const H = window.innerHeight
+  const W = window.innerWidth
+  const copy = document.querySelector('.hero--cinema .hero-copy')
+  const nav = 64
+  const top = copy ? copy.getBoundingClientRect().top + window.scrollY : H * 0.45
+  const free = Math.max(140, top - nav - 12)
+  const d = Math.min(free * 0.92, W * 0.66) // case diameter in px
+  const cy = nav + free / 2 + 4
+  return { y: 1 - (2 * cy) / H, size: d / H, maxW: d / W }
+}
+
 // Poses for each moment of the film. x/y are fractions of half the viewport.
 const RESET = { explode: 0, fly: 0, hideStrap: 0, ring: 0, particles: 0, z: 0, lineup: 0, textRing: 0, smoke: 0 }
 function poses(mobile) {
   if (mobile) {
     return {
       hero: { ...RESET, x: 0, y: 0.42, size: 0.34, maxW: 0.62, rx: -0.25, ry: -0.35, rz: 0.1 },
-      l: { x: -0.23, y: 0.2, size: 0.17, maxW: 0.3, rx: -0.15, ry: -0.25, rz: 0, lineup: 1 },
+      // lineup on phones: the hero takes the top-right cell of a 2 x 2 grid (see stage.js)
+      l: { x: 0.5, y: 0.5, size: 0.16, maxW: 0.38, rx: -0.15, ry: -0.25, rz: 0, lineup: 1 },
       a: { x: 0, y: 0.22, size: 0.36, maxW: 0.62, rx: -0.15, ry: 0.8, rz: 0, lineup: 0, textRing: 1 },
       b: { x: 0, y: 0.2, size: 0.55, maxW: 0.95, rx: 0, ry: 0, rz: 0, ring: 1, textRing: 0 },
       c: { x: 0, y: 0.2, size: 0.22, maxW: 0.34, rx: 0.2, ry: -1.3, rz: 0, explode: 1, hideStrap: 1, ring: 0 },
@@ -113,7 +128,7 @@ export default function Cinema({ ready }) {
           onFrame: () => placeLabels(),
           film: true,
         })
-        Object.assign(stage.state, poses(mobile).hero)
+        Object.assign(stage.state, poses(mobile).hero, mobile ? fitMobileHero() : null)
         engine.current = stage
         stage.frame()
         setLoaded(true)
@@ -136,6 +151,13 @@ export default function Cinema({ ready }) {
       const p = st.project(l.part)
       if (!el || !p) return
       el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0)`
+      // keep the label text on screen: shift it left when it would pass the right edge
+      const txt = el.lastElementChild
+      if (txt) {
+        txt._w = txt._w || txt.offsetWidth
+        const room = window.innerWidth - p.x - 10
+        txt.style.left = txt._w > room ? `${Math.round(room - txt._w)}px` : ''
+      }
     })
   }
 
@@ -152,6 +174,8 @@ export default function Cinema({ ready }) {
       const mm = gsap.matchMedia()
       mm.add({ mobile: '(max-width: 767px)', desktop: '(min-width: 768px)' }, (c) => {
         const P = poses(c.conditions.mobile)
+        if (c.conditions.mobile) P.hero = { ...P.hero, ...fitMobileHero() }
+        S.grid = c.conditions.mobile ? 1 : 0
         st.resize()
         Object.assign(S, P.hero)
 
@@ -442,7 +466,7 @@ export default function Cinema({ ready }) {
           </div>
 
           <p className="cs-center cs-lineup" aria-hidden="true">
-            <span>Eight interpretations of time.</span> One KAIROS philosophy.
+            <span>Twelve interpretations of time.</span> One KAIROS philosophy.
           </p>
           <div className="cs-center cs-contours" aria-hidden="true">
             <p className="cs-center-title">
