@@ -8,7 +8,7 @@
 export const CONTACT = {
   email: 'saxena.priyanshu2008@gmail.com',
   // shown on the site and used for the "Call us" button (tel: link)
-  phone: '+91 00000 00000',
+  phone: '+91 88002 58856',
   hours: 'Mon to Sat, 11:00 to 19:00 IST',
   city: 'New Delhi, India',
 }
