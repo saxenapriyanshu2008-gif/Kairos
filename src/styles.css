@@ -540,6 +540,20 @@ em { font-style: italic; }
 .cfg-delta { font-size: 0.72rem; color: var(--muted-on-light); font-variant-numeric: tabular-nums; }
 .cfg-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem 1.4rem; padding-top: 0.6rem; }
 .cfg-note { font-size: 0.76rem; color: var(--muted-on-light); }
+.cfg-switch { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; margin-top: 1.2rem; }
+.cfg-arrow { width: 46px; height: 46px; border-radius: 50%; border: 1px solid rgba(236, 231, 221, 0.28); background: rgba(255, 255, 255, 0.04); color: var(--ivory); display: grid; place-items: center; cursor: pointer; transition: border-color 0.3s, background 0.3s, transform 0.3s var(--ease); }
+.cfg-arrow svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.cfg-arrow:hover { border-color: var(--gold, #c9ad7c); background: rgba(201, 173, 124, 0.12); }
+.cfg-arrow:active { transform: scale(0.94); }
+.cfg-arrow:focus-visible { outline: 2px solid var(--gold, #c9ad7c); outline-offset: 3px; }
+.cfg-model { display: grid; justify-items: center; gap: 0.2rem; text-align: center; }
+.cfg-model-no { font-size: 0.64rem; letter-spacing: 0.24em; color: rgba(236, 231, 221, 0.55); font-variant-numeric: tabular-nums; }
+.cfg-model-name { font-family: var(--f-display); font-size: clamp(1.3rem, 2vw, 1.7rem); line-height: 1.1; }
+.cfg-model-cat { font-size: 0.64rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold, #c9ad7c); }
+.cfg-dots { display: flex; justify-content: center; gap: 0.45rem; margin: 0.4rem 0 0.8rem; }
+.cfg-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(236, 231, 221, 0.22); transition: background 0.3s, width 0.3s var(--ease); }
+.cfg-dots span.is-on { width: 20px; border-radius: 3px; background: var(--gold, #c9ad7c); }
+.cfg-swatch-type { display: grid; place-items: center; background: rgba(22, 21, 20, 0.06); font-family: var(--f-display); font-size: 1rem; color: var(--ink); }
 
 /* ---------- 6h. Brand story ---------- */
 .story-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(2rem, 6vw, 7rem); align-items: center; }
