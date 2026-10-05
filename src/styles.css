@@ -734,7 +734,7 @@ em { font-style: italic; }
 .dw-text { color: var(--muted-on-light); }
 .dw-lede { font-family: var(--f-display); font-style: italic; font-size: 1.35rem; line-height: 1.35; }
 .dw-art { aspect-ratio: 16 / 10; overflow: hidden; }
-.dw-art svg { width: 100%; height: 100%; }
+.dw-art svg, .dw-art img { width: 100%; height: 100%; display: block; object-fit: cover; }
 .specs-compact { border-top-color: var(--line-light); }
 .specs-compact .spec { border-bottom-color: var(--line-light); }
 .specs-compact dt { color: var(--muted-on-light); }

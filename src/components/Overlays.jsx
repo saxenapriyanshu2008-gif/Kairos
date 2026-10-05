@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import WatchSVG from './WatchSVG'
+import JournalImage from './JournalImage'
 import Photo from './Photo'
-import { JournalArt } from './Art'
 import { CloseIcon, HeartIcon, SearchIcon } from './Icons'
 import { watches, getWatch, formatPrice } from '../data/watches'
 import { articles } from '../data/journal'
@@ -101,7 +101,7 @@ export function Drawer() {
     body = (
       <article className="dw-article">
         <div className="dw-art" data-stagger>
-          <Photo name={a.photo} sizes="(max-width: 600px) 100vw, 560px" eager fallback={<JournalArt kind={a.art} />} />
+          <JournalImage a={a} className="" eager />
         </div>
         <p className="eyebrow" data-stagger>{a.category} &nbsp;/&nbsp; {a.date} &nbsp;/&nbsp; {a.read}</p>
         <h2 className="display-m" id="drawer-title" data-stagger>{a.title}</h2>

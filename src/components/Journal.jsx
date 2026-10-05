@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { JournalArt } from './Art'
-import Photo from './Photo'
+import JournalImage from './JournalImage'
 import { ArrowIcon } from './Icons'
 import { articles } from '../data/journal'
 import { useShop } from '../store'
@@ -19,7 +18,7 @@ import useMedia from '../hooks/useMedia'
 const SLICES = 16
 
 function Media({ a }) {
-  return a.photo ? <Photo name={a.photo} sizes="(max-width: 768px) 92vw, 60vw" fallback={<JournalArt kind={a.art} />} className="journal-art" /> : <JournalArt kind={a.art} />
+  return <JournalImage a={a} />
 }
 
 // one panel, cut into vertical slices that sit on the inside of a cylinder
