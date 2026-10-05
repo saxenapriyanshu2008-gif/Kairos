@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+import { studioScene } from './studio.js'
 import { buildWatch } from './model'
 
 /*
@@ -33,9 +33,11 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
 
   const scene = new THREE.Scene()
   const pmrem = new THREE.PMREMGenerator(renderer)
-  const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
+  const studio = studioScene()
+  const envTex = pmrem.fromScene(studio.scene, 0.02).texture
+  studio.dispose()
   scene.environment = envTex
-  scene.environmentIntensity = 0.5 // softer studio reflections = matte, less chrome
+  scene.environmentIntensity = 1 // softbox studio: sharp light and dark bands on polished steel
 
   const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100)
   camera.position.set(0, 0, 10)
