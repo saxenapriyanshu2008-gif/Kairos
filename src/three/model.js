@@ -140,14 +140,8 @@ function dialTexture(dialKey, model) {
   g.font = '600 50px "Manrope Variable", Arial, sans-serif'
   g.letterSpacing = '18px'
   if (model === 'void') {
-    // skeleton: only the outer chapter ring is printed, the centre is open
-    g.font = '600 30px "Manrope Variable", Arial, sans-serif'
-    g.letterSpacing = '12px'
-    g.fillText('KAIROS', R + 6, R - 392)
-    g.font = '600 20px "Manrope Variable", Arial, sans-serif'
-    g.letterSpacing = '8px'
-    g.fillStyle = d.sub
-    g.fillText('VOID · SKELETON AUTOMATIC', R + 4, R + 412)
+    // skeleton: only the narrow chapter ring is printed (minute track); the
+    // KAIROS name sits on its own bridge in the open centre
     const tex = new THREE.CanvasTexture(c)
     tex.colorSpace = THREE.SRGBColorSpace
     tex.anisotropy = 8
@@ -1047,17 +1041,15 @@ export function buildWatch(initialLook) {
   const dialMesh = new THREE.Mesh(track(new THREE.CircleGeometry(0.84, 128)), M.dial)
   dialG.add(dialMesh)
   // skeleton: only the outer chapter ring, so the movement shows through
-  const dialRing = new THREE.Mesh(track(new THREE.RingGeometry(0.6, 0.84, 128, 1)), M.dial)
+  const dialRing = new THREE.Mesh(track(new THREE.RingGeometry(0.7, 0.84, 128, 1)), M.dial)
   dialG.add(dialRing)
-  // VOID: an openworked dial plate inside the chapter ring. Round windows sit
-  // over the steel wheels, the gilt train and the balance, with polished
-  // bevelled edges, and a lightly smoked sapphire layer covers the whole centre.
+  // VOID: a polished inner edge for the chapter ring and a light sapphire tint.
+  // The centre is fully open onto the skeleton calibre (see skelG).
   const openG = new THREE.Group()
   dialG.add(openG)
   const openMat = track(new THREE.MeshStandardMaterial({ color: '#1c2742', metalness: 0.75, roughness: 0.32, envMapIntensity: 0.9 }))
   {
     const dg = (d) => (d * Math.PI) / 180
-    const at = (r, d) => [Math.cos(dg(d)) * r, Math.sin(dg(d)) * r]
     const bev = { depth: 0.012, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.005, bevelSegments: 2, curveSegments: 64 }
     const addPart = (shape) => {
       const m = new THREE.Mesh(track(new THREE.ExtrudeGeometry(shape, bev)), [openMat, M.polish])
@@ -1066,46 +1058,15 @@ export function buildWatch(initialLook) {
     }
     // outer ring
     const ring = new THREE.Shape()
-    ring.absarc(0, 0, 0.6, 0, Math.PI * 2, false)
+    ring.absarc(0, 0, 0.7, 0, Math.PI * 2, false)
     const ringHole = new THREE.Path()
-    ringHole.absarc(0, 0, 0.53, 0, Math.PI * 2, true)
+    ringHole.absarc(0, 0, 0.675, 0, Math.PI * 2, true)
     ring.holes.push(ringHole)
     addPart(ring)
-    // centre hub with a hole for the hand pinion
-    const hub = new THREE.Shape()
-    hub.absarc(0, 0, 0.115, 0, Math.PI * 2, false)
-    const hubHole = new THREE.Path()
-    hubHole.absarc(0, 0, 0.05, 0, Math.PI * 2, true)
-    hub.holes.push(hubHole)
-    addPart(hub)
-    // three tapered arms, placed in the gaps between the wheels and the balance
-    for (const d of [70, 195, 340]) {
-      const arm = new THREE.Shape()
-      const a0 = dg(d)
-      const n = [-Math.sin(a0), Math.cos(a0)] // sideways
-      const p = (r, w) => [Math.cos(a0) * r + n[0] * w, Math.sin(a0) * r + n[1] * w]
-      const [x1, y1] = p(0.1, 0.032)
-      const [x2, y2] = p(0.545, 0.016)
-      const [x3, y3] = p(0.545, -0.016)
-      const [x4, y4] = p(0.1, -0.032)
-      arm.moveTo(x1, y1)
-      arm.lineTo(x2, y2)
-      arm.lineTo(x3, y3)
-      arm.lineTo(x4, y4)
-      arm.closePath()
-      addPart(arm)
-    }
-    // polished screws holding the plate
-    for (const d of [70, 195, 340]) {
-      const [x, y] = at(0.5, d)
-      const head = new THREE.Mesh(track(new THREE.CylinderGeometry(0.018, 0.018, 0.01, 18).rotateX(Math.PI / 2)), M.polish)
-      head.position.set(x, y, -0.002)
-      openG.add(head)
-    }
     // smoked sapphire over the centre
     const smoke = new THREE.Mesh(
-      track(new THREE.CircleGeometry(0.6, 96)),
-      track(new THREE.MeshPhysicalMaterial({ color: '#0e1420', transparent: true, opacity: 0.2, roughness: 0.06, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04, depthWrite: false, envMapIntensity: 1.2 })),
+      track(new THREE.CircleGeometry(0.7, 96)),
+      track(new THREE.MeshPhysicalMaterial({ color: '#0e1420', transparent: true, opacity: 0.08, roughness: 0.06, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04, depthWrite: false, envMapIntensity: 1.2 })),
     )
     smoke.position.z = 0.003
     openG.add(smoke)
@@ -1443,6 +1404,196 @@ export function buildWatch(initialLook) {
   }
   movementG.add(elecG)
 
+  // ---------- VOID skeleton calibre ----------
+  // Inspired by open skeleton automatics: black skeleton bridges with polished
+  // edges curve over a mix of gold and silver wheels, with bright red jewels,
+  // polished screws and a beating balance. Only VOID shows it; the other
+  // models keep the three-quarter plate calibre above.
+  const skelG = new THREE.Group()
+  const skelBalance = new THREE.Group()
+  {
+    const SM = {
+      base: track(new THREE.MeshStandardMaterial({ color: '#3a3b3f', metalness: 0.9, roughness: 0.5, roughnessMap: track(snailTexture()), envMapIntensity: 0.9 })),
+      bridge: track(new THREE.MeshStandardMaterial({ color: '#1b1c20', metalness: 0.7, roughness: 0.3, envMapIntensity: 1 })),
+      goldW: track(new THREE.MeshStandardMaterial({ color: '#e0b65a', metalness: 1, roughness: 0.32, roughnessMap: track(snailTexture()), envMapIntensity: 1 })),
+      steelW: track(new THREE.MeshStandardMaterial({ color: '#dcdee0', metalness: 1, roughness: 0.3, roughnessMap: track(snailTexture()), envMapIntensity: 1 })),
+      ruby: track(new THREE.MeshPhysicalMaterial({ color: '#d5142e', emissive: '#5a0010', emissiveIntensity: 0.6, roughness: 0.08, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.4 })),
+    }
+    const add = (m) => (skelG.add(m), m)
+
+    // dark main plate underneath, so the wheels stand out like the reference
+    const base = add(new THREE.Mesh(track(new THREE.CylinderGeometry(0.8, 0.8, 0.03, 128).rotateX(Math.PI / 2)), SM.base))
+    base.position.z = -0.045
+
+    // wheels: [radius on dial, angle, wheel radius, teeth, speed, material, spokes, z]
+    const WHEELS = [
+      [0.3, 148, 0.26, 72, 0.03, SM.goldW, 6, -0.02], // barrel
+      [0.36, 38, 0.21, 64, -0.02, SM.steelW, 0, -0.012], // ratchet wheel, solid with snailing
+      [0, 0, 0.19, 56, 0.05, SM.goldW, 4, 0.0], // centre wheel under the hands
+      [0.42, 222, 0.14, 44, -0.16, SM.steelW, 5, -0.006], // third wheel
+      [0.47, 268, 0.115, 36, 0.42, SM.goldW, 5, 0.006], // fourth wheel
+      [0.56, 112, 0.095, 30, -0.3, SM.goldW, 5, -0.004], // winding wheel
+      [0.5, 0, 0.08, 24, 0.5, SM.steelW, 4, 0.004], // crown wheel
+      [0.33, 300, 0.07, 20, -1.2, SM.steelW, 4, 0.008], // escape wheel
+    ]
+    for (const [r, d, wr, teeth, speed, mat, spokes, z] of WHEELS) {
+      const [x, y] = P(r, d)
+      const g = new THREE.Group()
+      g.position.set(x, y, z)
+      g.add(new THREE.Mesh(exM(gearShape(wr, teeth, wr * 0.07, 0.22, spokes), 0.018, 0.003), mat))
+      const arbor = new THREE.Mesh(track(new THREE.CylinderGeometry(wr * 0.14, wr * 0.14, 0.07, 16).rotateX(Math.PI / 2)), SM.steelW)
+      arbor.position.z = 0.02
+      g.add(arbor)
+      skelG.add(g)
+      gears.push({ g, speed })
+    }
+
+    // balance: gold rim, two arms, timing screws and a blued hairspring
+    const SB = P(0.45, 332)
+    skelBalance.position.set(SB[0], SB[1], 0.012)
+    skelBalance.add(new THREE.Mesh(track(new THREE.TorusGeometry(0.15, 0.013, 12, 80)), SM.goldW))
+    for (let k = 0; k < 2; k++) {
+      const sp = new THREE.Mesh(track(new THREE.BoxGeometry(0.3, 0.014, 0.008)), SM.goldW)
+      sp.rotation.z = (k * Math.PI) / 2
+      skelBalance.add(sp)
+    }
+    for (let k = 0; k < 12; k++) {
+      const a = (k / 12) * Math.PI * 2
+      const ts = new THREE.Mesh(track(new THREE.CylinderGeometry(0.01, 0.01, 0.024, 8)), SM.steelW)
+      ts.position.set(Math.cos(a) * 0.165, Math.sin(a) * 0.165, 0)
+      ts.rotation.z = a + Math.PI / 2
+      skelBalance.add(ts)
+    }
+    {
+      const pts = []
+      for (let i = 0; i <= 200; i++) {
+        const a = i * 0.13
+        const rr = 0.025 + i * 0.00034
+        pts.push(new THREE.Vector3(Math.cos(a) * rr, Math.sin(a) * rr, 0.01))
+      }
+      skelBalance.add(new THREE.Mesh(track(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 300, 0.0024, 5, false)), M.blued))
+    }
+    skelG.add(skelBalance)
+
+    // skeleton bridges: curved bands cut from black plate, with polished edges
+    const BZ = 0.055
+    let lift = 0
+    const band = (ctrl, w0, w1 = w0) => {
+      const curve = new THREE.CatmullRomCurve3(ctrl.map(([x, y]) => new THREE.Vector3(x, y, 0)))
+      const N = 48
+      const L = []
+      const R = []
+      for (let i = 0; i <= N; i++) {
+        const t = i / N
+        const p = curve.getPoint(t)
+        const tg = curve.getTangent(t)
+        const w = (w0 + (w1 - w0) * t) / 2
+        L.push([p.x - tg.y * w, p.y + tg.x * w])
+        R.push([p.x + tg.y * w, p.y - tg.x * w])
+      }
+      const sh = new THREE.Shape()
+      sh.moveTo(...L[0])
+      L.slice(1).forEach((q) => sh.lineTo(...q))
+      R.reverse().forEach((q) => sh.lineTo(...q))
+      sh.closePath()
+      const m = new THREE.Mesh(exM(sh, 0.016, 0.005), [SM.bridge, M.polish])
+      m.position.z = BZ + (lift += 0.0004)
+      return add(m)
+    }
+    const ring = (c, r0, r1, a0 = 0, a1 = 360) => {
+      const sh = new THREE.Shape()
+      sh.absarc(c[0], c[1], r1, deg(a0), deg(a1), false)
+      if (a1 - a0 >= 360) {
+        const h = new THREE.Path()
+        h.absarc(c[0], c[1], r0, 0, Math.PI * 2, true)
+        sh.holes.push(h)
+      } else sh.absarc(c[0], c[1], r0, deg(a1), deg(a0), true)
+      const m = new THREE.Mesh(exM(sh, 0.016, 0.005), [SM.bridge, M.polish])
+      m.position.z = BZ + (lift += 0.0004)
+      return add(m)
+    }
+    const boss = (c, r) => {
+      const m = new THREE.Mesh(track(new THREE.CylinderGeometry(r, r, 0.02, 40).rotateX(Math.PI / 2)), SM.bridge)
+      m.position.set(c[0], c[1], BZ + 0.01)
+      return add(m)
+    }
+    const BAR = P(0.3, 148)
+    const RAT = P(0.36, 38)
+    const THIRD = P(0.42, 222)
+    const FOURTH = P(0.47, 268)
+    const ESCW = P(0.33, 300)
+
+    // barrel bridge: an open ring over the barrel, tied to the rim and the centre
+    ring(BAR, 0.215, 0.255, 40, 290)
+    band([P(0.78, 165), P(0.6, 158), BAR], 0.07, 0.05)
+    band([BAR, P(0.18, 120), [0, 0]], 0.05, 0.06)
+    // ratchet bridge: S-curve from the rim, across the ratchet, into the centre
+    band([P(0.78, 70), P(0.55, 52), RAT, P(0.2, 20), [0, 0]], 0.075, 0.055)
+    band([P(0.78, 8), P(0.55, 18), RAT], 0.05, 0.05)
+    // train bridge: sweeps over the third and fourth wheels
+    band([P(0.78, 200), THIRD, P(0.3, 245), FOURTH, P(0.78, 285)], 0.06, 0.06)
+    band([THIRD, P(0.18, 205), [0, 0]], 0.045, 0.055)
+    // balance cock and escape bridge
+    band([P(0.78, 350), P(0.6, 340), SB], 0.08, 0.045)
+    band([P(0.78, 312), ESCW, P(0.15, 300), [0, 0]], 0.045, 0.05)
+    // centre hub
+    ring([0, 0], 0.055, 0.12)
+    // logo bridge across the top, printed with the name like the reference
+    band([P(0.69, 140), [-0.2, 0.43], [0.2, 0.43], P(0.69, 40)], 0.1, 0.1)
+    {
+      const c = document.createElement('canvas')
+      c.width = 512
+      c.height = 128
+      const g = c.getContext('2d')
+      g.fillStyle = '#ece7dd'
+      g.textAlign = 'center'
+      g.font = '600 50px "Manrope Variable", Arial, sans-serif'
+      g.letterSpacing = '16px'
+      g.fillText('KAIROS', 264, 62)
+      g.font = '600 22px "Manrope Variable", Arial, sans-serif'
+      g.letterSpacing = '8px'
+      g.fillStyle = '#c99273'
+      g.fillText('SKELETON AUTOMATIC', 260, 106)
+      const tex = track(new THREE.CanvasTexture(c))
+      tex.colorSpace = THREE.SRGBColorSpace
+      tex.anisotropy = 8
+      const label = new THREE.Mesh(track(new THREE.PlaneGeometry(0.34, 0.085)), track(new THREE.MeshStandardMaterial({ map: tex, transparent: true, metalness: 0.3, roughness: 0.5, depthWrite: false })))
+      label.position.set(0, 0.425, BZ + 0.032)
+      add(label)
+    }
+
+    // bosses with red jewels on every wheel the bridges cross, plus the balance
+    const jewelAt = (c, r) => {
+      boss(c, r * 2.1)
+      const set = new THREE.Mesh(track(new THREE.TorusGeometry(r * 1.3, r * 0.35, 10, 32)), M.polish)
+      set.position.set(c[0], c[1], BZ + 0.022)
+      const j = new THREE.Mesh(track(new THREE.SphereGeometry(r, 20, 14)), SM.ruby)
+      j.scale.z = 0.6
+      j.position.set(c[0], c[1], BZ + 0.024)
+      add(set)
+      add(j)
+    }
+    jewelAt(BAR, 0.024)
+    jewelAt(RAT, 0.022)
+    jewelAt(THIRD, 0.02)
+    jewelAt(FOURTH, 0.02)
+    jewelAt(ESCW, 0.017)
+    jewelAt(SB, 0.022)
+
+    // polished screws where the bridges meet
+    const sScrew = (c, r = 0.022) => {
+      const head = new THREE.Mesh(track(new THREE.CylinderGeometry(r, r * 1.05, 0.018, 28).rotateX(Math.PI / 2)), M.polish)
+      head.position.set(c[0], c[1], BZ + 0.026)
+      const sl = new THREE.Mesh(track(new THREE.BoxGeometry(r * 1.7, r * 0.26, 0.01)), M.slot)
+      sl.position.set(c[0], c[1], BZ + 0.035)
+      sl.rotation.z = (c[0] * 7 + c[1] * 13) % Math.PI
+      add(head)
+      add(sl)
+    }
+    for (const c of [P(0.47, 158), P(0.5, 55), P(0.48, 14), P(0.49, 205), P(0.5, 285), P(0.5, 343), P(0.5, 310), P(0.2, 120), P(0.24, 210), P(0.22, 25)]) sScrew(c)
+  }
+  movementG.add(skelG)
+
   // ---------- CASEBACK ----------
   // Screw-down steel back with an exhibition window. The ring carries engraved
   // details; the sapphire carries gold printing and the founder's signature.
@@ -1729,8 +1880,8 @@ export function buildWatch(initialLook) {
         m.position.set(Math.sin(a) * (R - 0.14), Math.cos(a) * (R - 0.14), 0.013)
         m.rotation.z = -a
       } else if (model === 'void') {
-        m = bar(0.12, 0.03, 0, M.accent)
-        m.position.set(Math.sin(a) * (R - 0.12), Math.cos(a) * (R - 0.12), 0.013)
+        m = bar(0.1, 0.028, 0, M.accent)
+        m.position.set(Math.sin(a) * (R - 0.085), Math.cos(a) * (R - 0.085), 0.013)
         m.rotation.z = -a
       } else if (model === 'atlas') {
         m = i % 3 === 0 ? bar(0.16, 0.06, 0, M.lume) : new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.025, 24).rotateX(Math.PI / 2), M.lume)
@@ -1765,7 +1916,8 @@ export function buildWatch(initialLook) {
     subA.visible = subB.visible = subC.visible = model === 'apex'
     subSmall.visible = model === 'mono'
     pushers.visible = model === 'apex' || isPulse
-    mechG.visible = !isPulse
+    mechG.visible = !isPulse && model !== 'void'
+    skelG.visible = model === 'void'
     elecG.visible = isPulse
     window_.visible = !isPulse
     bezelMesh.scale.setScalar(1)
@@ -1841,6 +1993,7 @@ export function buildWatch(initialLook) {
     // movement life
     gears.forEach(({ g, speed }) => (g.rotation.z = t * speed))
     balance.rotation.z = Math.sin(t * Math.PI * 2 * 3) * 1.6
+    skelBalance.rotation.z = balance.rotation.z
     escape.rotation.z = -Math.floor(t * 6) * ((Math.PI * 2) / 15) * 0.5 // steps forward six times a second
     fork.rotation.z = Math.sign(Math.sin(t * Math.PI * 2 * 3)) * 0.12
     rotorG.rotation.z = Math.sin(t * 0.35) * 1.2
