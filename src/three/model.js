@@ -22,12 +22,16 @@ export const METAL = {
   champagne: { color: '#cfb27a', polish: '#e8cd93' },
   blue: { color: '#2c4170', polish: '#3b5487' },
   gunmetal: { color: '#55565b', polish: '#6a6b70' },
+  rose: { color: '#d39a80', polish: '#ebb9a0' },
 }
 const DIALS = {
   ivory: { a: '#f8f4ec', b: '#d8cfbd', ink: '#1d1c1a', sub: '#6d675d', ray: 'rgba(255,255,255,0.06)' },
   obsidian: { a: '#2d2d31', b: '#060607', ink: '#ece7dd', sub: '#8f8a82', ray: 'rgba(255,255,255,0.05)' },
   midnight: { a: '#2c4170', b: '#08101e', ink: '#ece7dd', sub: '#9aa6bd', ray: 'rgba(190,210,255,0.06)' },
   slate: { a: '#4a4f55', b: '#1b1e22', ink: '#ece7dd', sub: '#a3a8ad', ray: 'rgba(255,255,255,0.05)' },
+  pearl: { a: '#fbf7f4', b: '#e2d8d6', ink: '#3a2e2c', sub: '#8a7470', ray: 'rgba(255,255,255,0.08)', pearl: true },
+  blush: { a: '#f4d3cb', b: '#c98f86', ink: '#4a2a26', sub: '#7d524b', ray: 'rgba(255,255,255,0.08)' },
+  emerald: { a: '#1f5a46', b: '#06231a', ink: '#efe4c6', sub: '#c9b27c', ray: 'rgba(220,255,235,0.05)' },
 }
 // Every strap key = one type + one colour. Metal straps take the case colour.
 export const STRAPS = {
@@ -37,6 +41,7 @@ export const STRAPS = {
   brownLeather: { type: 'leather', color: '#4f2c1a', stitch: '#d8b48b' },
   tanLeather: { type: 'leather', color: '#9a6a3c', stitch: '#f0dfc2' },
   navyLeather: { type: 'leather', color: '#1d2840', stitch: '#8d98b2' },
+  blushLeather: { type: 'leather', color: '#c99088', stitch: '#f6e6df' },
   blackRubber: { type: 'rubber', color: '#141414', stitch: '#b8352f' },
   navyRubber: { type: 'rubber', color: '#1f3157', stitch: '#c9ad7c' },
   greyRubber: { type: 'rubber', color: '#55585c', stitch: '#e8e5dd' },
@@ -65,6 +70,235 @@ function brushedTexture() {
   t.wrapS = t.wrapT = THREE.RepeatWrapping
   t.repeat.set(3, 1)
   return t
+}
+
+// ---------- dial art for the women's models ----------
+// mother-of-pearl: soft pink, blue and green clouds that shift like nacre
+function pearlSheen(g, R) {
+  const tints = ['rgba(255,170,195,0.42)', 'rgba(160,205,255,0.38)', 'rgba(185,250,215,0.3)', 'rgba(255,225,170,0.32)']
+  let seed = 7
+  const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280)
+  for (let i = 0; i < 26; i++) {
+    const x = R + (rnd() - 0.5) * R * 1.7
+    const y = R + (rnd() - 0.5) * R * 1.7
+    const r = 90 + rnd() * 220
+    const gr = g.createRadialGradient(x, y, 0, x, y, r)
+    gr.addColorStop(0, tints[i % tints.length])
+    gr.addColorStop(1, 'rgba(255,255,255,0)')
+    g.fillStyle = gr
+    g.fillRect(0, 0, R * 2, R * 2)
+  }
+}
+
+// a five-petal blossom with a darker centre and stamens
+function blossom(g, x, y, r, rot, a = 1) {
+  g.save()
+  g.translate(x, y)
+  g.rotate(rot)
+  g.globalAlpha = a
+  for (let k = 0; k < 5; k++) {
+    g.save()
+    g.rotate((k / 5) * Math.PI * 2)
+    const pg = g.createLinearGradient(0, 0, 0, -r)
+    pg.addColorStop(0, '#d9667f')
+    pg.addColorStop(0.45, '#f2a9b9')
+    pg.addColorStop(1, '#fde3ea')
+    g.fillStyle = pg
+    g.beginPath()
+    g.moveTo(0, 0)
+    g.bezierCurveTo(-r * 0.62, -r * 0.35, -r * 0.5, -r * 1.02, -r * 0.08, -r * 0.98)
+    g.lineTo(0, -r * 0.88)
+    g.lineTo(r * 0.08, -r * 0.98)
+    g.bezierCurveTo(r * 0.5, -r * 1.02, r * 0.62, -r * 0.35, 0, 0)
+    g.fill()
+    g.restore()
+  }
+  g.fillStyle = '#b8405a'
+  g.beginPath()
+  g.arc(0, 0, r * 0.18, 0, Math.PI * 2)
+  g.fill()
+  g.fillStyle = '#e8c35a'
+  for (let k = 0; k < 9; k++) {
+    const a2 = (k / 9) * Math.PI * 2
+    g.beginPath()
+    g.arc(Math.cos(a2) * r * 0.3, Math.sin(a2) * r * 0.3, r * 0.05, 0, Math.PI * 2)
+    g.fill()
+  }
+  g.restore()
+}
+
+// FLORA: a hand-painted cherry blossom branch sweeping up from seven o'clock
+function drawBlossom(g, R) {
+  g.save()
+  g.translate(R, R)
+  g.scale(1.12, 1.12)
+  g.translate(-R, -R)
+  g.lineCap = 'round'
+  // smooth tapering branch: a Catmull-Rom curve through the points, drawn in short strokes
+  const branch = (pts, w0, w1) => {
+    const p = [pts[0], ...pts, pts[pts.length - 1]]
+    const out = []
+    for (let i = 1; i < p.length - 2; i++) {
+      for (let t = 0; t < 1; t += 0.05) {
+        const t2 = t * t, t3 = t2 * t
+        const f = (k) => 0.5 * (2 * p[i][k] + (-p[i - 1][k] + p[i + 1][k]) * t + (2 * p[i - 1][k] - 5 * p[i][k] + 4 * p[i + 1][k] - p[i + 2][k]) * t2 + (-p[i - 1][k] + 3 * p[i][k] - 3 * p[i + 1][k] + p[i + 2][k]) * t3)
+        out.push([f(0), f(1)])
+      }
+    }
+    out.push(pts[pts.length - 1])
+    g.strokeStyle = '#5a3a2e'
+    for (let i = 0; i < out.length - 1; i++) {
+      g.lineWidth = w0 + ((w1 - w0) * i) / (out.length - 1)
+      g.beginPath()
+      g.moveTo(...out[i])
+      g.lineTo(...out[i + 1])
+      g.stroke()
+    }
+  }
+  const P = (x, y) => [R + x, R + y]
+  branch([P(-470, 330), P(-300, 210), P(-140, 150), P(40, 40), P(190, -40), P(330, -150)], 30, 6)
+  branch([P(-140, 150), P(-110, 30), P(-40, -60)], 9, 3)
+  branch([P(40, 40), P(150, 110), P(290, 120)], 8, 3)
+  branch([P(190, -40), P(230, -150), P(210, -230)], 6, 2)
+  const flowers = [
+    [-300, 200, 46, 0.2], [-230, 150, 34, 1.1], [-120, 20, 40, 0.6], [-50, -70, 30, 2.2], [-150, 170, 28, 1.7],
+    [40, 30, 44, 0.9], [130, 100, 34, 2.6], [280, 120, 38, 0.3], [190, -50, 40, 1.4], [230, -160, 30, 0.8],
+    [205, -235, 24, 2.9], [330, -150, 32, 1.9], [-10, 90, 22, 2.4],
+  ]
+  for (const [x, y, r, rot] of flowers) blossom(g, R + x, R + y, r * 1.7, rot)
+  // buds and falling petals
+  g.fillStyle = '#e98aa0'
+  for (const [x, y, r] of [[-60, 120, 9], [100, -10, 8], [300, 40, 8], [260, -90, 7]]) {
+    g.beginPath()
+    g.ellipse(R + x, R + y, r, r * 1.4, 0.6, 0, Math.PI * 2)
+    g.fill()
+  }
+  for (const [x, y, rot] of [[120, 260, 0.5], [220, 330, 1.8], [-40, 300, 2.6], [330, 230, 1.1], [-220, 380, 0.2]]) {
+    g.save()
+    g.translate(R + x, R + y)
+    g.rotate(rot)
+    g.globalAlpha = 0.75
+    g.fillStyle = '#f4b3c2'
+    g.beginPath()
+    g.ellipse(0, 0, 9, 15, 0, 0, Math.PI * 2)
+    g.fill()
+    g.restore()
+  }
+  g.restore()
+}
+
+// JARDIN: an engraved gold garden, a ring of rosettes and leaves inside the track
+function drawGarden(g, R) {
+  g.save()
+  g.strokeStyle = 'rgba(216,180,106,0.85)'
+  g.fillStyle = 'rgba(216,180,106,0.85)'
+  g.lineWidth = 2.2
+  // centre rosette (rose curve) as fine guilloche
+  g.globalAlpha = 0.28
+  for (let ring = 0; ring < 3; ring++) {
+    g.beginPath()
+    const k = 6
+    const rr = 300 - ring * 70
+    for (let i = 0; i <= 720; i++) {
+      const t = (i / 720) * Math.PI * 2
+      const r = rr * (0.62 + 0.38 * Math.abs(Math.cos(k * t / 2)))
+      const x = R + Math.cos(t + ring * 0.26) * r
+      const y = R + Math.sin(t + ring * 0.26) * r
+      i ? g.lineTo(x, y) : g.moveTo(x, y)
+    }
+    g.stroke()
+  }
+  g.globalAlpha = 0.9
+  // vine around the dial with leaves and small flowers between the hours
+  const vr = 335
+  g.lineWidth = 3
+  g.beginPath()
+  for (let i = 0; i <= 360; i++) {
+    const t = (i / 360) * Math.PI * 2
+    const r = vr + Math.sin(t * 24) * 10
+    const x = R + Math.cos(t) * r
+    const y = R + Math.sin(t) * r
+    i ? g.lineTo(x, y) : g.moveTo(x, y)
+  }
+  g.stroke()
+  for (let i = 0; i < 48; i++) {
+    const t = (i / 48) * Math.PI * 2 + 0.07
+    const out = i % 2 ? 1 : -1
+    const x = R + Math.cos(t) * (vr + out * 16)
+    const y = R + Math.sin(t) * (vr + out * 16)
+    g.save()
+    g.translate(x, y)
+    g.rotate(t + Math.PI / 2 + out * 0.6)
+    g.beginPath()
+    g.ellipse(0, 0, 6, 15, 0, 0, Math.PI * 2)
+    g.fill()
+    g.restore()
+  }
+  for (let i = 0; i < 12; i++) {
+    const t = ((i + 0.5) / 12) * Math.PI * 2
+    const x = R + Math.cos(t) * vr
+    const y = R + Math.sin(t) * vr
+    for (let k = 0; k < 6; k++) {
+      const a = (k / 6) * Math.PI * 2
+      g.beginPath()
+      g.ellipse(x + Math.cos(a) * 11, y + Math.sin(a) * 11, 5, 10, a + Math.PI / 2, 0, Math.PI * 2)
+      g.fill()
+    }
+    g.fillStyle = 'rgba(255,236,190,0.95)'
+    g.beginPath()
+    g.arc(x, y, 5, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = 'rgba(216,180,106,0.85)'
+  }
+  g.restore()
+}
+
+// LUNA: star dust and a polished crescent moon above six o'clock
+function drawNightSky(g, R) {
+  g.save()
+  let seed = 11
+  const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280)
+  for (let i = 0; i < 260; i++) {
+    const a = rnd() * Math.PI * 2
+    const r = Math.sqrt(rnd()) * (R - 60)
+    g.globalAlpha = 0.25 + rnd() * 0.7
+    g.fillStyle = rnd() > 0.85 ? '#ffe9c4' : '#ffffff'
+    g.beginPath()
+    g.arc(R + Math.cos(a) * r, R + Math.sin(a) * r, 0.8 + rnd() * 2.2, 0, Math.PI * 2)
+    g.fill()
+  }
+  // a few four-point sparkles
+  g.globalAlpha = 0.9
+  g.fillStyle = '#ffffff'
+  for (const [x, y, s] of [[-200, -90, 16], [230, 40, 12], [-120, 230, 10], [160, -240, 9]]) {
+    g.beginPath()
+    g.moveTo(R + x, R + y - s)
+    g.quadraticCurveTo(R + x, R + y, R + x + s, R + y)
+    g.quadraticCurveTo(R + x, R + y, R + x, R + y + s)
+    g.quadraticCurveTo(R + x, R + y, R + x - s, R + y)
+    g.quadraticCurveTo(R + x, R + y, R + x, R + y - s)
+    g.fill()
+  }
+  // crescent
+  g.globalAlpha = 1
+  const cx = R, cy = R + 205, cr = 78
+  const mg = g.createLinearGradient(cx - cr, cy - cr, cx + cr, cy + cr)
+  mg.addColorStop(0, '#fff8e8')
+  mg.addColorStop(0.5, '#e6d3a8')
+  mg.addColorStop(1, '#b89a62')
+  const off = document.createElement('canvas')
+  off.width = off.height = R * 2
+  const o = off.getContext('2d')
+  o.fillStyle = mg
+  o.beginPath()
+  o.arc(cx, cy, cr, 0, Math.PI * 2)
+  o.fill()
+  o.globalCompositeOperation = 'destination-out'
+  o.beginPath()
+  o.arc(cx + 38, cy - 26, cr * 0.9, 0, Math.PI * 2)
+  o.fill()
+  g.drawImage(off, 0, 0)
+  g.restore()
 }
 
 // ---------- canvas textures ----------
@@ -103,6 +337,10 @@ function dialTexture(dialKey, model) {
     g.stroke()
   }
   g.globalAlpha = 1
+  if (d.pearl) pearlSheen(g, R)
+  if (model === 'flora') drawBlossom(g, R)
+  if (model === 'jardin') drawGarden(g, R)
+  if (model === 'luna') drawNightSky(g, R)
   g.textAlign = 'center'
   g.fillStyle = d.ink
   // sub-dials (chronograph at 3, 6, 9; small seconds at 6)
@@ -148,13 +386,20 @@ function dialTexture(dialKey, model) {
     return tex
   }
   g.fillText('KAIROS', R + 9, model === 'apex' ? R - 250 : R - 200)
+  if (model === 'aura') {
+    // AURA: the name in a soft script under the brand
+    g.font = '96px "Mrs Saint Delafield", cursive'
+    g.letterSpacing = '0px'
+    g.fillStyle = d.sub
+    g.fillText('Aura', R, R + 250)
+  }
   g.font = '600 24px "Manrope Variable", Arial, sans-serif'
   g.letterSpacing = '9px'
   g.fillStyle = d.sub
-  const line1 = { atlas: 'AUTOMATIC · 200M', apex: 'CHRONOGRAPH', mono: 'AUTOMATIC' }[model] || 'AUTOMATIC'
-  const line2 = { atlas: 'CALIBRE K-02', apex: 'CALIBRE K-03 · TACHY', mono: '' }[model] ?? 'CALIBRE K-01'
-  const y1 = model === 'apex' ? R + 150 : model === 'mono' ? R - 150 : R + 230
-  g.fillText(line1, R + 4, y1)
+  const line1 = { atlas: 'AUTOMATIC · 200M', apex: 'CHRONOGRAPH', mono: 'AUTOMATIC', flora: 'FLORA', jardin: 'JARDIN · AUTOMATIC', luna: 'LUNA', aura: '' }[model] ?? 'AUTOMATIC'
+  const line2 = { atlas: 'CALIBRE K-02', apex: 'CALIBRE K-03 · TACHY', mono: '', flora: '', luna: '', aura: '' }[model] ?? 'CALIBRE K-01'
+  const y1 = model === 'apex' ? R + 150 : ['mono', 'flora', 'luna'].includes(model) ? R - 150 : R + 230
+  if (line1) g.fillText(line1, R + 4, y1)
   g.font = '500 19px "Manrope Variable", Arial, sans-serif'
   g.letterSpacing = '6px'
   if (line2) g.fillText(line2, R + 3, y1 + 38)
@@ -670,6 +915,10 @@ const BACK_INFO = {
   apex: { name: 'APEX', cal: 'CHRONOGRAPH CALIBRE K-03', water: '100 M', size: '44 MM', no: '0503' },
   pulse: { name: 'PULSE', cal: 'SNAPDRAGON W5 + BES2700', water: '5 ATM · IP68', size: '47 MM ALUMINIUM', no: '1931' },
   mono: { name: 'MONO', cal: 'AUTOMATIC CALIBRE K-01', water: '50 M', size: '40 MM', no: '0614' },
+  flora: { name: 'FLORA', cal: 'AUTOMATIC CALIBRE K-01 PETITE', water: '30 M', size: '34 MM', no: '0305' },
+  jardin: { name: 'JARDIN', cal: 'AUTOMATIC CALIBRE K-01', water: '50 M', size: '36 MM', no: '0521' },
+  luna: { name: 'LUNA', cal: 'AUTOMATIC CALIBRE K-01 PETITE', water: '30 M', size: '34 MM', no: '0907' },
+  aura: { name: 'AURA', cal: 'AUTOMATIC CALIBRE K-01 PETITE', water: '30 M', size: '32 MM', no: '0214' },
 }
 export const FOUNDER = 'Priyanshu Saxena'
 
@@ -969,6 +1218,8 @@ export function buildWatch(initialLook) {
     leather: track(new THREE.MeshPhysicalMaterial({ color: '#6a3f26', roughness: 0.62, metalness: 0, bumpMap: track(leatherGrainTexture()), bumpScale: 1.4, sheen: 0.35, sheenRoughness: 0.6, sheenColor: new THREE.Color('#8a6a52'), clearcoat: 0.15, clearcoatRoughness: 0.6 })),
     stitch: track(new THREE.MeshStandardMaterial({ color: '#d8b48b', roughness: 0.8 })),
     strapHole: track(new THREE.MeshStandardMaterial({ color: '#050505', roughness: 1 })),
+    // brilliant-cut stones: faceted, flat shaded so each facet flashes
+    gem: track(new THREE.MeshPhysicalMaterial({ color: '#eef3fa', metalness: 0.55, roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0, envMapIntensity: 2.6, flatShading: true, iridescence: 0.5, iridescenceIOR: 1.8 })),
   }
   // the bracelet gets its own copies so it can fade out without fading the case
   M.sCase = track(M.case.clone())
@@ -1026,6 +1277,28 @@ export function buildWatch(initialLook) {
   const bezelGeo = track(lathe([[0.83, 0.1], [0.97, 0.1], [0.99, 0.13], [0.95, 0.17], [0.86, 0.175], [0.83, 0.16], [0.83, 0.1]]))
   const bezelMesh = new THREE.Mesh(bezelGeo, M.polish)
   bezelG.add(bezelMesh)
+  // gem-set bezel (FLORA, LUNA): a ring of brilliant-cut stones in polished settings
+  const gemGeo = track(new THREE.OctahedronGeometry(1, 0))
+  gemGeo.scale(1, 1, 0.55)
+  const gemBezel = new THREE.Group()
+  {
+    const N = 44
+    const setGeo = track(new THREE.TorusGeometry(0.03, 0.007, 6, 20))
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * Math.PI * 2
+      const x = Math.cos(a) * 0.905
+      const y = Math.sin(a) * 0.905
+      const st = new THREE.Mesh(setGeo, M.polish)
+      st.position.set(x, y, 0.176)
+      const gm = new THREE.Mesh(gemGeo, M.gem)
+      gm.scale.setScalar(0.03)
+      gm.position.set(x, y, 0.186)
+      gm.rotation.z = a
+      gemBezel.add(st, gm)
+    }
+  }
+  gemBezel.visible = false
+  bezelG.add(gemBezel)
   const insertGeo = track(new THREE.RingGeometry(0.8, 0.955, 120, 1))
   // ring UVs: map planar so the canvas texture lines up
   {
@@ -1871,6 +2144,29 @@ export function buildWatch(initialLook) {
       if (model === 'pulse') continue
       if (model === 'apex' && (i === 3 || i === 6 || i === 9)) continue
       if (model === 'mono' && i === 6) continue
+      // women's models: brilliant-cut stones as hour markers
+      const stone = (r, rr = R - 0.11) => {
+        const g2 = new THREE.Group()
+        const setting = new THREE.Mesh(new THREE.TorusGeometry(r * 1.05, r * 0.22, 6, 24), M.hand)
+        const gm = new THREE.Mesh(gemGeo, M.gem)
+        gm.scale.setScalar(r)
+        gm.position.z = 0.008
+        g2.add(setting, gm)
+        g2.position.set(Math.sin(a) * rr, Math.cos(a) * rr, 0.012)
+        return g2
+      }
+      if (model === 'flora') {
+        if (i % 3 === 0) indexGroup.add(stone(0.032))
+        continue
+      }
+      if (model === 'luna') {
+        indexGroup.add(stone(i === 0 ? 0.034 : 0.022))
+        continue
+      }
+      if (model === 'aura' && i === 0) {
+        indexGroup.add(stone(0.034))
+        continue
+      }
       let m
       if (model === 'noir' && i % 3 !== 0) {
         m = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.025, 24).rotateX(Math.PI / 2), M.hand)
@@ -1888,7 +2184,7 @@ export function buildWatch(initialLook) {
         m.position.set(Math.sin(a) * (R - 0.15), Math.cos(a) * (R - 0.15), 0.013)
         m.rotation.z = -a
       } else {
-        const thin = model === 'elan' || model === 'mono'
+        const thin = ['elan', 'mono', 'jardin', 'aura'].includes(model)
         const len = thin ? (i % 3 === 0 ? 0.2 : 0.14) : i === 0 ? 0.17 : 0.13
         const w = thin ? 0.022 : i === 0 ? 0.075 : 0.038
         m = bar(len, w, 0, M.hand)
@@ -1916,6 +2212,7 @@ export function buildWatch(initialLook) {
     subA.visible = subB.visible = subC.visible = model === 'apex'
     subSmall.visible = model === 'mono'
     pushers.visible = model === 'apex' || isPulse
+    gemBezel.visible = model === 'flora' || model === 'luna'
     mechG.visible = !isPulse && model !== 'void'
     skelG.visible = model === 'void'
     elecG.visible = isPulse
@@ -1939,7 +2236,8 @@ export function buildWatch(initialLook) {
     M.sPolish.roughness = M.polish.roughness
     const handMetal = L.caseFinish === 'champagne' ? METAL.champagne : METAL.steel
     // rose-gold hands on VOID and MONO, gold accents on APEX
-    M.hand.color.set(L.model === 'void' || L.model === 'mono' ? ROSE : L.model === 'apex' ? '#d9c08a' : handMetal.polish)
+    const roseHands = ['void', 'mono', 'flora', 'aura'].includes(L.model) || L.caseFinish === 'rose'
+    M.hand.color.set(roseHands ? ROSE : L.model === 'apex' ? '#d9c08a' : L.model === 'jardin' ? METAL.champagne.polish : handMetal.polish)
     M.mesh.color.set(metal.color)
     M.mesh.roughness = L.caseFinish === 'black' ? 0.4 : 0.26
     M.lume.color.set(L.dial === 'ivory' ? '#1d1c1a' : '#f2efe6')
