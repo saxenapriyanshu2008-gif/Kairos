@@ -54,7 +54,7 @@ function metalMat(hex, rough, roughnessMap = null) {
 
 // Brushed-steel grain: fine streaks of varying roughness. Used as a roughness
 // map so the cursor light breaks into soft lines instead of a flat white blob.
-function brushedTexture() {
+function brushedTextureDraw() {
   const c = document.createElement('canvas')
   c.width = 512
   c.height = 64
@@ -722,7 +722,7 @@ function drawScreen(g, now, accent, page = 'face') {
 }
 
 // Fine woven texture for the mesh bracelet
-function meshTexture() {
+function meshTextureDraw() {
   // Milanese weave: bright steel wires crossing at an angle, with dark gaps between
   const c = document.createElement('canvas')
   c.width = c.height = 128
@@ -752,7 +752,7 @@ function meshTexture() {
 }
 
 // Leather grain: soft pebbled bumps, used as bump and roughness map
-function leatherGrainTexture() {
+function leatherGrainTextureDraw() {
   const S = 256
   const c = document.createElement('canvas')
   c.width = c.height = S
@@ -781,7 +781,7 @@ function leatherGrainTexture() {
 }
 
 // Rubber strap: deep horizontal grooves (bump map)
-function rubberGrooveTexture() {
+function rubberGrooveTextureDraw() {
   const c = document.createElement('canvas')
   c.width = c.height = 128
   const g = c.getContext('2d')
@@ -803,7 +803,7 @@ function rubberGrooveTexture() {
 
 // Côtes de Genève: fine, low-contrast wave stripes for plates and bridges.
 // Used both as colour and as roughness, so the stripes catch light like the real finish.
-function cotesTexture() {
+function cotesTextureDraw() {
   const c = document.createElement('canvas')
   c.width = c.height = 512
   const g = c.getContext('2d')
@@ -838,7 +838,7 @@ function cotesTexture() {
 
 // Sunray brushing for the dial roughness: thin radial streaks from the centre,
 // so a moving light draws a bright "ray" across the dial like a real sunburst.
-function sunrayTexture() {
+function sunrayTextureDraw() {
   const S = 1024
   const c = document.createElement('canvas')
   c.width = c.height = S
@@ -862,7 +862,7 @@ function sunrayTexture() {
 // Circular graining (snailing) for gears, barrel and rotor: fine concentric rings.
 // Geometry UVs on extruded parts are local x/y, so we offset the texture by 0.5
 // to put the rings' centre on each part's axle.
-function snailTexture() {
+function snailTextureDraw() {
   const S = 512
   const c = document.createElement('canvas')
   c.width = c.height = S
@@ -1899,7 +1899,7 @@ export function buildWatch(initialLook) {
   const drawBackRing = (model, finish) => {
     backKey = model + finish
     backRingMat.map?.dispose()
-    backRingMat.map = track(casebackRingTexture(model, finish !== 'steel' && finish !== 'champagne'))
+    backRingMat.map = track(casebackRingTexture(model, !['steel', 'champagne', 'rose'].includes(finish)))
     backRingMat.emissiveMap = backRingMat.map
     backRingMat.needsUpdate = true
   }
@@ -2336,3 +2336,27 @@ export function buildWatch(initialLook) {
 
   return { root, parts, setLook, setScreen, update, anchors, handTime, materials: M, dispose }
 }
+
+// ---------- texture cache ----------
+// The pattern textures below (brushing, grain, Côtes de Genève, snailing...) are
+// the same on every watch, but drawing them pixel by pixel is slow on phones.
+// Each one is drawn once; later watches get a clone that shares the same image.
+const texCache = new Map()
+function cachedTexture(key, draw) {
+  const src = texCache.get(key)
+  if (!src) {
+    const t = draw()
+    texCache.set(key, t)
+    return t
+  }
+  const t = src.clone()
+  t.needsUpdate = true
+  return t
+}
+const brushedTexture = () => cachedTexture('brushedTexture', brushedTextureDraw)
+const meshTexture = () => cachedTexture('meshTexture', meshTextureDraw)
+const leatherGrainTexture = () => cachedTexture('leatherGrainTexture', leatherGrainTextureDraw)
+const rubberGrooveTexture = () => cachedTexture('rubberGrooveTexture', rubberGrooveTextureDraw)
+const cotesTexture = () => cachedTexture('cotesTexture', cotesTextureDraw)
+const sunrayTexture = () => cachedTexture('sunrayTexture', sunrayTextureDraw)
+const snailTexture = () => cachedTexture('snailTexture', snailTextureDraw)
