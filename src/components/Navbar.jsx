@@ -3,12 +3,14 @@ import Logo from './Logo'
 import { SearchIcon, HeartIcon, BagIcon } from './Icons'
 import { scrollToId, useShop } from '../store'
 import { gsap, prefersReducedMotion } from '../lib/gsap'
+import { navigate, useRoute } from '../lib/router'
 
 export const NAV_LINKS = [
   { id: 'collection', label: 'Collection' },
   { id: 'craft', label: 'Craft' },
   { id: 'story', label: 'The Story' },
   { id: 'journal', label: 'Journal' },
+  { id: 'warranty', label: 'Warranty', route: 'warranty' }, // its own page, not a section
 ]
 
 export default function Navbar() {
@@ -16,6 +18,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState('')
   const { wishlist, bag, setDrawer, setSearchOpen } = useShop()
+  const { name: routeName } = useRoute()
   const menuRef = useRef(null)
   const toggleRef = useRef(null)
 
@@ -60,6 +63,8 @@ export default function Navbar() {
   const go = (e, id) => {
     e.preventDefault()
     setOpen(false)
+    const page = NAV_LINKS.find((l) => l.id === id)?.route
+    if (page) return requestAnimationFrame(() => navigate(page))
     // wait one frame so the scroll lock is released first
     requestAnimationFrame(() => scrollToId(id))
   }
@@ -77,7 +82,12 @@ export default function Navbar() {
             <ul>
               {NAV_LINKS.map((l) => (
                 <li key={l.id}>
-                  <a href={`#${l.id}`} onClick={(e) => go(e, l.id)} aria-current={active === l.id ? 'true' : undefined} className={active === l.id ? 'is-active' : ''}>
+                  <a
+                    href={l.route ? `#/${l.route}` : `#${l.id}`}
+                    onClick={(e) => go(e, l.id)}
+                    aria-current={(l.route ? routeName === l.route : active === l.id) ? 'true' : undefined}
+                    className={(l.route ? routeName === l.route : active === l.id) ? 'is-active' : ''}
+                  >
                     {l.label}
                   </a>
                 </li>
@@ -117,7 +127,7 @@ export default function Navbar() {
           <ol>
             {[...NAV_LINKS, { id: 'contact', label: 'Contact' }].map((l, i) => (
               <li key={l.id} className="mm-item">
-                <a className="mm-link" href={`#${l.id}`} onClick={(e) => go(e, l.id)}>
+                <a className="mm-link" href={l.route ? `#/${l.route}` : `#${l.id}`} onClick={(e) => go(e, l.id)}>
                   <span className="mm-num">0{i + 1}</span>
                   {l.label}
                 </a>
