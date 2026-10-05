@@ -56,10 +56,16 @@ export function partsFor(watch) {
     apex: ['Chronograph dial', 'Three sub-dials for running seconds, 30 minutes and 12 hours.'],
     atlas: ['Dive dial', 'Large lume plots and a date window, easy to read underwater.'],
     mono: ['Dial', 'Matte black with a small seconds sub-dial at six.'],
+    flora: ['Painted dial', 'Mother-of-pearl, with a cherry blossom branch painted by hand and diamond hour markers.'],
+    jardin: ['Garden dial', 'Emerald sunray with an engraved gold vine, leaves and tiny flowers.'],
+    luna: ['Night sky dial', 'Midnight blue with star dust, a polished crescent moon and a stone at every hour.'],
+    aura: ['Dial', 'Blush pink sunray with slim indices and a single stone at twelve.'],
   }[m] || ['Dial', 'Sunray finish with applied, hand-set indices.']
   const bezel = {
     atlas: ['Dive bezel', 'Turns one way only, with a 60-minute scale to time a dive.'],
     apex: ['Tachymetre bezel', 'Reads speed over a measured distance with the chronograph.'],
+    flora: ['Stone-set bezel', '44 brilliant-cut stones, each in its own polished setting.'],
+    luna: ['Stone-set bezel', '44 brilliant-cut stones, each in its own polished setting.'],
   }[m] || ['Bezel', 'Polished ring that seats the crystal and seals the case.']
   return [
     ['crystal', 'Sapphire crystal', 'Scratch-resistant sapphire with anti-reflective coating.'],

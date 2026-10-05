@@ -4,7 +4,7 @@ import { HeartIcon, ArrowIcon } from './Icons'
 import { formatPrice } from '../data/watches'
 import { useShop } from '../store'
 
-export default function WatchCard({ watch, index, total = 8, className = '' }) {
+export default function WatchCard({ watch, index, total = 12, className = '' }) {
   const { wishlist, toggleWish, setDrawer } = useShop()
   const saved = wishlist.includes(watch.id)
   const open = () => setDrawer({ type: 'product', id: watch.id })

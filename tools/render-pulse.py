@@ -22,7 +22,7 @@ async def main():
         if MODE in ('watches', 'all'):
             pg = await b.new_page(viewport={'width': 1200, 'height': 1200})
             await pg.goto(URL); await pg.evaluate('window.ready')
-            for n in ['arc', 'noir', 'atlas', 'elan', 'void', 'apex', 'mono']:
+            for n in ['arc', 'noir', 'atlas', 'elan', 'void', 'apex', 'mono', 'flora', 'jardin', 'luna', 'aura']:
                 await pg.evaluate(f'window.photoOf("{n}")'); await pg.wait_for_timeout(300)
                 png = f'/tmp/watch-{n}.png'
                 await pg.screenshot(path=png)

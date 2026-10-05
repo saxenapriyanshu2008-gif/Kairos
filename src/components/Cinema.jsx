@@ -419,7 +419,7 @@ export default function Cinema({ ready }) {
                 <p>{s.text}</p>
               </div>
             ))}
-            <p>Eight interpretations of time. 184 parts, nothing hidden. 28,800 vibrations per hour. Precise automatic movement. Elegant contours. A slim 10.8 millimetre profile.</p>
+            <p>Twelve interpretations of time. 184 parts, nothing hidden. 28,800 vibrations per hour. Precise automatic movement. Elegant contours. A slim 10.8 millimetre profile.</p>
           </div>
 
           <dl className="cs-hud" aria-hidden="true">

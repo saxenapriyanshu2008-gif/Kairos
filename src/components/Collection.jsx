@@ -25,7 +25,7 @@ export default function Collection() {
         <h2 id="collection-title" className="display-l" data-split>
           The Collection
         </h2>
-        <p className="lede" data-reveal>Eight interpretations of time. One KAIROS philosophy.</p>
+        <p className="lede" data-reveal>Twelve interpretations of time. One KAIROS philosophy.</p>
         <div className="coll-filters" role="group" aria-label="Filter the collection" data-reveal>
           {groups.map((g) => {
             const n = g.id === 'all' ? watches.length : watches.filter((w) => w.group === g.id).length

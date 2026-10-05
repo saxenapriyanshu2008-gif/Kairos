@@ -6,7 +6,7 @@ import { scrollToId, useShop } from '../store'
 
 /*
   BUILD YOUR KAIROS
-  Arrow buttons (and the keyboard arrow keys) switch between all eight
+  Arrow buttons (and the keyboard arrow keys) switch between all the
   watches. Every watch starts from its own standard design and can be
   customised with the same options as its product page: case, dial, strap
   type and strap colour. Each watch remembers its own build while you
