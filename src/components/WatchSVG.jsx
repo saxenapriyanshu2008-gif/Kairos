@@ -15,7 +15,7 @@ import { memo, useEffect, useId, useRef } from 'react'
     showStrap   false = case only (used for close-ups)
 */
 
-const roseHandsFor = (m) => m === 'void' || m === 'mono'
+const roseHandsFor = (m) => ['void', 'mono', 'flora', 'aura'].includes(m)
 const CX = 200
 const CY = 320
 
@@ -33,6 +33,9 @@ const DIALS = {
   obsidian: { center: '#2d2d31', edge: '#060607', text: '#ece7dd', sub: '#8f8a82', track: '#bdb7ac', sunray: '#ffffff' },
   midnight: { center: '#2a3e66', edge: '#09111f', text: '#ece7dd', sub: '#9aa6bd', track: '#c7cedb', sunray: '#bcd0ff' },
   slate: { center: '#565c63', edge: '#1b1e22', text: '#ece7dd', sub: '#a3a8ad', track: '#c9ccd0', sunray: '#ffffff' },
+  pearl: { center: '#fdfaf7', edge: '#e0d6d5', text: '#3a2e2c', sub: '#8a7470', track: '#6d5c58', sunray: '#ffffff', pearl: true },
+  blush: { center: '#f6d8d0', edge: '#c48a80', text: '#4a2a26', sub: '#7d524b', track: '#6e443e', sunray: '#ffffff' },
+  emerald: { center: '#236650', edge: '#06231a', text: '#efe4c6', sub: '#c9b27c', track: '#d8c79a', sunray: '#dcffe9' },
 }
 
 // strap key -> look. Bracelet and mesh take the case metal.
@@ -43,6 +46,7 @@ const STRAP = {
   brownLeather: { type: 'leather', a: '#5e3520', b: '#2c180e', stitch: '#d8b48b' },
   tanLeather: { type: 'leather', a: '#b07c48', b: '#6e4826', stitch: '#f0dfc2' },
   navyLeather: { type: 'leather', a: '#26324f', b: '#0f1526', stitch: '#8d98b2' },
+  blushLeather: { type: 'leather', a: '#d8a39b', b: '#a8706a', stitch: '#f6e6df' },
   blackRubber: { type: 'rubber', a: '#232323', b: '#0b0b0b', stitch: '#b8352f' },
   navyRubber: { type: 'rubber', a: '#2a3f6b', b: '#121d36', stitch: '#c9ad7c' },
   greyRubber: { type: 'rubber', a: '#666a6f', b: '#33363a', stitch: '#e8e5dd' },
@@ -59,6 +63,91 @@ function radialLines(count, r1, r2, skipEvery = 0) {
     d += `M${(CX + s * r1).toFixed(2)} ${(CY + c * r1).toFixed(2)}L${(CX + s * r2).toFixed(2)} ${(CY + c * r2).toFixed(2)}`
   }
   return d
+}
+
+// ----- dial art for the women's models -----
+function PearlSheen() {
+  const blobs = [[-40, -50, 70, '#ffc2d2'], [50, 20, 80, '#bfdcff'], [-30, 60, 60, '#c9f7dd'], [40, -60, 55, '#ffe6bd']]
+  return (
+    <g opacity=".45" style={{ mixBlendMode: 'multiply' }}>
+      {blobs.map(([x, y, r, c], k) => (
+        <circle key={k} cx={CX + x} cy={CY + y} r={r} fill={c} opacity=".5" style={{ filter: 'blur(18px)' }} />
+      ))}
+    </g>
+  )
+}
+
+function Flower({ x, y, r, rot = 0 }) {
+  return (
+    <g transform={`translate(${x} ${y}) rotate(${rot})`}>
+      {[0, 72, 144, 216, 288].map((a) => (
+        <ellipse key={a} cx="0" cy={-r * 0.55} rx={r * 0.42} ry={r * 0.55} fill="#f2a9b9" stroke="#e07a93" strokeWidth=".4" transform={`rotate(${a})`} />
+      ))}
+      <circle r={r * 0.2} fill="#b8405a" />
+      <circle r={r * 0.09} fill="#e8c35a" />
+    </g>
+  )
+}
+
+function Blossoms() {
+  const f = [[-58, 40, 9, 10], [-44, 30, 7, 60], [-24, 4, 8, 30], [-10, -14, 6, 120], [8, 6, 9, 45], [26, 20, 7, 160], [56, 24, 8, 15], [38, -10, 8, 80], [46, -32, 6, 40], [66, -30, 6, 100]]
+  return (
+    <g>
+      <path d={`M${CX - 95} ${CY + 66}C${CX - 60} ${CY + 42} ${CX - 30} ${CY + 30} ${CX + 8} ${CY + 8}S${CX + 50} ${CY - 20} ${CX + 68} ${CY - 30}`} fill="none" stroke="#5a3a2e" strokeWidth="3.2" strokeLinecap="round" />
+      <path d={`M${CX - 28} ${CY + 30}Q${CX - 22} ${CY + 6} ${CX - 8} ${CY - 12}M${CX + 8} ${CY + 8}Q${CX + 30} ${CY + 22} ${CX + 58} ${CY + 24}`} fill="none" stroke="#5a3a2e" strokeWidth="1.6" strokeLinecap="round" />
+      {f.map(([x, y, r, rot], k) => (
+        <Flower key={k} x={CX + x} y={CY + y} r={r} rot={rot} />
+      ))}
+      {[[24, 52, 30], [44, 66, 70], [-8, 60, 120]].map(([x, y, a], k) => (
+        <ellipse key={k} cx={CX + x} cy={CY + y} rx="2" ry="3.2" fill="#f4b3c2" opacity=".8" transform={`rotate(${a} ${CX + x} ${CY + y})`} />
+      ))}
+    </g>
+  )
+}
+
+function Garden() {
+  const vr = 68
+  let d = ''
+  for (let i = 0; i <= 240; i++) {
+    const t = (i / 240) * Math.PI * 2
+    const r = vr + Math.sin(t * 24) * 2
+    d += `${i ? 'L' : 'M'}${(CX + Math.cos(t) * r).toFixed(1)} ${(CY + Math.sin(t) * r).toFixed(1)}`
+  }
+  return (
+    <g fill="#d8b46a" stroke="#d8b46a">
+      <path d={d} fill="none" strokeWidth=".8" />
+      {Array.from({ length: 36 }, (_, k) => {
+        const t = (k / 36) * Math.PI * 2
+        const o = k % 2 ? 4 : -4
+        const x = CX + Math.cos(t) * (vr + o)
+        const y = CY + Math.sin(t) * (vr + o)
+        return <ellipse key={k} cx={x} cy={y} rx="1.3" ry="3" stroke="none" transform={`rotate(${(t * 180) / Math.PI + 90 + o * 8} ${x} ${y})`} />
+      })}
+      {Array.from({ length: 12 }, (_, k) => {
+        const t = ((k + 0.5) / 12) * Math.PI * 2
+        return <circle key={k} cx={CX + Math.cos(t) * vr} cy={CY + Math.sin(t) * vr} r="2.6" stroke="none" />
+      })}
+      <circle cx={CX} cy={CY} r="44" fill="none" strokeWidth=".4" opacity=".4" strokeDasharray="1 2" />
+    </g>
+  )
+}
+
+function NightSky({ id }) {
+  let seed = 11
+  const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280)
+  const stars = Array.from({ length: 70 }, () => [(rnd() - 0.5) * 190, (rnd() - 0.5) * 190, 0.3 + rnd() * 0.8, 0.3 + rnd() * 0.7])
+  return (
+    <g>
+      {stars.map(([x, y, r, o], k) => (
+        <circle key={k} cx={CX + x} cy={CY + y} r={r} fill="#fff" opacity={o} />
+      ))}
+      <mask id={id('moon')}>
+        <circle cx={CX} cy={CY + 44} r="15" fill="#fff" />
+        <circle cx={CX + 7.5} cy={CY + 39} r="13.5" fill="#000" />
+      </mask>
+      <circle cx={CX} cy={CY + 44} r="15" fill="#e6d3a8" mask={`url(#${id('moon')})`} />
+    </g>
+  )
 }
 
 // Angles for a given Date (degrees, 0 = 12 o'clock)
@@ -145,6 +234,24 @@ function WatchSVG({
     if (isPulse) continue
     if (isApex && i % 3 === 0 && i !== 0) continue // sub-dials at 3, 6, 9
     if (isMono && i === 6) continue // small seconds at 6
+    // women's models: set stones as hour markers
+    if (model === 'flora' || model === 'luna' || (model === 'aura' && i === 0)) {
+      if (model === 'flora' && i % 3 !== 0) continue
+      const big = model !== 'luna' || i === 0
+      const r = big ? 5.2 : 3.6
+      indices.push(
+        <g key={i} transform={rot(deg)}>
+          <circle cx={CX} cy={CY - dialR + 17} r={r + 1.3} fill={`url(#${id('hm')})`} />
+          <circle cx={CX} cy={CY - dialR + 17} r={r} fill={`url(#${id('gem')})`} />
+          <path d={`M${CX - r} ${CY - dialR + 17}H${CX + r}M${CX} ${CY - dialR + 17 - r}V${CY - dialR + 17 + r}`} stroke="#fff" strokeOpacity=".7" strokeWidth=".5" />
+        </g>
+      )
+      continue
+    }
+    if (model === 'aura' || model === 'jardin') {
+      indices.push(<rect key={i} x={CX - 1.2} y={CY - dialR + 11} width={2.4} height={i % 3 === 0 ? 22 : 15} rx={1} fill={`url(#${id('hm')})`} transform={rot(deg)} />)
+      continue
+    }
     if (isApex || isVoid) {
       indices.push(<rect key={i} x={CX - 2.4} y={CY - dialR + 10} width={4.8} height={isApex ? 16 : 13} rx={1} fill={isApex ? '#f2efe6' : `url(#${id('hm')})`} transform={rot(deg)} />)
       continue
@@ -226,6 +333,12 @@ function WatchSVG({
         <radialGradient id={id('dial')} cx=".42" cy=".38" r=".75">
           <stop offset="0" stopColor={d.center} />
           <stop offset="1" stopColor={d.edge} />
+        </radialGradient>
+        <radialGradient id={id('gem')} cx=".35" cy=".3" r=".75">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset=".45" stopColor="#dfe8f3" />
+          <stop offset=".8" stopColor="#9fb0c4" />
+          <stop offset="1" stopColor="#f6f9ff" />
         </radialGradient>
         <radialGradient id={id('glare')} cx=".3" cy=".2" r=".7">
           <stop offset="0" stopColor="#fff" stopOpacity=".38" />
@@ -330,12 +443,31 @@ function WatchSVG({
           <circle cx={CX} cy={CY} r="117" fill={metal.edge} opacity=".55" />
         </g>
       )}
+      {(model === 'flora' || model === 'luna') && (
+        <g>
+          {Array.from({ length: 44 }, (_, k) => {
+            const a = (k / 44) * Math.PI * 2
+            const x = CX + Math.sin(a) * 119.5
+            const y = CY - Math.cos(a) * 119.5
+            return (
+              <g key={k}>
+                <circle cx={x} cy={y} r="4.4" fill={metal.edge} opacity=".6" />
+                <circle cx={x} cy={y} r="3.5" fill={`url(#${id('gem')})`} />
+              </g>
+            )
+          })}
+        </g>
+      )}
 
       {/* ---------- DIAL ---------- */}
       <circle cx={CX} cy={CY} r={dialR} fill={`url(#${id('dial')})`} />
       <g clipPath={`url(#${id('dialClip')})`}>
         {/* sunray brushing */}
         <path d={radialLines(180, 6, dialR)} stroke={d.sunray} strokeOpacity={dial === 'ivory' ? 0.05 : 0.045} strokeWidth=".7" />
+        {d.pearl && <PearlSheen />}
+        {model === 'flora' && <Blossoms />}
+        {model === 'jardin' && <Garden />}
+        {model === 'luna' && <NightSky id={id} />}
       </g>
       {/* minute track */}
       <path d={radialLines(60, dialR - 3, dialR - 8, 5)} stroke={d.track} strokeWidth="1" opacity=".7" />
@@ -397,11 +529,16 @@ function WatchSVG({
           KAIROS
         </text>
         {!isVoid && (
-          <text x={CX} y={isMono ? CY - 32 : isApex ? CY + 76 : CY + 50} fontSize="6.6" letterSpacing="2.4" fill={d.sub} fontWeight="600">
-            {isAtlas ? 'AUTOMATIC · 200M' : model === 'elan' ? 'ÉLAN · AUTOMATIC' : isApex ? 'CHRONOGRAPH' : 'AUTOMATIC'}
+          <text x={CX} y={isMono || model === 'flora' || model === 'luna' ? CY - 32 : isApex ? CY + 76 : CY + 50} fontSize="6.6" letterSpacing="2.4" fill={d.sub} fontWeight="600">
+            {isAtlas ? 'AUTOMATIC · 200M' : model === 'elan' ? 'ÉLAN · AUTOMATIC' : isApex ? 'CHRONOGRAPH' : model === 'flora' ? 'FLORA' : model === 'luna' ? 'LUNA' : model === 'jardin' ? 'JARDIN · AUTOMATIC' : model === 'aura' ? '' : 'AUTOMATIC'}
           </text>
         )}
-        {!isVoid && !isMono && !isApex && (
+        {model === 'aura' && (
+          <text x={CX} y={CY + 56} fontSize="17" fill={d.sub} fontFamily="'Mrs Saint Delafield', cursive">
+            Aura
+          </text>
+        )}
+        {!isVoid && !isMono && !isApex && !['flora', 'luna', 'aura'].includes(model) && (
           <text x={CX} y={CY + 62} fontSize="5.4" letterSpacing="1.6" fill={d.sub} opacity=".8">
             {model === 'noir' ? 'NOIR · CALIBRE K-01' : isAtlas ? 'CALIBRE K-02' : 'CALIBRE K-01'}
           </text>
