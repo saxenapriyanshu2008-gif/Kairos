@@ -104,6 +104,7 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
   let ringG = null
   let smoke = null
   const disposeExtra = []
+  let buildExtra = () => false
   if (film) {
     // 1. lineup: three more models that fly in beside the main watch (two florals and VOID)
     const LOOKS = [
@@ -111,7 +112,14 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
       { model: 'void', caseFinish: 'blue', dial: 'midnight', strap: 'steel' },
       { model: 'jardin', caseFinish: 'champagne', dial: 'emerald', strap: 'steel' },
     ]
-    LOOKS.forEach((l, k) => {
+    // These watches only appear after some scrolling, so they are not built with
+    // the scene (that made the first screen slow on phones). They are built one
+    // per idle moment after the first scroll or touch, long before the lineup.
+    let built = 0
+    buildExtra = () => {
+      if (built >= LOOKS.length) return false
+      const k = built++
+      const l = LOOKS[k]
       const p = new THREE.Group()
       const wch = buildWatch(l)
       // never opened, so skip the calibre, except on VOID whose open dial shows it
@@ -121,7 +129,17 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
       scene.add(p)
       extras.push({ p, w: wch, slot: [0, 2, 3][k], k })
       disposeExtra.push(() => wch.dispose())
-    })
+      return built < LOOKS.length
+    }
+    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 60))
+    const step = () => buildExtra() && idle(step, { timeout: 400 })
+    const EVENTS = ['scroll', 'wheel', 'touchstart', 'pointerdown', 'keydown']
+    const kick = () => {
+      EVENTS.forEach((ev) => window.removeEventListener(ev, kick))
+      idle(step, { timeout: 400 })
+    }
+    EVENTS.forEach((ev) => window.addEventListener(ev, kick, { passive: true }))
+    disposeExtra.push(() => EVENTS.forEach((ev) => window.removeEventListener(ev, kick)))
 
     // 2. a ring of giant type that circles the watch (front letters pass in front of it)
     const c = document.createElement('canvas')
@@ -258,6 +276,8 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
     points.scale.setScalar(s * 0.9)
     // lineup: slots across the screen, the extras slide in from the right one by one
     const SLOTS = [-0.75, -0.25, 0.25, 0.75]
+    // lineup reached before the idle builds finished (e.g. a jump link): build now
+    if (state.lineup > 0.5) while (buildExtra());
     for (const e of extras) {
       // the extras only start once the hero watch has nearly reached its slot,
       // then rise into their own slots from below and from further back,
@@ -349,6 +369,7 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
   }
 
   function dispose() {
+    buildExtra = () => false // an idle build still queued must not touch a disposed scene
     stop()
     watch.dispose()
     pGeo.dispose()
