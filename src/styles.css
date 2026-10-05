@@ -444,9 +444,9 @@ em { font-style: italic; }
   cursor: pointer;
 }
 .tone-ivory .wcard-media, .dw-visual.tone-ivory { background: radial-gradient(circle at 50% 42%, #fbf8f1, #ddd5c4); }
-.tone-dark .wcard-media, .dw-visual.tone-dark { background: radial-gradient(circle at 50% 40%, #2b2a27, #0d0c0b); }
-.tone-graphite .wcard-media, .dw-visual.tone-graphite { background: radial-gradient(circle at 50% 40%, #4a4945, #1c1b19); }
-.tone-silver .wcard-media, .dw-visual.tone-silver { background: radial-gradient(circle at 50% 40%, #d4d3ce, #8f8e89); }
+.tone-dark .wcard-media, .dw-visual.tone-dark { background: radial-gradient(circle at 50% 40%, #fbfaf7, #dcd9d2); }
+.tone-graphite .wcard-media, .dw-visual.tone-graphite { background: radial-gradient(circle at 50% 40%, #f7f7f5, #d6d5d1); }
+.tone-silver .wcard-media, .dw-visual.tone-silver { background: radial-gradient(circle at 50% 40%, #f8f8f6, #d9d8d4); }
 
 .wcard-media > .watch-svg { height: 84%; width: auto; }
 .wcard:hover .wcard-media .watch-svg { transform: translateY(-3%) rotate(-6deg) scale(1.04); }
@@ -930,6 +930,10 @@ svg [class*='spin'], svg .rotor, svg .balance { transform-box: view-box; }
 .wcard-photo { position: absolute; inset: 0; filter: saturate(0.85) contrast(1.04); }
 .wcard-render { position: absolute; inset: 0; display: grid; place-items: center; grid-template-rows: minmax(0, 100%); transition: opacity 0.8s var(--ease); }
 .wcard-render .watch-svg { height: 84%; width: auto; transition: transform 1.1s var(--ease); }
+/* 3D render cover: straps fade out at the card edges, a soft shadow sits under the case */
+.wcard-img { height: 100%; width: 100%; object-fit: cover; transition: transform 1.1s var(--ease); filter: drop-shadow(0 18px 22px rgba(30, 26, 20, 0.22));
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%); }
+.wcard:hover .wcard-img { transform: translateY(-2%) rotate(-4deg) scale(1.04); }
 .wcard-media:has(.wcard-photo) .wcard-render { opacity: 0; }
 .wcard-media:has(.wcard-photo)::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 60%, rgba(12, 11, 10, 0.35)); pointer-events: none; transition: opacity 0.8s; }
 .wcard:hover .wcard-photo.is-loaded { opacity: 0; transform: scale(1.06); }

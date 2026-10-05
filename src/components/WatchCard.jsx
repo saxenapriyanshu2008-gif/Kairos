@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import WatchSVG from './WatchSVG'
-import Photo from './Photo'
+import { mediaUrl } from '../lib/media'
 import { HeartIcon, ArrowIcon } from './Icons'
 import { formatPrice } from '../data/watches'
 import { useShop } from '../store'
@@ -8,17 +9,31 @@ export default function WatchCard({ watch, index, total = 12, className = '', ne
   const { wishlist, toggleWish, setDrawer } = useShop()
   const saved = wishlist.includes(watch.id)
   const open = () => setDrawer({ type: 'product', id: watch.id })
+  // cover: a render of the 3D model (public/media/<id>-card.webp, transparent
+  // background); the drawn SVG is only used if the render cannot load
+  const [failed, setFailed] = useState(false)
 
   return (
     <article className={`wcard tone-${watch.tone} ${className}`} aria-labelledby={`wc-${watch.id}`} data-reveal>
       <div className="wcard-media" data-cursor="view" onClick={open}>
-        {/* campaign photo first; on hover the studio render of the model fades in */}
-        <Photo name={watch.id} className="wcard-photo" sizes="(max-width: 1024px) 72vw, 50vw" fallback={null} />
         <div className="wcard-render">
           <span className="wcard-ghost" aria-hidden="true">{watch.short}</span>
-          {near && <WatchSVG {...watch.look} title={`${watch.name} studio render`} />}
+          {near &&
+            (failed ? (
+              <WatchSVG {...watch.look} title={`${watch.name} studio render`} />
+            ) : (
+              <img
+                className="wcard-img"
+                src={mediaUrl(`${watch.id}-card.webp`)}
+                alt={`${watch.name}, ${watch.category.toLowerCase()}`}
+                width="800"
+                height="1000"
+                loading="lazy"
+                decoding="async"
+                onError={() => setFailed(true)}
+              />
+            ))}
         </div>
-        <span className="wcard-hint" aria-hidden="true">Campaign / Render</span>
       </div>
 
       <div className="wcard-body">
