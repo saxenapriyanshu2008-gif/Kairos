@@ -137,34 +137,6 @@ export const legalPages = [
     ],
   },
   {
-    slug: 'warranty',
-    title: 'Warranty & Service',
-    short: 'Warranty',
-    intro: 'Every KAIROS is built to last for generations. This page explains what the warranty covers and how servicing works.',
-    sections: [
-      {
-        h: 'Five-year international warranty',
-        p: ['Mechanical KAIROS watches are covered for five years from the date of purchase against defects in materials and workmanship. KAIROS PULSE is covered for two years, with one year for its battery.'],
-      },
-      {
-        h: 'What is not covered',
-        list: [
-          'Normal wear, such as scratches on the case, crystal or strap.',
-          'Damage from accidents, misuse or water entry after the crown was left open.',
-          'Repairs or battery changes made by anyone other than KAIROS or an approved service centre.',
-        ],
-      },
-      {
-        h: 'Recommended service',
-        p: ['We suggest a full service for mechanical watches every five to seven years. The movement is taken apart, cleaned, oiled, adjusted and tested for water resistance, and the case is refinished by hand.'],
-      },
-      {
-        h: 'Water resistance',
-        p: ['Check that the crown is pushed in or screwed down before swimming. We recommend a water resistance test once a year if you swim or dive with your watch.'],
-      },
-    ],
-  },
-  {
     slug: 'cookies',
     title: 'Cookie Policy',
     short: 'Cookies',
