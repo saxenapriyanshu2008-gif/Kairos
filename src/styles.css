@@ -872,6 +872,14 @@ svg [class*='spin'], svg .rotor, svg .balance { transform-box: view-box; }
   .hero-specs li + li::before { margin: 0 0.6rem; }
   .scroll-cue { display: none; }
   .hero-ctas .btn { flex: 1 1 auto; }
+  /* phones: a tighter text block leaves room above it for the watch */
+  .hero--cinema .hero-copy { gap: 1.05rem; }
+  .hero--cinema .hero-title { font-size: clamp(2.5rem, 11.5vw, 3.4rem); }
+  .hero--cinema .hero-sub { font-size: 0.95rem; }
+  .hero--cinema .hero-ctas { gap: 0.6rem; }
+  .hero--cinema .hero-ctas .btn { padding-top: 0.95rem; padding-bottom: 0.95rem; }
+  .hero-specs { margin-top: 1.6rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 1rem; }
+  .hero-specs li + li::before { content: none; }
 
   .ss-pin { grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto; align-items: stretch; padding-bottom: 2.5rem; }
   .ss-visual { grid-column: 1; grid-row: 1; height: auto; min-height: 0; }
@@ -1231,7 +1239,8 @@ body[data-route='credits'] .nav, body[data-route='legal'] .nav, body[data-route=
   .cs-contours, .cs-slim { top: calc(var(--nav-h) + 1rem); }
   .cs-slim { left: var(--gutter); right: var(--gutter); width: auto; justify-items: center; text-align: center; }
   .cs-contours, .cs-slim { padding: 0.9rem 1rem; border-radius: 6px; background: rgba(236, 235, 231, 0.82); backdrop-filter: blur(8px); }
-  .cs-lineup { bottom: auto; top: 58vh; }
+  .cs-lineup { top: auto; bottom: 4.5vh; font-size: 0.9rem; }
+  .cs-lineup span { font-size: 1.35em; }
 }
 
 /* =========================================================
