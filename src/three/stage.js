@@ -105,11 +105,11 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
   let smoke = null
   const disposeExtra = []
   if (film) {
-    // 1. lineup: three more models that fly in beside the main watch
+    // 1. lineup: three more models that fly in beside the main watch (two florals and VOID)
     const LOOKS = [
-      { model: 'noir', caseFinish: 'black', dial: 'obsidian', strap: 'blackLeather' },
+      { model: 'flora', caseFinish: 'rose', dial: 'pearl', strap: 'blushLeather' },
       { model: 'void', caseFinish: 'blue', dial: 'midnight', strap: 'steel' },
-      { model: 'elan', caseFinish: 'champagne', dial: 'ivory', strap: 'brownLeather' },
+      { model: 'jardin', caseFinish: 'champagne', dial: 'emerald', strap: 'steel' },
     ]
     LOOKS.forEach((l, k) => {
       const p = new THREE.Group()
