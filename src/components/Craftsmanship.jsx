@@ -28,7 +28,7 @@ const ITEMS = [
     alt: 'Close-up of the K-01 movement: gilt wheels, ruby jewels, blued screws and the balance wheel',
     title: 'Automatic Movement',
     line: 'Mechanical engineering at the heart of every KAIROS.',
-    detail: 'Calibre K-01: 28,800 vibrations per hour, 25 jewels and a 42-hour power reserve, wound by the motion of your wrist.',
+    detail: 'Calibre K-01: 28,800 vibrations per hour and 25 jewels, wound by the motion of your wrist.',
   },
   {
     kind: 'hand',

@@ -67,7 +67,7 @@ export function partsFor(watch) {
     ['hands', 'Hands', 'Faceted and hand-polished, filled with lume.'],
     ['dial', ...dial],
     ['case', 'Case', `${watch.specs.Case}. Water resistant to ${watch.specs.Resistance}.`],
-    ['movement', 'Calibre', `${watch.specs.Movement}: 28,800 vph, 42-hour reserve, 25 jewels.`],
+    ['movement', 'Calibre', `${watch.specs.Movement}: 28,800 vph, 25 jewels.`],
     ['caseback', 'Caseback', 'Sapphire window onto the rotor, engraved details and the founder\'s signature.'],
   ]
 }

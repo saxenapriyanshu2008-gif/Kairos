@@ -41,7 +41,6 @@ const SPECS = [
   ['Crystal', 'Sapphire, AR'],
   ['Calibre', 'K-01 automatic'],
   ['Frequency', '28,800 vph'],
-  ['Reserve', '42 hours'],
   ['Water', '100 M'],
 ]
 
@@ -425,7 +424,7 @@ export default function Cinema({ ready }) {
 
           <dl className="cs-hud" aria-hidden="true">
             {SPECS.map(([k, v], i) => (
-              <div key={k} className={(active === 0 && i < 2) || (active === 2 && i >= 2 && i < 5) || active === 3 ? 'is-on' : active === 1 && i === 1 ? 'is-on' : ''}>
+              <div key={k} className={(active === 0 && i < 2) || (active === 2 && i >= 2 && i < 4) || active === 3 ? 'is-on' : active === 1 && i === 1 ? 'is-on' : ''}>
                 <dt>{k}</dt>
                 <dd>{v}</dd>
               </div>
