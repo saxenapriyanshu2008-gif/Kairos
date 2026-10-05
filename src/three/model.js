@@ -13,12 +13,13 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 */
 
 // ---------- materials ----------
-// Matte, brushed finishes: darker base colours and higher roughness read as
-// real metal instead of the bright plastic look of a pure white chrome.
+// Polished, studio-lit metal like a luxury product photo: bright base colours,
+// mirror-polished bezel, crown and hands, finely brushed case sides.
+// The studio environment (studio.js) gives the light and dark reflections.
 export const METAL = {
-  steel: { color: '#a9aaa7', polish: '#c2c3c0' },
-  black: { color: '#2b2c31', polish: '#3a3c42' },
-  champagne: { color: '#b49a6c', polish: '#c9ad7c' },
+  steel: { color: '#c4c6c8', polish: '#e4e6e8' },
+  black: { color: '#2b2c31', polish: '#45474e' },
+  champagne: { color: '#cfb27a', polish: '#e8cd93' },
   blue: { color: '#2c4170', polish: '#3b5487' },
   gunmetal: { color: '#55565b', polish: '#6a6b70' },
 }
@@ -43,7 +44,7 @@ export const STRAPS = {
 const ROSE = '#c99273'
 
 function metalMat(hex, rough, roughnessMap = null) {
-  return new THREE.MeshStandardMaterial({ color: hex, metalness: 1, roughness: rough, roughnessMap, envMapIntensity: 0.75 })
+  return new THREE.MeshStandardMaterial({ color: hex, metalness: 1, roughness: rough, roughnessMap, envMapIntensity: 1 })
 }
 
 // Brushed-steel grain: fine streaks of varying roughness. Used as a roughness
@@ -881,15 +882,35 @@ function gearShape(r, teeth, depth, hole = 0.25, spokes = 4) {
   return s
 }
 
-function handShape(len, w, tail) {
-  const s = new THREE.Shape()
-  s.moveTo(-w * 0.8, -tail)
-  s.lineTo(-w, len * 0.82)
-  s.lineTo(0, len)
-  s.lineTo(w, len * 0.82)
-  s.lineTo(w * 0.8, -tail)
-  s.closePath()
-  return s
+// Faceted hand: a raised ridge down the middle with two sloped facets, like a
+// polished luxury hand. One facet always catches a light, the other goes dark.
+function facetedHand(len, w, tail, base = 0.006, ridge = 0.02) {
+  const L = [-w * 0.8, -tail], A = [-w, len * 0.82], T = [0, len], B = [w, len * 0.82], Rt = [w * 0.8, -tail]
+  const r0 = [0, -tail, ridge], r1 = [0, len * 0.82, ridge], tip = [0, len, base]
+  const up = (p) => [p[0], p[1], base]
+  const dn = (p) => [p[0], p[1], 0]
+  const tris = []
+  const quad = (a, b, c, d) => tris.push(a, b, c, a, c, d)
+  // top facets
+  quad(up(L), up(A), r1, r0)
+  tris.push(up(A), tip, r1)
+  quad(r0, r1, up(B), up(Rt))
+  tris.push(r1, tip, up(B))
+  // tail end cap
+  tris.push(up(Rt), r0, up(L))
+  // side walls
+  const outline = [L, A, T, B, Rt]
+  for (let i = 0; i < outline.length; i++) {
+    const p = outline[i], q = outline[(i + 1) % outline.length]
+    const pt = p === T ? tip : up(p), qt = q === T ? tip : up(q)
+    quad(dn(q), dn(p), pt, qt)
+  }
+  // bottom
+  tris.push(dn(L), dn(Rt), dn(B), dn(L), dn(B), dn(A), dn(A), dn(B), dn(T))
+  const g = new THREE.BufferGeometry()
+  g.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3))
+  g.computeVertexNormals()
+  return g
 }
 
 // strap path: leaves the lug and curves back, like a watch lying on a wrist
@@ -928,10 +949,10 @@ export function buildWatch(initialLook) {
 
   // shared materials (colors change with the look)
   const M = {
-    case: track(metalMat('#a9aaa7', 0.52, track(brushedTexture()))),
-    polish: track(metalMat('#c2c3c0', 0.3)),
-    hand: track(metalMat('#d4d4d0', 0.22)),
-    gold: track(metalMat('#c4a466', 0.3)),
+    case: track(metalMat('#c4c6c8', 0.24, track(brushedTexture()))),
+    polish: track(metalMat('#e4e6e8', 0.07)),
+    hand: track(metalMat('#e4e6e8', 0.08)),
+    gold: track(metalMat('#d4b373', 0.12)),
     // movement finishes
     brass: track(new THREE.MeshStandardMaterial({ color: '#a68a55', metalness: 1, roughness: 0.46, roughnessMap: track(snailTexture()), envMapIntensity: 0.8 })),
     plate: track(new THREE.MeshStandardMaterial({ color: '#a7a8a4', metalness: 1, roughness: 0.62, map: null, roughnessMap: null, envMapIntensity: 0.75 })),
@@ -1106,19 +1127,18 @@ export function buildWatch(initialLook) {
   dialG.add(dateGroup)
 
   // ---------- HANDS ----------
-  const ex = (shape, depth = 0.01) => track(new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 1 }))
   const hourHand = new THREE.Group()
-  hourHand.add(new THREE.Mesh(ex(handShape(0.46, 0.042, 0.1)), M.hand))
+  hourHand.add(new THREE.Mesh(track(facetedHand(0.46, 0.042, 0.1)), M.hand))
   const hl = new THREE.Mesh(track(new RoundedBoxGeometry(0.026, 0.24, 0.012, 2, 0.006)), M.lume)
-  hl.position.set(0, 0.28, 0.012)
+  hl.position.set(0, 0.28, 0.02)
   hourHand.add(hl)
   hourHand.position.z = 0.0
   const minuteHand = new THREE.Group()
-  minuteHand.add(new THREE.Mesh(ex(handShape(0.72, 0.032, 0.12)), M.hand))
+  minuteHand.add(new THREE.Mesh(track(facetedHand(0.72, 0.032, 0.12, 0.005, 0.017)), M.hand))
   const ml = new THREE.Mesh(track(new RoundedBoxGeometry(0.02, 0.44, 0.012, 2, 0.005)), M.lume)
-  ml.position.set(0, 0.42, 0.012)
+  ml.position.set(0, 0.42, 0.017)
   minuteHand.add(ml)
-  minuteHand.position.z = 0.016
+  minuteHand.position.z = 0.028
   const secondHand = new THREE.Group()
   const sh = new THREE.Mesh(track(new THREE.BoxGeometry(0.012, 0.98, 0.006)), M.gold)
   sh.position.y = 0.3
@@ -1126,9 +1146,9 @@ export function buildWatch(initialLook) {
   const cw = new THREE.Mesh(track(new THREE.CylinderGeometry(0.035, 0.035, 0.008, 24).rotateX(Math.PI / 2)), M.gold)
   cw.position.y = -0.14
   secondHand.add(cw)
-  secondHand.position.z = 0.032
-  const cap = new THREE.Mesh(track(new THREE.CylinderGeometry(0.04, 0.04, 0.05, 32).rotateX(Math.PI / 2)), M.gold)
-  cap.position.z = 0.03
+  secondHand.position.z = 0.05
+  const cap = new THREE.Mesh(track(new THREE.CylinderGeometry(0.04, 0.04, 0.066, 32).rotateX(Math.PI / 2)), M.gold)
+  cap.position.z = 0.036
   handsG.add(hourHand, minuteHand, secondHand, cap)
   // small hands for sub-dials (chronograph at 3/6/9, small seconds at 6)
   const subHands = []
@@ -1758,16 +1778,18 @@ export function buildWatch(initialLook) {
     if (!DIALS[L.dial]) L.dial = 'obsidian'
     const metal = METAL[L.caseFinish] || METAL.steel
     M.case.color.set(metal.color)
-    M.case.roughness = L.caseFinish === 'black' ? 0.6 : 0.52
+    M.case.roughness = L.caseFinish === 'black' ? 0.42 : 0.24
+    M.polish.roughness = L.caseFinish === 'black' ? 0.2 : 0.07
     M.polish.color.set(metal.polish)
     M.sCase.color.set(metal.color)
     M.sCase.roughness = M.case.roughness
     M.sPolish.color.set(metal.polish)
+    M.sPolish.roughness = M.polish.roughness
     const handMetal = L.caseFinish === 'champagne' ? METAL.champagne : METAL.steel
     // rose-gold hands on VOID and MONO, gold accents on APEX
     M.hand.color.set(L.model === 'void' || L.model === 'mono' ? ROSE : L.model === 'apex' ? '#d9c08a' : handMetal.polish)
     M.mesh.color.set(metal.color)
-    M.mesh.roughness = L.caseFinish === 'black' ? 0.45 : 0.36
+    M.mesh.roughness = L.caseFinish === 'black' ? 0.4 : 0.26
     M.lume.color.set(L.dial === 'ivory' ? '#1d1c1a' : '#f2efe6')
     M.dial.metalness = L.dial === 'ivory' ? 0.25 : 0.6
     {
