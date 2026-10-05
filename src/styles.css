@@ -1614,3 +1614,6 @@ body[data-route='credits'] .nav, body[data-route='legal'] .nav, body[data-route=
   .wty-table td:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
   .wty-table td:last-child { grid-column: 2; grid-row: 1; }
 }
+
+/* placeholder while a lazily loaded page arrives (one frame on a fast connection) */
+.page-loading { min-height: 100vh; background: var(--obsidian); }

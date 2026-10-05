@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { ShopProvider } from './store'
 import { gsap, ScrollTrigger, prefersReducedMotion } from './lib/gsap'
 
@@ -17,11 +17,12 @@ import Journal from './components/Journal'
 import CTA from './components/CTA'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
-import Credits from './components/Credits'
 import { Drawer, Search, Toast } from './components/Overlays'
-import ProductStudio from './components/ProductStudio'
-import LegalPage from './components/LegalPage'
-import WarrantyPage from './components/WarrantyPage'
+// loaded on demand: they are not needed for the first screen
+const Credits = lazy(() => import('./components/Credits'))
+const ProductStudio = lazy(() => import('./components/ProductStudio'))
+const LegalPage = lazy(() => import('./components/LegalPage'))
+const WarrantyPage = lazy(() => import('./components/WarrantyPage'))
 import { useRoute } from './lib/router'
 
 
@@ -113,11 +114,17 @@ export default function App() {
       <CustomCursor />
       <Navbar />
       {route === 'credits' ? (
-        <Credits />
+        <Suspense fallback={<main id="main" className="page-loading" />}>
+          <Credits />
+        </Suspense>
       ) : route === 'warranty' ? (
-        <WarrantyPage />
+        <Suspense fallback={<main id="main" className="page-loading" />}>
+          <WarrantyPage />
+        </Suspense>
       ) : route === 'legal' ? (
-        <LegalPage key={legalPage} slug={legalPage} />
+        <Suspense fallback={<main id="main" className="page-loading" />}>
+          <LegalPage key={legalPage} slug={legalPage} />
+        </Suspense>
       ) : (
         <main id="main">
           <Cinema ready={ready} />
@@ -135,7 +142,9 @@ export default function App() {
       )}
       <Footer />
       <Drawer />
-      <ProductStudio />
+      <Suspense fallback={null}>
+        <ProductStudio />
+      </Suspense>
       <Search />
       <Toast />
     </ShopProvider>

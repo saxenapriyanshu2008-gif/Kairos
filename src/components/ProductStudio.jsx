@@ -19,6 +19,8 @@ import ProductGallery, { slidesFor, partsFor } from './ProductGallery'
   when WebGL is not available.
 */
 
+let webglOk = null
+const hasWebgl = () => (webglOk ??= can3D())
 const can3D = () => {
   try {
     const c = document.createElement('canvas')
@@ -47,7 +49,8 @@ export default function ProductStudio() {
   const [explode, setExplode] = useState(0)
   const [slide, setSlide] = useState(0)
   const [ready, setReady] = useState(false)
-  const [webgl] = useState(can3D)
+  // checked the first time the studio opens, not on page load (it creates a WebGL context)
+  const webgl = open ? hasWebgl() : false
   const canvasRef = useRef(null)
   const labelRefs = useRef([])
   const engine = useRef(null)
