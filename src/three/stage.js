@@ -237,7 +237,7 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
     })
   }
 
-  const state = { x: 0, y: 0, z: 0, fly: 0, size: 0.6, maxW: 0.84, rx: 0, ry: 0, rz: 0, explode: 0, hideStrap: 0, ring: 0, particles: 0, tiltX: 0, tiltY: 0, opacity: 1, lineup: 0, textRing: 0, ringSpin: 0, smoke: 0 }
+  const state = { grid: 0, x: 0, y: 0, z: 0, fly: 0, size: 0.6, maxW: 0.84, rx: 0, ry: 0, rz: 0, explode: 0, hideStrap: 0, ring: 0, particles: 0, tiltX: 0, tiltY: 0, opacity: 1, lineup: 0, textRing: 0, ringSpin: 0, smoke: 0 }
 
   let w = 1
   let h = 1
@@ -276,6 +276,9 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
     points.scale.setScalar(s * 0.9)
     // lineup: slots across the screen, the extras slide in from the right one by one
     const SLOTS = [-0.75, -0.25, 0.25, 0.75]
+    // phones (state.grid): a 2 x 2 grid instead of one row, so the four watches never overlap
+    const GX = [-0.5, 0.5, -0.5, 0.5]
+    const GY = [0.5, 0.5, 0.0, 0.0]
     // lineup reached before the idle builds finished (e.g. a jump link): build now
     if (state.lineup > 0.5) while (buildExtra());
     for (const e of extras) {
@@ -287,7 +290,9 @@ export function createStage(canvas, { look, maxDpr = 1.75, onFrame, film = false
       if (!e.p.visible) continue
       const ease = 1 - Math.pow(1 - l, 3)
       e.p.scale.setScalar(s * (0.85 + 0.15 * ease))
-      e.p.position.set(SLOTS[e.slot] * halfW, state.y * halfH - (1 - ease) * 1.1 * halfH, -1.8 * (1 - ease))
+      const sx = state.grid ? GX[e.slot] * halfW : SLOTS[e.slot] * halfW
+      const sy = state.grid ? GY[e.slot] * halfH : state.y * halfH
+      e.p.position.set(sx, sy - (1 - ease) * 1.1 * halfH, -1.8 * (1 - ease))
       e.p.rotation.set(state.rx + state.tiltX + (1 - ease) * 0.6, state.ry + state.tiltY + (1 - ease) * 0.8, state.rz)
     }
     if (ringG) {
