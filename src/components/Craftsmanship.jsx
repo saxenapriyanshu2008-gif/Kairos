@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { CraftArt } from './Art'
 
 const BASE = import.meta.env.BASE_URL
@@ -39,6 +40,30 @@ const ITEMS = [
   },
 ]
 
+// the drawn fallback is only built if the photo fails to load
+function CraftMedia({ it }) {
+  const [failed, setFailed] = useState(false)
+  return (
+    <div className={`craft-media ${failed ? 'is-fallback' : ''}`} data-reveal-img>
+      <img
+        className="craft-img"
+        src={`${BASE}media/craft-${it.kind}.webp`}
+        alt={it.alt}
+        loading="lazy"
+        decoding="async"
+        width="900"
+        height="1200"
+        onError={() => setFailed(true)}
+      />
+      {failed && (
+        <div className="craft-fallback" aria-hidden="true">
+          <CraftArt kind={it.kind} />
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Craftsmanship() {
   return (
     <section id="craft" className="section craft theme-light" aria-labelledby="craft-title">
@@ -53,21 +78,7 @@ export default function Craftsmanship() {
         {ITEMS.map((it, i) => (
           <li key={it.kind} className="craft-card" data-reveal>
             <figure aria-labelledby={`craft-${it.kind}`}>
-              <div className="craft-media" data-reveal-img>
-                <img
-                  className="craft-img"
-                  src={`${BASE}media/craft-${it.kind}.webp`}
-                  alt={it.alt}
-                  loading="lazy"
-                  decoding="async"
-                  width="900"
-                  height="1200"
-                  onError={(e) => e.currentTarget.parentElement.classList.add('is-fallback')}
-                />
-                <div className="craft-fallback" aria-hidden="true">
-                  <CraftArt kind={it.kind} />
-                </div>
-              </div>
+              <CraftMedia it={it} />
               <figcaption className="craft-info">
                 <span className="craft-num">0{i + 1}</span>
                 <h3 id={`craft-${it.kind}`}>{it.title}</h3>

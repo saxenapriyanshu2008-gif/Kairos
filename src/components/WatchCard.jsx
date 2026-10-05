@@ -4,7 +4,7 @@ import { HeartIcon, ArrowIcon } from './Icons'
 import { formatPrice } from '../data/watches'
 import { useShop } from '../store'
 
-export default function WatchCard({ watch, index, total = 12, className = '' }) {
+export default function WatchCard({ watch, index, total = 12, className = '', near = true }) {
   const { wishlist, toggleWish, setDrawer } = useShop()
   const saved = wishlist.includes(watch.id)
   const open = () => setDrawer({ type: 'product', id: watch.id })
@@ -16,7 +16,7 @@ export default function WatchCard({ watch, index, total = 12, className = '' }) 
         <Photo name={watch.id} className="wcard-photo" sizes="(max-width: 1024px) 72vw, 50vw" fallback={null} />
         <div className="wcard-render">
           <span className="wcard-ghost" aria-hidden="true">{watch.short}</span>
-          <WatchSVG {...watch.look} title={`${watch.name} studio render`} />
+          {near && <WatchSVG {...watch.look} title={`${watch.name} studio render`} />}
         </div>
         <span className="wcard-hint" aria-hidden="true">Campaign / Render</span>
       </div>
