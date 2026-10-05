@@ -1980,15 +1980,43 @@ export function buildWatch(initialLook) {
       strapMeshes.push(im)
     }
     if (spec.type === 'bracelet') {
-      instanced(new RoundedBoxGeometry(0.3, 0.2, 0.11, 2, 0.035), M.sPolish, N * 2, (d, p) => {
-        d.position.set(0, p.y, p.z)
-        d.rotation.set(p.rx, 0, 0)
-      })
-      for (const sx of [-1, 1])
-        instanced(new RoundedBoxGeometry(0.33, 0.205, 0.1, 2, 0.03), M.sCase, N * 2, (d, p) => {
-          d.position.set(sx * 0.325, p.y, p.z - 0.005)
-          d.rotation.set(p.rx, 0, 0)
-        })
+      // Polished link bracelet: every link is a block with wide flat chamfers on
+      // all four edges (they catch the studio light like the real thing), the
+      // centre links sit half a link lower (brick pattern) and stand a little
+      // proud, and small gaps between links show the depth.
+      const link = (w, h, d, bev) => {
+        const sh = new THREE.Shape()
+        sh.moveTo(-w / 2 + bev, -h / 2 + bev)
+        sh.lineTo(w / 2 - bev, -h / 2 + bev)
+        sh.lineTo(w / 2 - bev, h / 2 - bev)
+        sh.lineTo(-w / 2 + bev, h / 2 - bev)
+        sh.closePath()
+        const g = new THREE.ExtrudeGeometry(sh, { depth: d - bev * 2, bevelEnabled: true, bevelThickness: bev, bevelSize: bev, bevelSegments: 1 })
+        g.translate(0, 0, -(d - bev * 2) / 2)
+        g.computeVertexNormals()
+        return g
+      }
+      const place = (geo, x, z, offset, count) => {
+        const im = new THREE.InstancedMesh(geo, M.sPolish, count)
+        let n = 0
+        for (let i = 0; i < N; i++) {
+          if (offset && i === N - 1) continue
+          for (const sign of [1, -1]) {
+            const p = strapPose(i + offset, sign, R, start)
+            dummy.position.set(x, p.y, p.z + z)
+            dummy.rotation.set(p.rx, 0, 0)
+            dummy.updateMatrix()
+            im.setMatrixAt(n++, dummy.matrix)
+          }
+        }
+        im.count = n
+        im.instanceMatrix.needsUpdate = true
+        strapG.add(im)
+        strapMeshes.push(im)
+      }
+      place(link(0.27, 0.19, 0.13, 0.035), 0, 0.012, 0.5, (N - 1) * 2) // centre links, raised and offset
+      place(link(0.34, 0.19, 0.11, 0.035), -0.315, -0.004, 0, N * 2) // outer links
+      place(link(0.34, 0.19, 0.11, 0.035), 0.315, -0.004, 0, N * 2)
     } else {
       // leather, rubber and mesh are one continuous strap per side (not segments),
       // so they bend smoothly like the real thing instead of looking like links
@@ -2233,7 +2261,10 @@ export function buildWatch(initialLook) {
     M.sCase.color.set(metal.color)
     M.sCase.roughness = M.case.roughness
     M.sPolish.color.set(metal.polish)
-    M.sPolish.roughness = M.polish.roughness
+    // bracelet links: polished, a touch softer than the bezel so the light spreads across each link
+    M.sPolish.roughness = L.caseFinish === 'black' ? 0.26 : 0.17
+    // the links face away from the camera along the curve, so they get extra studio light
+    M.sPolish.envMapIntensity = L.caseFinish === 'black' ? 1.2 : 1.9
     const handMetal = L.caseFinish === 'champagne' ? METAL.champagne : METAL.steel
     // rose-gold hands on VOID and MONO, gold accents on APEX
     const roseHands = ['void', 'mono', 'flora', 'aura'].includes(L.model) || L.caseFinish === 'rose'
